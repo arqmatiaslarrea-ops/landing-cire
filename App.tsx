@@ -11,15 +11,15 @@ import Testimonials from './components/Testimonials';
 const HubspotQualifyForm: React.FC = () => {
   useEffect(() => {
     // Evita insertar el script más de una vez
-    const existing = document.querySelector('script[src="https://js.hsforms.net/forms/embed/50584189.js"]');
+    const existing = document.querySelector(
+      'script[src="https://js.hsforms.net/forms/embed/50584189.js"]'
+    );
     if (!existing) {
       const script = document.createElement('script');
       script.src = 'https://js.hsforms.net/forms/embed/50584189.js';
       script.defer = true;
       document.body.appendChild(script);
     }
-
-    // No removemos el script al desmontar para evitar que se rompa si React re-renderiza
   }, []);
 
   return (
@@ -46,6 +46,74 @@ const HubspotQualifyForm: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  // 1) Scroll suave global (no requiere tocar CSS)
+  useEffect(() => {
+    const prev = document.documentElement.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = 'smooth';
+    return () => {
+      document.documentElement.style.scrollBehavior = prev;
+    };
+  }, []);
+
+  // 2) “Capturo” clicks de CTAs y bajo al formulario
+  useEffect(() => {
+    const scrollToForm = () => {
+      const el = document.getElementById('analizar');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    const matchesCtaText = (text: string) => {
+      const t = (text || '').toLowerCase().trim();
+
+      // Palabras clave típicas de tus CTAs
+      // (podés sumar o sacar palabras si querés)
+      const keywords = [
+        'analiz',     // analizar, analizá
+        'calific',    // calificar, califico
+        'oferta',     // oferta
+        'evalu',      // evaluar, evaluación
+        'contact',    // contacto
+        'quiero',     // quiero
+        'hablar',     // hablar
+        'llamad',     // llamada, llamame
+        'agendar',    // agendar
+        'cotizar',    // cotizar
+      ];
+
+      return keywords.some((k) => t.includes(k));
+    };
+
+    const onClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+
+      // Busco si el click fue dentro de un <a> o <button>
+      const clickable = target.closest('a,button') as HTMLElement | null;
+      if (!clickable) return;
+
+      // Si es un link explícito a #analizar, lo manejo y listo
+      if (clickable.tagName.toLowerCase() === 'a') {
+        const href = (clickable as HTMLAnchorElement).getAttribute('href') || '';
+        if (href === '#analizar' || href.endsWith('#analizar')) {
+          e.preventDefault();
+          scrollToForm();
+          return;
+        }
+      }
+
+      // Si es un botón/CTA cuyo texto coincide, también bajo al formulario
+      const text = clickable.textContent || '';
+      if (matchesCtaText(text)) {
+        e.preventDefault();
+        scrollToForm();
+      }
+    };
+
+    // Captura en fase "capture" para agarrar clicks incluso si hay handlers internos
+    document.addEventListener('click', onClick, true);
+    return () => document.removeEventListener('click', onClick, true);
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#3c4960]">
       <Header />
@@ -65,9 +133,7 @@ const App: React.FC = () => {
         </section>
 
         <Filters />
-
         <Testimonials />
-
         <Profiles />
 
         {/* Promise Section */}
@@ -98,7 +164,7 @@ const App: React.FC = () => {
           </div>
         </section>
 
-        {/* HubSpot Form (reemplaza QualifyForm) */}
+        {/* HubSpot Form */}
         <HubspotQualifyForm />
 
         <FAQ />
