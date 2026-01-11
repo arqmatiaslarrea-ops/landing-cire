@@ -1,13 +1,49 @@
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Filters from './components/Filters';
 import Profiles from './components/Profiles';
-import QualifyForm from './components/QualifyForm';
 import FAQ from './components/FAQ';
 import Footer from './components/Footer';
 import Testimonials from './components/Testimonials';
+
+// HubSpot Form Embed (reemplaza QualifyForm)
+const HubspotQualifyForm: React.FC = () => {
+  useEffect(() => {
+    // Evita insertar el script más de una vez
+    const existing = document.querySelector('script[src="https://js.hsforms.net/forms/embed/50584189.js"]');
+    if (!existing) {
+      const script = document.createElement('script');
+      script.src = 'https://js.hsforms.net/forms/embed/50584189.js';
+      script.defer = true;
+      document.body.appendChild(script);
+    }
+
+    // No removemos el script al desmontar para evitar que se rompa si React re-renderiza
+  }, []);
+
+  return (
+    <section id="analizar" className="py-20 bg-white/5 border-y border-white/10">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 className="text-3xl md:text-4xl font-black text-white text-center mb-4">
+          Analizá tu caso
+        </h2>
+        <p className="text-base md:text-lg text-slate-200 text-center mb-10">
+          Completá estos datos y te respondemos en 48 hs.
+        </p>
+
+        <div className="bg-white rounded-2xl p-6 md:p-10">
+          <div
+            className="hs-form-frame"
+            data-region="na1"
+            data-form-id="2631661a-fe4d-494c-8bbf-a9728ef2b92f"
+            data-portal-id="50584189"
+          />
+        </div>
+      </div>
+    </section>
+  );
+};
 
 const App: React.FC = () => {
   return (
@@ -15,7 +51,7 @@ const App: React.FC = () => {
       <Header />
       <main>
         <Hero />
-        
+
         {/* Social Proof Placeholder / Credibility Bar */}
         <section className="bg-white/5 py-10 border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -29,15 +65,17 @@ const App: React.FC = () => {
         </section>
 
         <Filters />
-        
+
         <Testimonials />
 
         <Profiles />
-        
+
         {/* Promise Section */}
         <section className="py-24 bg-[#3c4960] border-y border-white/5">
           <div className="max-w-5xl mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-4xl font-black text-white mb-6">Una salida realista: compra directa cuando califica.</h2>
+            <h2 className="text-3xl md:text-4xl font-black text-white mb-6">
+              Una salida realista: compra directa cuando califica.
+            </h2>
             <p className="text-xl text-[#f79d3f] mb-12">Cerramos tu venta en 45 días o menos.</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="p-6 bg-white/5 rounded-2xl border border-white/10">
@@ -60,7 +98,9 @@ const App: React.FC = () => {
           </div>
         </section>
 
-        <QualifyForm />
+        {/* HubSpot Form (reemplaza QualifyForm) */}
+        <HubspotQualifyForm />
+
         <FAQ />
       </main>
       <Footer />
