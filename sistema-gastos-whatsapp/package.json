@@ -1,0 +1,10 @@
+{
+  "name": "sistema-gastos-whatsapp",
+  "private": true,
+  "type": "commonjs",
+  "description": "Test harness local para el parser de gastos del workflow n8n (no depende de WhatsApp real)",
+  "scripts": {
+    "test": "node test/test_parser.js",
+    "server": "node test/server.js"
+  }
+}
