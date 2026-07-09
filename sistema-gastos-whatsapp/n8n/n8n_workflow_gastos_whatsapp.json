@@ -1,0 +1,456 @@
+{
+  "name": "CIRE - Carga de Gastos por WhatsApp",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "gastos-whatsapp",
+        "httpMethod": "POST",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "name": "1. Webhook - Mensaje entrante",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f4615056-e7f8-4d31-96c6-32a0d01a9301"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Nodo \"2. Extraer datos del mensaje\" — adaptado específicamente al payload real de Whapi.Cloud.\n//\n// Formato confirmado en la documentación oficial de Whapi.Cloud (Incoming Webhooks > Incoming\n// message / Groups): https://support.whapi.cloud/help-desk/receiving/webhooks/incoming-webhooks-format\n//\n// {\n//   \"messages\": [{\n//     \"id\": \"...\", \"from_me\": false, \"type\": \"text\", \"chat_id\": \"1203xxxx@g.us\",\n//     \"timestamp\": 1713791337, \"source\": \"mobile\",\n//     \"text\": { \"body\": \"...\" }, \"from\": \"5491122334455\", \"from_name\": \"Juan\"\n//   }],\n//   \"event\": { \"type\": \"messages\", \"event\": \"post\" },\n//   \"channel_id\": \"MANTIS-M72HC\"\n// }\n//\n// Corre en modo \"Run Once for Each Item\": devolver null descarta el item sin\n// pasarlo al resto del workflow (así no llega a pegarle a Google Sheets por nada).\n\nconst body = $input.item.json.body || $input.item.json;\nconst msg = body.messages?.[0];\n\n// Whapi también manda webhooks de otro tipo por la misma URL (acuses de recibo \"statuses\",\n// eventos de canal, etc.) que no traen \"messages\". Los descartamos acá.\nif (!msg) {\n  return null;\n}\n\n// \"from_me: true\" es un eco de un mensaje que mandó el propio bot (ej. la confirmación\n// \"✅ Cargado: ...\"). Sin este filtro el workflow terminaría reprocesando sus propias\n// respuestas como si fueran gastos nuevos.\nif (msg.from_me) {\n  return null;\n}\n\n// Por ahora solo procesamos texto. Fotos de comprobantes quedan para una futura\n// extensión con OCR (ver guía, sección \"Próximos pasos posibles\").\nif (msg.type !== 'text') {\n  return null;\n}\n\nconst grupoId = msg.chat_id || '';\nconst remitente = msg.from_name || msg.from || 'Desconocido';\nconst texto = msg.text?.body || '';\nconst mensajeId = msg.id || '';\n// Whapi manda el timestamp en segundos (epoch Unix, 10 dígitos).\nconst timestampRaw = msg.timestamp || Math.floor(Date.now() / 1000);\nconst fecha = new Date(Number(timestampRaw) * 1000);\n\nreturn {\n  json: {\n    grupo_id: grupoId,\n    remitente,\n    mensaje_texto: texto,\n    mensaje_id: mensajeId,\n    fecha: fecha.toISOString().slice(0, 10),\n    hora: fecha.toTimeString().slice(0, 5)\n  }\n};\n"
+      },
+      "name": "2. Extraer datos del mensaje",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        0
+      ],
+      "id": "55b032e4-6bd0-46fb-8383-bc9f4f89c2ef"
+    },
+    {
+      "parameters": {
+        "operation": "lookup",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "PEGAR_ID_DEL_GOOGLE_SHEET_ACA"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Config_Proyectos"
+        },
+        "lookupColumn": "ID_Grupo_WhatsApp",
+        "lookupValue": "={{$json.grupo_id}}",
+        "options": {}
+      },
+      "name": "3. Buscar proyecto (Config_Proyectos)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        520,
+        0
+      ],
+      "id": "d57be556-6622-4d1c-8ffb-11d41bf73572"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{$json.Activo}}",
+              "rightValue": "Sí",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "4. ¿Proyecto encontrado y activo?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        780,
+        0
+      ],
+      "id": "15f61773-fb04-4b19-8f72-05ab1d81aec0"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parsea el texto del mensaje para extraer categoría, monto y descripción.\n// Formato recomendado (el que promocionamos a los usuarios del grupo):\n//   GASTO / Categoría / Monto / Descripción\n//   Ejemplo: GASTO / Materiales / 45000 / Cemento y arena\n// Si no viene en ese formato, intenta interpretarlo en texto libre.\n\nconst rawText = $json.mensaje_texto || '';\n\nconst categorias = {\n  'Materiales': ['cemento','arena','ladrillo','hierro','caño','cano','cable','pintura','madera'],\n  'Mano de Obra': ['jornal','oficial','ayudante','cuadrilla','contratista'],\n  'Honorarios Profesionales': ['arquitecto','ingeniero','gestoria','gestoría','escribano','abogado'],\n  'Servicios': ['luz','gas','agua','internet','seguro','alquiler equipo'],\n  'Impuestos y Tasas': ['abl','ingresos brutos','tasa','municipalidad','monotributo'],\n  'Equipamiento': ['herramienta','andamio','alquiler maquina','alquiler máquina','compra equipo'],\n  'Varios': ['flete','comida obra','imprevisto','otros']\n};\n\nlet categoria = null, monto = null, descripcion = null, estado = 'OK', motivo = '';\n\n// No procesar si el mensaje está vacío o es un saludo/ruido conversacional\nif (!rawText || rawText.trim().length < 3) {\n  return { json: { ...$json, ignorar: true } };\n}\n\nconst structured = rawText.match(/^\\s*GASTO\\s*\\/\\s*([^\\/]+)\\/\\s*([\\d.,]+)\\s*\\/\\s*(.+)$/i);\n\nif (structured) {\n  categoria = structured[1].trim();\n  monto = parseFloat(structured[2].replace(/\\./g,'').replace(',','.'));\n  descripcion = structured[3].trim();\n  const catNames = Object.keys(categorias);\n  const match = catNames.find(c => c.toLowerCase() === categoria.toLowerCase());\n  if (!match) {\n    estado = 'Revisar';\n    motivo = `Categoría \"${categoria}\" no reconocida`;\n  } else {\n    categoria = match;\n  }\n} else {\n  // Solo intenta interpretar texto libre si \"parece\" un gasto (contiene un número)\n  const lower = rawText.toLowerCase();\n  const tieneNumero = /\\d/.test(lower);\n  if (!tieneNumero) {\n    return { json: { ...$json, ignorar: true } };\n  }\n  const montoMatch = lower.match(/(\\d{1,3}(?:[.,]\\d{3})+(?:[.,]\\d+)?|\\d+(?:[.,]\\d+)?)\\s*(mil|lucas|k)?/);\n  if (montoMatch) {\n    let num = parseFloat(montoMatch[1].replace(/\\./g,'').replace(',','.'));\n    if (montoMatch[2]) num *= 1000;\n    monto = num;\n  }\n  for (const [cat, keywords] of Object.entries(categorias)) {\n    if (keywords.some(k => new RegExp(`\\\\b${k.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\$&')}\\\\b`, 'i').test(lower))) { categoria = cat; break; }\n  }\n  descripcion = rawText;\n  if (!monto || !categoria) {\n    estado = 'Revisar';\n    motivo = (!monto && !categoria) ? 'No se detectó monto ni categoría'\n             : (!monto ? 'No se detectó un monto claro' : 'No se detectó una categoría reconocida');\n    categoria = categoria || 'Varios';\n    monto = monto || 0;\n  }\n}\n\nreturn {\n  json: {\n    ...$json,\n    ignorar: false,\n    categoria,\n    monto,\n    descripcion,\n    estado,\n    motivo_revision: motivo\n  }\n};\n"
+      },
+      "name": "5. Parsear gasto",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        -120
+      ],
+      "id": "25252afc-4c9b-449d-8e49-35730bcbac54"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "PEGAR_ID_DEL_GOOGLE_SHEET_ACA"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Mapeo_Grupos_Log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Fecha": "={{$json.fecha}}",
+            "Hora": "={{$json.hora}}",
+            "ID_Grupo_WhatsApp": "={{$json.grupo_id}}",
+            "Remitente": "={{$json.remitente}}",
+            "Mensaje_Original": "={{$json.mensaje_texto}}",
+            "Motivo": "Grupo no configurado o inactivo en Config_Proyectos"
+          }
+        },
+        "options": {}
+      },
+      "name": "4b. Guardar en Log (grupo no configurado)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        1040,
+        200
+      ],
+      "id": "1cc5b005-01c8-4cbc-9e64-1dbcc7e7679b"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://gate.whapi.cloud/messages/text",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "to",
+              "value": "={{$json.grupo_id}}"
+            },
+            {
+              "name": "body",
+              "value": "⚠️ Este grupo todavía no está vinculado a ningún proyecto. Avisale a Mati para que lo configure en la hoja Config_Proyectos."
+            }
+          ]
+        },
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "name": "5b. Avisar: grupo no configurado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1300,
+        200
+      ],
+      "id": "3754dad6-9952-4de8-b807-4d9f383884b1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{$json.ignorar}}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "6. ¿Ignorar mensaje?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        -120
+      ],
+      "id": "2a8e8274-980c-4e5c-8be2-5634e7bfdd11"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "PEGAR_ID_DEL_GOOGLE_SHEET_ACA"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Gastos"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID_Gasto": "={{'G' + Date.now()}}",
+            "Fecha": "={{$json.fecha}}",
+            "Hora": "={{$json.hora}}",
+            "ID_Proyecto": "={{$json.ID_Proyecto}}",
+            "Categoría": "={{$json.categoria}}",
+            "Monto": "={{$json.monto}}",
+            "Descripción": "={{$json.descripcion}}",
+            "Remitente": "={{$json.remitente}}",
+            "Grupo_Origen": "={{$json.grupo_id}}",
+            "Mensaje_Original": "={{$json.mensaje_texto}}",
+            "Estado": "={{$json.estado}}",
+            "Revisar": "={{$json.motivo_revision}}"
+          }
+        },
+        "options": {}
+      },
+      "name": "7. Guardar gasto en Gastos",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        1560,
+        -220
+      ],
+      "id": "bb12cb46-3348-49c1-8025-063ae745add6"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{$json.estado}}",
+              "rightValue": "OK",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "8. ¿Estado OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1820,
+        -220
+      ],
+      "id": "cc71597b-789e-4ad3-8e2a-be15d18905e6"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://gate.whapi.cloud/messages/text",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "to",
+              "value": "={{$json.grupo_id}}"
+            },
+            {
+              "name": "body",
+              "value": "={{'✅ Cargado: $' + $json.monto.toLocaleString('es-AR') + ' - ' + $json.categoria + ' - ' + $json.descripcion}}"
+            }
+          ]
+        },
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "name": "9a. Confirmar carga",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        2080,
+        -320
+      ],
+      "id": "aa6d96b3-6ba9-41b1-a52e-52faab352fac"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://gate.whapi.cloud/messages/text",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "to",
+              "value": "={{$json.grupo_id}}"
+            },
+            {
+              "name": "body",
+              "value": "={{'🟡 Cargué esto pero no estoy seguro: $' + $json.monto.toLocaleString('es-AR') + ' - ' + $json.categoria + ' - ' + $json.descripcion + '. Motivo: ' + $json.motivo_revision + '. Si está mal, corregilo directo en la hoja Gastos.'}}"
+            }
+          ]
+        },
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "name": "9b. Pedir confirmación (revisar)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        2080,
+        -120
+      ],
+      "id": "12698a4d-0200-4047-ad0e-07f3f1a84bb1"
+    }
+  ],
+  "connections": {
+    "1. Webhook - Mensaje entrante": {
+      "main": [
+        [
+          {
+            "node": "2. Extraer datos del mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Extraer datos del mensaje": {
+      "main": [
+        [
+          {
+            "node": "3. Buscar proyecto (Config_Proyectos)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. Buscar proyecto (Config_Proyectos)": {
+      "main": [
+        [
+          {
+            "node": "4. ¿Proyecto encontrado y activo?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4. ¿Proyecto encontrado y activo?": {
+      "main": [
+        [
+          {
+            "node": "5. Parsear gasto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "4b. Guardar en Log (grupo no configurado)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4b. Guardar en Log (grupo no configurado)": {
+      "main": [
+        [
+          {
+            "node": "5b. Avisar: grupo no configurado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5. Parsear gasto": {
+      "main": [
+        [
+          {
+            "node": "6. ¿Ignorar mensaje?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "6. ¿Ignorar mensaje?": {
+      "main": [
+        [],
+        [
+          {
+            "node": "7. Guardar gasto en Gastos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "7. Guardar gasto en Gastos": {
+      "main": [
+        [
+          {
+            "node": "8. ¿Estado OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "8. ¿Estado OK?": {
+      "main": [
+        [
+          {
+            "node": "9a. Confirmar carga",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "9b. Pedir confirmación (revisar)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "instructions": "Workflow ajustado para Whapi.Cloud (ver /sistema-gastos-whatsapp/docs/gateway-comparativa.md). Antes de activar: 1) reemplazar PEGAR_ID_DEL_GOOGLE_SHEET_ACA por el ID real del Google Sheet en los 3 nodos de Google Sheets, 2) conectar credenciales de Google Sheets (OAuth), 3) en los nodos '5b', '9a' y '9b' la URL de envio ya esta precargada (https://gate.whapi.cloud/messages/text) - solo falta crear una credencial 'Header Auth' con Name=Authorization y Value='Bearer TU_TOKEN_DE_WHAPI' y asignarla en cada uno de esos 3 nodos, 4) copiar la Production URL del nodo Webhook y pegarla en el panel de Whapi.Cloud, seccion Webhooks. El nodo '2. Extraer datos del mensaje' ya esta escrito especificamente para el payload real de Whapi.Cloud (confirmado contra su documentacion oficial) - no requiere ajustes."
+  }
+}
