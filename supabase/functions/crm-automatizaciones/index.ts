@@ -129,8 +129,14 @@ async function avisoTanda() {
     .sort((a: any, b: any) => b.temperatura - a.temperatura).slice(0, 5);
   const wa = (t: string) => { let d = String(t).replace(/\D/g, ""); if (d.length === 10) d = "549" + d; return `https://wa.me/${d}`; };
   const filas = tanda.map((r: any, i: number) => `<tr><td style="padding:6px 10px 6px 0"><b>${i + 1}. ${r.nombre}</b><br><span style="color:#5f6b6f">${r.situacion || ""} ${r.barrio ? "· " + r.barrio : ""}</span></td><td><a href="${wa(r.telefono)}">WhatsApp</a> · <a href="${CRM}/contactos/${r.contact_id}">Ficha</a></td></tr>`).join("");
+  // Alertas del día (desvíos contra el Cerebro y seguimiento de leads) y compradores nuevos de campañas
+  const hoy = new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10);
+  const { data: alertas } = await sb.from("crm_notificaciones").select("tipo,titulo,detalle,link").in("para", ["mati", "todos"]).gte("created_at", hoy + "T00:00:00-03:00").order("tipo");
+  const { count: compr } = await sb.from("crm_relations").select("id", { count: "exact", head: true }).eq("embudo", "compradores").eq("etapa", "nuevo").neq("estado", "descartado");
+  const bloqueAlertas = (alertas || []).length ? `<h3 style="margin:18px 0 6px">Alertas de hoy</h3><ul>${(alertas || []).map((a: any) => `<li><b>${esc(a.titulo)}</b>${a.detalle ? `<br><span style="color:#5f6b6f">${esc(a.detalle)}</span>` : ""}${a.link ? ` <a href="${CRM}${a.link}">Abrir</a>` : ""}</li>`).join("")}</ul>` : "";
+  const bloqueCompr = compr ? `<p>Compradores de campañas sin contactar: <b>${compr}</b>. <a href="${CRM}/compradores">Ver compradores</a></p>` : "";
   const mati = await emailDe("mati");
-  if (mati && tanda.length) await mail(mati, "Tu tanda de prospección de hoy (9 a 11)", envolver(`<p>Buen día. Estos son los 5 recontactos de hoy, ordenados por temperatura:</p><table>${filas}</table><p>La tanda completa de WhatsApp (vendedores e inmobiliarias) está en <a href="${CRM}/tanda">Tanda de WhatsApp</a>. Registrá cada gestión en <a href="${CRM}">Mi día</a>. Recordá: si no hubo número, no cuenta como oferta.</p>`));
+  if (mati && (tanda.length || bloqueAlertas)) await mail(mati, "Seguimiento de hoy: tanda, alertas y compradores", envolver(`<p>Buen día. Estos son los 5 recontactos de hoy, ordenados por temperatura:</p><table>${filas}</table><p>La tanda completa de WhatsApp (vendedores e inmobiliarias) está en <a href="${CRM}/tanda">Tanda de WhatsApp</a>. Registrá cada gestión en <a href="${CRM}">Mi día</a>. Recordá: si no hubo número, no cuenta como oferta.</p>${bloqueCompr}${bloqueAlertas}`));
 }
 
 // ---------- Reporte semanal (solo a Mati) ----------

@@ -1,3 +1,4 @@
+import Descartar from "../componentes/Descartar";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase, waLink } from "../config";
@@ -77,6 +78,7 @@ export default function Tanda() {
                 <div className="item-acc">
                   <span className={`temp ${nivelTemp(r.temperatura)}`}>{r.temperatura}</span>
                   {wa && opera && <a href={wa} target="_blank" rel="noreferrer" onClick={() => !ya && marcarLead(r)}><button className="chico">{ya ? "Enviado" : "Enviar"}</button></a>}
+                  {opera && <Descartar relationId={r.id} nombre={nombre1(r.nombre)} alCambiar={() => setLeads((l) => l.filter((x) => x.id !== r.id))} />}
                 </div>
               </div>
             );

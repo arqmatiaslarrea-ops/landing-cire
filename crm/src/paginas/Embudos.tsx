@@ -1,6 +1,7 @@
+import Descartar from "../componentes/Descartar";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { EMBUDOS, UNIDADES, supabase } from "../config";
+import { EMBUDOS, PROXIMO_HITO, UNIDADES, supabase } from "../config";
 import { puedeOperar, useYo } from "../main";
 import Temperatura, { hace, nivelTemp } from "../componentes/Temperatura";
 import Registro, { type ContextoRegistro } from "../componentes/Registro";
@@ -93,6 +94,8 @@ export default function Embudos() {
                     {puede && <select className="carta-mover" aria-label="Mover a otra etapa" value={r.etapa} onChange={(e) => mover(r.id, e.target.value)}>
                       {etapas.map((x) => <option key={x.id} value={x.id}>{x.id === r.etapa ? `Etapa: ${x.nombre}` : `Mover a ${x.nombre}`}</option>)}
                     </select>}
+                    {!et.cierre && PROXIMO_HITO[embudoId]?.[r.etapa] && <div className="carta-hito">{PROXIMO_HITO[embudoId][r.etapa]}</div>}
+                    {puede && !et.cierre && <div style={{ marginTop: 6 }}><Descartar relationId={r.id} nombre={r.nombre.split(" ")[0]} alCambiar={cargar} /></div>}
                     {puede && <button className="chico carta-btn" onClick={() => setRegistro({ contactId: r.contact_id, nombre: r.nombre, telefono: r.telefono, relaciones: [{ id: r.id, unidad: r.unidad, embudo: r.embudo }] })}>Registrar gestión</button>}
                   </div>
                 );

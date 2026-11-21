@@ -19,6 +19,10 @@ import Gremios from "./paginas/Gremios";
 import Tanda from "./paginas/Tanda";
 import Agenda from "./paginas/Agenda";
 import Cerebro from "./paginas/Cerebro";
+import Compradores from "./paginas/Compradores";
+import Campanas from "./paginas/Campanas";
+import Directorio from "./paginas/Directorio";
+import Notificaciones from "./componentes/Notificaciones";
 
 export type Yo = { email: string; nombre: string; clave: string; unidades: Unidad[]; admin: boolean };
 const YoCtx = createContext<Yo | null>(null);
@@ -114,6 +118,7 @@ function App() {
           <aside>
             <div className="marca">CIRE <span>Holding</span></div>
             <Buscador />
+            <Notificaciones />
             <nav>
               <span className="nav-grupo">Mi trabajo</span>
               <NavLink to="/" end>Mi día</NavLink>
@@ -122,14 +127,17 @@ function App() {
               <NavLink to="/reuniones">Reuniones</NavLink>
               <span className="nav-grupo">Ventas</span>
               <NavLink to="/embudos">Embudos</NavLink>
+              <NavLink to="/compradores">Compradores</NavLink>
               <NavLink to="/contactos">Contactos</NavLink>
               <NavLink to="/ofertas">Ofertas · Plan 260</NavLink>
               <span className="nav-grupo">Activos y red</span>
               <NavLink to="/propiedades">Propiedades</NavLink>
               <NavLink to="/inmobiliarias">Inmobiliarias</NavLink>
               <NavLink to="/gremios">Gremios</NavLink>
+              <NavLink to="/directorio">Directorio</NavLink>
               <span className="nav-grupo">Marketing</span>
               <NavLink to="/listas">Listas y eventos</NavLink>
+              <NavLink to="/campanas">Campañas</NavLink>
               <NavLink to="/seguimiento">Seguimiento automático</NavLink>
               <span className="nav-grupo">Resultados</span>
               <NavLink to="/tablero">Tablero</NavLink>
@@ -159,6 +167,9 @@ function App() {
               <Route path="/tanda" element={<Tanda />} />
               <Route path="/agenda" element={<Agenda />} />
               <Route path="/cerebro" element={<Cerebro />} />
+              <Route path="/compradores" element={<Compradores />} />
+              <Route path="/campanas" element={<Campanas />} />
+              <Route path="/directorio" element={<Directorio />} />
               <Route path="*" element={<div className="tarjeta"><h1>Esta página no existe</h1><p className="sub">Volvé a <NavLink to="/">Mi día</NavLink>.</p></div>} />
             </Routes>
           </main>

@@ -1,7 +1,8 @@
+import Descartar from "../componentes/Descartar";
 import Inmueble from "../componentes/Inmueble";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { EMBUDOS, PERFILES, UNIDADES, etiqueta, fecha, supabase, waLink, type Perfil, type Unidad } from "../config";
+import { EMBUDOS, PERFILES, PROXIMO_HITO, UNIDADES, etiqueta, fecha, supabase, waLink, type Perfil, type Unidad } from "../config";
 import { puedeOperar, useYo } from "../main";
 import Registro from "../componentes/Registro";
 import Descubrimiento from "../componentes/Descubrimiento";
@@ -155,6 +156,8 @@ export default function Ficha() {
                     <input disabled={!puede} style={{ flex: 1 }} placeholder="Próximo paso" defaultValue={r.proximo_paso || ""} onBlur={(e) => e.target.value !== (r.proximo_paso || "") && actualizarRel(r, { proximo_paso: e.target.value || null })} />
                     <input disabled={!puede} type="date" defaultValue={r.proximo_paso_fecha?.slice(0, 10) || ""} onChange={(e) => actualizarRel(r, { proximo_paso_fecha: e.target.value || null })} />
                   </div>
+                  {r.estado !== "descartado" && PROXIMO_HITO[r.embudo]?.[r.etapa] && <div className="hito"><b>Próximo hito:</b> {PROXIMO_HITO[r.embudo][r.etapa]}</div>}
+                  {puede && <div style={{ marginTop: 6 }}><Descartar relationId={r.id} nombre={c.nombre.split(" ")[0]} descartado={r.estado === "descartado"} alCambiar={cargar} /></div>}
                   {!puede && <small className="sub">Solo lectura: no operás esta unidad.</small>}
                 </div>
               );

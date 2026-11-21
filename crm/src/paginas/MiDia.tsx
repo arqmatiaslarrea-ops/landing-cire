@@ -1,3 +1,4 @@
+import Descartar from "../componentes/Descartar";
 import CarteraSinAtender from "../componentes/CarteraSinAtender";
 import { Fragment } from "react";
 import { useEffect, useState } from "react";
@@ -119,6 +120,7 @@ export default function MiDia() {
                   <div className="item-acc">
                     {waLink(r.telefono) && <a href={waLink(r.telefono, `Hola ${r.nombre.split(" ")[0]}, te escribo de CIRE por la consulta que dejaste.`)!} target="_blank" rel="noreferrer"><button className="chico">WhatsApp</button></a>}
                     <button className="chico primario" onClick={() => abrir(r.contact_id, r.nombre, r.telefono, undefined, "llamada", r)}>Registrar</button>
+                    <Descartar relationId={r.id} nombre={r.nombre.split(" ")[0]} alCambiar={cargar} />
                   </div>
                 </div>
               ))}
@@ -148,6 +150,7 @@ export default function MiDia() {
                 <div className="item-acc">
                   <Temperatura t={r.temperatura} />
                   {waLink(r.telefono) && <a href={waLink(r.telefono)!} target="_blank" rel="noreferrer"><button className="chico">WhatsApp</button></a>}
+                  <Descartar relationId={r.id} nombre={r.nombre.split(" ")[0]} alCambiar={cargar} />
                   <button className="chico primario" onClick={() => abrir(r.contact_id, r.nombre, r.telefono, undefined, "llamada", r)}>Registrar</button>
                 </div>
               </div>
