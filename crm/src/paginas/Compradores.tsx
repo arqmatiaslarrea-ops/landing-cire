@@ -116,9 +116,9 @@ export default function Compradores() {
           <p>Cada persona que dejó sus datos en una campaña, agrupada por el inmueble que consultó. Los nuevos entran solos desde los formularios de Meta.</p>
         </div>
         <div className="compr-hero-num">
-          <div><b>{g.activos}</b><span>compradores activos</span></div>
+          <div><b>{g.activos}</b><span>consultas activas</span></div>
           <div><b>{g.cierre}</b><span>listos y con capital</span></div>
-          <div><b className={g.sinTocar ? "naranja" : ""}>{g.sinTocar}</b><span>sin contactar</span></div>
+          <div><b className={g.sinTocar ? "naranja" : ""}>{g.sinTocar}</b><span>consultas sin contactar</span></div>
           <div><b>{g.semana}</b><span>nuevos esta semana</span></div>
         </div>
       </div>
