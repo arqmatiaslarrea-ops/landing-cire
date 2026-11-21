@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, NavLink, Route, Routes, useNavigate } from "react-router-dom";
+import { BrowserRouter, NavLink, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { supabase, UNIDADES, type Unidad } from "./config";
 import "./estilos.css";
 import Inicio from "./paginas/Inicio";
@@ -54,12 +54,116 @@ function Login() {
   );
 }
 
+// Navegación: lateral fija en compu; en celular, barra inferior con lo diario y un menú completo.
+const MENU: [string, [string, string][]][] = [
+  ["Mi trabajo", [["/", "Mi día"], ["/agenda", "Agenda"], ["/tanda", "Tanda de WhatsApp"], ["/reuniones", "Reuniones"]]],
+  ["Ventas", [["/embudos", "Embudos"], ["/compradores", "Compradores"], ["/contactos", "Contactos"], ["/ofertas", "Ofertas · Plan 260"]]],
+  ["Activos y red", [["/propiedades", "Propiedades"], ["/inmobiliarias", "Inmobiliarias"], ["/gremios", "Gremios"], ["/directorio", "Directorio"]]],
+  ["Marketing", [["/listas", "Listas y eventos"], ["/campanas", "Campañas"], ["/seguimiento", "Seguimiento automático"]]],
+  ["Resultados", [["/tablero", "Tablero"], ["/cerebro", "Cerebro"]]],
+];
+const BARRA: [string, string, string][] = [["/", "Mi día", "M3 12l9-8 9 8M5 10v10h14V10"], ["/agenda", "Agenda", "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4"], ["/embudos", "Embudos", "M4 5h16l-6 8v6l-4-2v-4z"], ["/contactos", "Contactos", "M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0"]];
+
+function useMovil() {
+  const [m, setM] = useState(() => window.matchMedia("(max-width: 820px)").matches);
+  useEffect(() => { const q = window.matchMedia("(max-width: 820px)"); const f = () => setM(q.matches); q.addEventListener("change", f); return () => q.removeEventListener("change", f); }, []);
+  return m;
+}
+
+function Lateral({ yo, alCambiarClave }: { yo: Yo; alCambiarClave: () => void }) {
+  const [abierto, setAbierto] = useState(false);
+  const movil = useMovil();
+  const loc = useLocation();
+  useEffect(() => { setAbierto(false); window.scrollTo(0, 0); }, [loc.pathname]);
+  useEffect(() => { document.body.style.overflow = abierto ? "hidden" : ""; }, [abierto]);
+  return (
+    <>
+      <aside className={abierto ? "abierto" : ""}>
+        <div className="lateral-cab">
+          <div className="marca">CIRE <span>Holding</span></div>
+          <button className="icono lateral-cerrar" onClick={() => setAbierto(false)} aria-label="Cerrar menú">✕</button>
+        </div>
+        <Buscador />
+        {!movil && <Notificaciones />}
+        <nav>
+          {MENU.map(([grupo, items]) => (
+            <React.Fragment key={grupo}>
+              <span className="nav-grupo">{grupo}</span>
+              {items.map(([to, txt]) => <NavLink key={to} to={to} end={to === "/"}>{txt}</NavLink>)}
+            </React.Fragment>
+          ))}
+        </nav>
+        <div className="usuario">
+          <strong>{yo.nombre}</strong>
+          <small>{yo.admin ? "Todas las unidades" : yo.unidades.map((u) => UNIDADES[u]).join(" · ")}</small>
+          <div className="fila"><button className="link" onClick={alCambiarClave}>Cambiar contraseña</button><button className="link" onClick={() => supabase.auth.signOut()}>Salir</button></div>
+        </div>
+      </aside>
+      <header className="movil-cab">
+        <div className="marca">CIRE <span>Holding</span></div>
+        {movil && <Notificaciones />}
+      </header>
+      <nav className="movil-barra" aria-label="Navegación principal">
+        {BARRA.map(([to, txt, d]) => (
+          <NavLink key={to} to={to} end={to === "/"}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d={d} /></svg><span>{txt}</span>
+          </NavLink>
+        ))}
+        <button className={abierto ? "active" : ""} onClick={() => setAbierto(!abierto)} aria-expanded={abierto}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg><span>Más</span>
+        </button>
+      </nav>
+    </>
+  );
+}
+
+// Búsqueda global instantánea: contactos, propiedades e inmobiliarias. "/" la enfoca desde cualquier pantalla.
 function Buscador() {
   const nav = useNavigate();
   const [q, setQ] = useState("");
+  const [res, setRes] = useState<{ tipo: string; id: string; titulo: string; sub: string; to: string }[]>([]);
+  const [activo, setActivo] = useState(0);
+  const [foco, setFoco] = useState(false);
+  const ref = React.useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const f = (e: KeyboardEvent) => { const t = e.target as HTMLElement; if (e.key === "/" && !/INPUT|TEXTAREA|SELECT/.test(t.tagName) && !t.isContentEditable) { e.preventDefault(); ref.current?.focus(); } };
+    window.addEventListener("keydown", f); return () => window.removeEventListener("keydown", f);
+  }, []);
+  useEffect(() => {
+    const t = q.trim(); if (t.length < 2) { setRes([]); return; }
+    const like = `%${t.replace(/[%,()]/g, " ")}%`;
+    const h = setTimeout(async () => {
+      const [c, p, o] = await Promise.all([
+        supabase.from("crm_contacts").select("id,nombre,telefono,email").or(`nombre.ilike.${like},telefono.ilike.${like},email.ilike.${like}`).limit(6),
+        supabase.from("crm_propiedades").select("id,direccion,barrio").ilike("direccion", like).limit(4),
+        supabase.from("crm_organizaciones").select("id,nombre,barrio").ilike("nombre", like).limit(4),
+      ]);
+      setActivo(0);
+      setRes([
+        ...(c.data || []).map((x: any) => ({ tipo: "Contacto", id: x.id, titulo: x.nombre, sub: x.telefono || x.email || "", to: `/contactos/${x.id}` })),
+        ...(p.data || []).map((x: any) => ({ tipo: "Propiedad", id: x.id, titulo: x.direccion, sub: x.barrio || "", to: `/propiedades/${x.id}` })),
+        ...(o.data || []).map((x: any) => ({ tipo: "Inmobiliaria", id: x.id, titulo: x.nombre, sub: x.barrio || "", to: `/inmobiliarias?id=${x.id}` })),
+      ]);
+    }, 220);
+    return () => clearTimeout(h);
+  }, [q]);
+  const ir = (to: string) => { nav(to); setQ(""); setRes([]); ref.current?.blur(); };
   return (
-    <form className="buscador" onSubmit={(e) => { e.preventDefault(); nav(`/contactos?q=${encodeURIComponent(q)}`); setQ(""); }}>
-      <input type="search" placeholder="Buscar contacto…" value={q} onChange={(e) => setQ(e.target.value)} />
+    <form className="buscador" role="search" onSubmit={(e) => { e.preventDefault(); if (res[activo]) ir(res[activo].to); else if (q.trim()) ir(`/contactos?q=${encodeURIComponent(q)}`); }}>
+      <input ref={ref} type="search" placeholder="Buscar…  ( / )" value={q} onChange={(e) => setQ(e.target.value)} onFocus={() => setFoco(true)} onBlur={() => setTimeout(() => setFoco(false), 150)}
+        onKeyDown={(e) => { if (e.key === "ArrowDown") { e.preventDefault(); setActivo((a) => Math.min(a + 1, res.length - 1)); } if (e.key === "ArrowUp") { e.preventDefault(); setActivo((a) => Math.max(a - 1, 0)); } if (e.key === "Escape") { setQ(""); ref.current?.blur(); } }}
+        aria-label="Buscar contactos, propiedades o inmobiliarias" autoComplete="off" />
+      {foco && q.trim().length >= 2 && (
+        <div className="buscador-res" role="listbox">
+          {res.map((r, i) => (
+            <button type="button" key={r.tipo + r.id} className={i === activo ? "activo" : ""} onMouseDown={(e) => e.preventDefault()} onClick={() => ir(r.to)} role="option" aria-selected={i === activo}>
+              <span>{r.titulo}</span><small>{r.tipo}{r.sub ? ` · ${r.sub}` : ""}</small>
+            </button>
+          ))}
+          {!res.length && <p>Sin resultados para "{q.trim()}".</p>}
+          <button type="button" className="buscador-todos" onMouseDown={(e) => e.preventDefault()} onClick={() => ir(`/contactos?q=${encodeURIComponent(q)}`)}>Ver todos los contactos que coinciden</button>
+        </div>
+      )}
     </form>
   );
 }
@@ -115,40 +219,7 @@ function App() {
     <YoCtx.Provider value={yo}>
       <BrowserRouter>
         <div className="app">
-          <aside>
-            <div className="marca">CIRE <span>Holding</span></div>
-            <Buscador />
-            <Notificaciones />
-            <nav>
-              <span className="nav-grupo">Mi trabajo</span>
-              <NavLink to="/" end>Mi día</NavLink>
-              <NavLink to="/agenda">Agenda</NavLink>
-              <NavLink to="/tanda">Tanda de WhatsApp</NavLink>
-              <NavLink to="/reuniones">Reuniones</NavLink>
-              <span className="nav-grupo">Ventas</span>
-              <NavLink to="/embudos">Embudos</NavLink>
-              <NavLink to="/compradores">Compradores</NavLink>
-              <NavLink to="/contactos">Contactos</NavLink>
-              <NavLink to="/ofertas">Ofertas · Plan 260</NavLink>
-              <span className="nav-grupo">Activos y red</span>
-              <NavLink to="/propiedades">Propiedades</NavLink>
-              <NavLink to="/inmobiliarias">Inmobiliarias</NavLink>
-              <NavLink to="/gremios">Gremios</NavLink>
-              <NavLink to="/directorio">Directorio</NavLink>
-              <span className="nav-grupo">Marketing</span>
-              <NavLink to="/listas">Listas y eventos</NavLink>
-              <NavLink to="/campanas">Campañas</NavLink>
-              <NavLink to="/seguimiento">Seguimiento automático</NavLink>
-              <span className="nav-grupo">Resultados</span>
-              <NavLink to="/tablero">Tablero</NavLink>
-              <NavLink to="/cerebro">Cerebro</NavLink>
-            </nav>
-            <div className="usuario">
-              <strong>{yo.nombre}</strong>
-              <small>{yo.admin ? "Todas las unidades" : yo.unidades.map((u) => UNIDADES[u]).join(" · ")}</small>
-              <div className="fila"><button className="link" onClick={() => setClave(true)}>Cambiar contraseña</button><button className="link" onClick={() => supabase.auth.signOut()}>Salir</button></div>
-            </div>
-          </aside>
+          <Lateral yo={yo} alCambiarClave={() => setClave(true)} />
           <main>
             <Routes>
               <Route path="/" element={<MiDia />} />

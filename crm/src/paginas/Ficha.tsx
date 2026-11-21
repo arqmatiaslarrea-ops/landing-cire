@@ -8,6 +8,17 @@ import Registro from "../componentes/Registro";
 import Descubrimiento from "../componentes/Descubrimiento";
 import Temperatura, { hace } from "../componentes/Temperatura";
 
+// Datos que trajo el formulario o la planilla vieja, con nombres legibles. Lo que ya está en el bloque Inmueble no se repite.
+const EN_INMUEBLE = new Set(["direccion", "barrio", "tamanio_m2", "precio_pretendido", "tipo_propiedad", "ambientes", "situacion", "urgencia"]);
+const NOMBRES_DATO: Record<string, string> = { paga_expensas: "Paga expensas", info_adicional: "Info adicional", expectativa_precio: "Expectativa de precio", capital: "Capital disponible", experiencia: "Experiencia", zonas: "Zonas de interés", ticket: "Ticket" };
+const vacio = (v: unknown) => v === null || v === undefined || v === "" || /^(no especificado|null|undefined|-)$/i.test(String(v).trim());
+function datosPerfil(perfil: string, datos: Record<string, unknown> | null) {
+  return Object.entries(datos || {})
+    .filter(([k, v]) => !vacio(v) && !/^consent/i.test(k) && !(perfil === "vendedor_motivado" && EN_INMUEBLE.has(k)))
+    .map(([k, v]) => [NOMBRES_DATO[k] || etiqueta(k).replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase()), v === true || v === "true" ? "Sí" : v === false || v === "false" ? "No" : String(v)] as [string, string]);
+}
+const persona = (clave?: string | null) => (!clave ? "—" : clave === "sistema" ? "Sistema" : clave.split(/[_.\s]/).map((x) => x.charAt(0).toUpperCase() + x.slice(1)).join(" "));
+
 export default function Ficha() {
   const { id } = useParams();
   const yo = useYo();
@@ -16,6 +27,11 @@ export default function Ficha() {
   const [rels, setRels] = useState<any[]>([]);
   const [acts, setActs] = useState<any[]>([]);
   const [nota, setNota] = useState("");
+  const [verImportados, setVerImportados] = useState(false);
+  // Las importaciones de planillas viejas se repiten mucho: mostramos la más reciente y el resto a pedido
+  const importados = acts.filter((a) => a.tipo === "importado").length;
+  const primerImport = acts.find((a) => a.tipo === "importado")?.id;
+  const actsVis = verImportados ? acts : acts.filter((a) => a.tipo !== "importado" || a.id === primerImport);
   const [notaUnidad, setNotaUnidad] = useState<Unidad | "">("");
   const [nuevoPerfil, setNuevoPerfil] = useState("");
   const [tareas, setTareas] = useState<any[]>([]);
@@ -118,14 +134,15 @@ export default function Ficha() {
               }}>+ Crear propiedad de este vendedor</button>
             </>
           )}
-          {perfiles.map((p) => (
-            <div key={p.perfil}>
-              <h2>{PERFILES[p.perfil as Perfil]}</h2>
-              <dl className="datos">
-                {Object.entries(p.datos || {}).map(([k, v]) => <div key={k}><dt>{etiqueta(k)}</dt><dd>{String(v)}</dd></div>)}
-              </dl>
-            </div>
-          ))}
+          {perfiles.map((p) => {
+            const filas = datosPerfil(p.perfil, p.datos);
+            return (
+              <details key={p.perfil} className="perfil-datos" open={p.perfil !== "vendedor_motivado" && filas.length <= 6}>
+                <summary>{PERFILES[p.perfil as Perfil]} <small className="sub">{filas.length ? `${filas.length} datos del formulario` : "sin datos extra"}</small></summary>
+                {filas.length > 0 && <dl className="datos">{filas.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>}
+              </details>
+            );
+          })}
           <div className="fila" style={{ marginTop: 14 }}>
             <select value={nuevoPerfil} onChange={(e) => setNuevoPerfil(e.target.value)}>
               <option value="">Etiquetar otro perfil…</option>
@@ -143,14 +160,14 @@ export default function Ficha() {
               const puede = puedeOperar(yo, r.unidad);
               return (
                 <div key={r.id} style={{ borderBottom: "1px solid var(--linea)", padding: "10px 0" }}>
-                  <strong>{UNIDADES[r.unidad as Unidad]}</strong> · {emb?.nombre || r.embudo} <Temperatura t={temps[r.id]} /> {r.semaforo && <span className={`chip sem-${r.semaforo}`}>{r.semaforo}</span>} <small className="sub">· origen: {r.origen || "—"} · responsable: {r.responsable || "—"}</small>
-                  <div className="fila" style={{ marginTop: 6 }}>
-                    <select disabled={!puede} value={r.etapa} onChange={(e) => actualizarRel(r, { etapa: e.target.value, estado: e.target.value === "descartado" || e.target.value === "perdido" ? "descartado" : r.estado === "descartado" ? "prospecto" : r.estado })}>
+                  <strong>{UNIDADES[r.unidad as Unidad]}</strong> · {emb?.nombre || r.embudo} <Temperatura t={temps[r.id]} /> {r.semaforo && <span className={`chip sem-${r.semaforo}`}>{r.semaforo}</span>} <small className="sub">· origen: {r.origen || "—"} · responsable: {persona(r.responsable)}</small>
+                  <div className="fila rel-campos" style={{ marginTop: 6 }}>
+                    <label className="campo chico">Etapa<select disabled={!puede} value={r.etapa} onChange={(e) => actualizarRel(r, { etapa: e.target.value, estado: e.target.value === "descartado" || e.target.value === "perdido" ? "descartado" : r.estado === "descartado" ? "prospecto" : r.estado })}>
                       {(emb?.etapas || [{ id: r.etapa, nombre: r.etapa }]).map((et) => <option key={et.id} value={et.id}>{et.nombre}</option>)}
-                    </select>
-                    <select disabled={!puede} value={r.estado} onChange={(e) => actualizarRel(r, { estado: e.target.value })}>
+                    </select></label>
+                    <label className="campo chico">Relación<select disabled={!puede} value={r.estado} onChange={(e) => actualizarRel(r, { estado: e.target.value })}>
                       {["prospecto", "cliente_activo", "ex_cliente", "aliado", "descartado"].map((s) => <option key={s} value={s}>{etiqueta(s)}</option>)}
-                    </select>
+                    </select></label>
                   </div>
                   <div className="fila" style={{ marginTop: 6 }}>
                     <input disabled={!puede} style={{ flex: 1 }} placeholder="Próximo paso" defaultValue={r.proximo_paso || ""} onBlur={(e) => e.target.value !== (r.proximo_paso || "") && actualizarRel(r, { proximo_paso: e.target.value || null })} />
@@ -203,9 +220,9 @@ export default function Ficha() {
               <button className="primario" onClick={agregarNota}>Guardar nota</button>
             </div>
             <ul className="linea-tiempo">
-              {acts.map((a) => (
+              {actsVis.map((a) => (
                 <li key={a.id}>
-                  <small>{new Date(a.created_at).toLocaleString("es-AR")} · {a.autor}{a.unidad ? ` · ${UNIDADES[a.unidad as Unidad]}` : ""}</small>
+                  <small>{new Date(a.created_at).toLocaleString("es-AR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })} · {persona(a.autor)}{a.unidad ? ` · ${UNIDADES[a.unidad as Unidad]}` : ""}</small>
                   {a.tipo === "nota" ? a.detalle?.texto
                     : a.tipo === "cambio_etapa" ? `Etapa: ${etiqueta(a.detalle?.de || "")} → ${etiqueta(a.detalle?.a || "")}`
                     : a.tipo === "formulario_web" ? `Completó el formulario de ${a.detalle?.landing}`
@@ -217,6 +234,7 @@ export default function Ficha() {
                 </li>
               ))}
             </ul>
+            {importados > 1 && <button className="enlace chico" onClick={() => setVerImportados(!verImportados)}>{verImportados ? "Ocultar importaciones" : `Ver ${importados - 1} importaciones más de planillas viejas`}</button>}
           </div>
         </div>
       </div>

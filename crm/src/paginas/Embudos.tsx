@@ -1,6 +1,6 @@
 import Descartar from "../componentes/Descartar";
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { EMBUDOS, PROXIMO_HITO, UNIDADES, supabase } from "../config";
 import { puedeOperar, useYo } from "../main";
 import Temperatura, { hace, nivelTemp } from "../componentes/Temperatura";
@@ -8,7 +8,7 @@ import Registro, { type ContextoRegistro } from "../componentes/Registro";
 
 export default function Embudos() {
   const yo = useYo();
-  const nav = useNavigate();
+  const [limite, setLimite] = useState<Record<string, number>>({});
   const inicial = EMBUDOS.find((e) => puedeOperar(yo, e.unidad))?.id || EMBUDOS[0].id;
   const [embudoId, setEmbudoId] = useState(inicial);
   const [verCerradas, setVerCerradas] = useState(false);
@@ -66,41 +66,46 @@ export default function Embudos() {
               onDragLeave={() => setSobre(null)}
               onDrop={(e) => { e.preventDefault(); setSobre(null); if (arrastrando) mover(arrastrando, et.id); setArrastrando(null); }}>
               <h3><span>{et.nombre}</span><span className="contador">{cartas.length}</span></h3>
-              {cartas.slice(0, 60).map((r) => {
+              {cartas.slice(0, limite[et.id] || 20).map((r) => {
                 const d = dias(r.etapa_desde || r.created_at);
                 const estanc = !et.cierre && et.id !== "nuevo" && (!r.ultima_gestion || Date.now() - +new Date(r.ultima_gestion) > 7 * 864e5);
+                const corto = (t?: string) => (t || "").replace(/\s*\(.*\)\s*$/, "");
+                const inm = [r.inm_direccion, r.inm_m2 && `${String(r.inm_m2).replace(/\s*m2|\s*m²/i, "")} m²`, r.inm_precio && !/no especif/i.test(r.inm_precio) && r.inm_precio].filter(Boolean).join(" · ");
+                const siguiente = r.proximo_paso || (!et.cierre && PROXIMO_HITO[embudoId]?.[r.etapa]);
                 return (
                   <div key={r.id} className={`carta ${nivelTemp(r.temperatura)} ${estanc ? "estancada" : ""}`} draggable={puede}
                     onDragStart={() => setArrastrando(r.id)} onDragEnd={() => setArrastrando(null)}>
                     <div className="carta-cab">
-                      <strong onClick={() => nav(`/contactos/${r.contact_id}`)}>{r.nombre}</strong>
+                      <Link to={`/contactos/${r.contact_id}`} className="carta-nombre">{r.nombre}</Link>
                       <Temperatura t={r.temperatura} />
                     </div>
-                    <div className="carta-meta">
-                      {r.situacion && <span className="chip">{r.situacion}</span>}
-                      {r.urgencia_form && <span className="chip">{r.urgencia_form}</span>}
-                      {r.capital && <span className="chip">{r.capital}</span>}
-                      {r.semaforo_desc && <span className={`chip sem-${r.semaforo_desc}`}>{r.semaforo_desc}</span>}
-                    </div>
-                    {(r.inm_direccion || r.inm_m2 || r.inm_precio) && (
-                      <div className="carta-inm">{[r.inm_direccion, r.inm_m2 && `${String(r.inm_m2).replace(/\s*m2|\s*m²/i, "")} m²`, r.inm_precio && !/no especif/i.test(r.inm_precio) && r.inm_precio].filter(Boolean).join(" · ")}</div>
+                    {inm && <div className="carta-inm" title={inm}>{inm}</div>}
+                    {(r.situacion || r.urgencia_form || r.capital || r.semaforo_desc) && (
+                      <div className="carta-meta">
+                        {r.semaforo_desc && <span className={`chip sem-${r.semaforo_desc}`}>{r.semaforo_desc}</span>}
+                        {r.situacion && <span className="chip">{corto(r.situacion)}</span>}
+                        {r.urgencia_form && /urgente/i.test(r.urgencia_form) && <span className="chip urgente">Urgente</span>}
+                        {r.capital && <span className="chip">{corto(r.capital)}</span>}
+                      </div>
                     )}
+                    {siguiente && <div className="carta-prox" title={siguiente}>{siguiente}</div>}
                     <div className="carta-pie">
-                      <span>{r.inm_barrio || r.barrio || "—"}</span>
-                      <span className={d > 14 && !et.cierre ? "alerta" : ""}>{d} d en etapa</span>
+                      <span>{r.inm_barrio || r.barrio || "Sin barrio"}</span>
+                      <span className={estanc ? "alerta" : d > 14 && !et.cierre ? "alerta" : ""}>{estanc ? `Sin gestión ${hace(r.ultima_gestion)}` : `${d} d en etapa`}</span>
                     </div>
-                    {r.proximo_paso && <div className="carta-prox">→ {r.proximo_paso}</div>}
-                    {estanc && <div className="carta-alerta">Sin gestión {hace(r.ultima_gestion)}</div>}
-                    {puede && <select className="carta-mover" aria-label="Mover a otra etapa" value={r.etapa} onChange={(e) => mover(r.id, e.target.value)}>
-                      {etapas.map((x) => <option key={x.id} value={x.id}>{x.id === r.etapa ? `Etapa: ${x.nombre}` : `Mover a ${x.nombre}`}</option>)}
-                    </select>}
-                    {!et.cierre && PROXIMO_HITO[embudoId]?.[r.etapa] && <div className="carta-hito">{PROXIMO_HITO[embudoId][r.etapa]}</div>}
-                    {puede && !et.cierre && <div style={{ marginTop: 6 }}><Descartar relationId={r.id} nombre={r.nombre.split(" ")[0]} alCambiar={cargar} /></div>}
-                    {puede && <button className="chico carta-btn" onClick={() => setRegistro({ contactId: r.contact_id, nombre: r.nombre, telefono: r.telefono, relaciones: [{ id: r.id, unidad: r.unidad, embudo: r.embudo }] })}>Registrar gestión</button>}
+                    {puede && (
+                      <div className="carta-acc">
+                        <button className="chico" onClick={() => setRegistro({ contactId: r.contact_id, nombre: r.nombre, telefono: r.telefono, relaciones: [{ id: r.id, unidad: r.unidad, embudo: r.embudo }] })}>Registrar</button>
+                        <select className="chico" aria-label="Mover a otra etapa" value={r.etapa} onChange={(e) => mover(r.id, e.target.value)}>
+                          {etapas.map((x) => <option key={x.id} value={x.id}>{x.id === r.etapa ? "Mover a…" : x.nombre}</option>)}
+                        </select>
+                        {!et.cierre && <Descartar relationId={r.id} nombre={r.nombre.split(" ")[0]} alCambiar={cargar} />}
+                      </div>
+                    )}
                   </div>
                 );
               })}
-              {cartas.length > 60 && <small className="sub">+{cartas.length - 60} más: filtrá por temperatura o barrio</small>}
+              {cartas.length > (limite[et.id] || 20) && <button className="chico ver-mas" onClick={() => setLimite({ ...limite, [et.id]: (limite[et.id] || 20) + 30 })}>Ver {Math.min(30, cartas.length - (limite[et.id] || 20))} más de {cartas.length}</button>}
             </div>
           );
         })}

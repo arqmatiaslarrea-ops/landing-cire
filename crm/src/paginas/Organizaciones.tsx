@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase, usd, waLink } from "../config";
 import { useYo } from "../main";
 
@@ -42,7 +42,9 @@ export default function Organizaciones() {
   const [orgs, setOrgs] = useState<any[]>([]);
   const [contactos, setContactos] = useState<any[]>([]);
   const [props, setProps] = useState<any[]>([]);
-  const [selId, setSelId] = useState<string | null>(null);
+  const [params] = useSearchParams();
+  const [selId, setSelId] = useState<string | null>(params.get("id"));
+  useEffect(() => { if (params.get("id")) setSelId(params.get("id")); }, [params]);
   const [q, setQ] = useState("");
   const [barrio, setBarrio] = useState("");
   const [estado, setEstado] = useState("");

@@ -48,6 +48,10 @@ function secuencia(l: Lead, inmueble: string): { dia: string; canal: string; tex
   ];
 }
 
+const nombrePropio = (n?: string | null) => (n || "").trim().toLowerCase().replace(/(^|\s)(\p{L})/gu, (_, a, b) => a + b.toUpperCase());
+const oracion = (t: string) => { const x = t.trim(); return x.charAt(0).toUpperCase() + x.slice(1); };
+const cuando = (s: string) => { const d = Math.floor((Date.now() - +new Date(s)) / 864e5); return d <= 0 ? "hoy" : d === 1 ? "ayer" : d < 30 ? `hace ${d} días` : new Date(s).toLocaleDateString("es-AR"); };
+
 export default function Compradores() {
   const yo = useYo();
   const opera = puedeOperar(yo, "inmobiliaria");
@@ -57,6 +61,7 @@ export default function Compradores() {
   const [sel, setSel] = useState<string>("");
   const [filtro, setFiltro] = useState<"todos" | "cierre" | "sin_tocar" | "descartados">("todos");
   const [abierto, setAbierto] = useState<Lead | null>(null);
+  const [limite, setLimite] = useState(24);
 
   const cargar = async () => {
     const [i, l] = await Promise.all([
@@ -86,6 +91,7 @@ export default function Compradores() {
     };
   };
   const nombreInm = (slug: string) => inm.find((i) => i.slug === slug)?.nombre || slug;
+  useEffect(() => setLimite(24), [sel, filtro]);
   const vis = useMemo(() => leads.filter((l) => {
     const r = rels[l.relation_id];
     if (sel && l.inmueble !== sel) return false;
@@ -151,7 +157,7 @@ export default function Compradores() {
       </div>
 
       <div className="compr-lista">
-        {vis.slice(0, 200).map((l) => {
+        {vis.slice(0, limite).map((l) => {
           const r = rels[l.relation_id] || {}; const seg = segmento(l); const etapa = r.etapa || "nuevo";
           const primer = secuencia(l, nombreInm(l.inmueble))[0];
           const wa = waLink(l.telefono, primer.texto);
@@ -159,20 +165,18 @@ export default function Compradores() {
             <div key={l.lead_id} className="compr-card">
               <div className="compr-card-cab">
                 <div>
-                  <Link to={`/contactos/${l.contact_id}`} className="item-nombre">{l.nombre || "Sin nombre"}</Link>
-                  <div className="sub chico">{nombreInm(l.inmueble)} · {new Date(l.creado).toLocaleDateString("es-AR")}{l.anuncio ? ` · ${l.anuncio}` : ""}</div>
+                  <Link to={`/contactos/${l.contact_id}`} className="item-nombre">{nombrePropio(l.nombre) || "Sin nombre"}</Link>
+                  <div className="sub chico" title={l.anuncio || ""}>{nombreInm(l.inmueble)} · {cuando(l.creado)}</div>
                 </div>
                 <span className={`compr-seg ${seg.color}`}>{seg.nombre}</span>
               </div>
               <div className="carta-meta">
-                {l.etapa_compra && <span className="chip">{l.etapa_compra}</span>}
-                {l.capital && <span className="chip">{l.capital}</span>}
-                {l.interes_visita && <span className="chip">{l.interes_visita}</span>}
+                {[l.etapa_compra, l.capital, l.interes_visita].filter(Boolean).map((t) => <span key={t} className="chip">{oracion(t!)}</span>)}
               </div>
               <div className="compr-hito"><b>Próximo hito:</b> {PROXIMO_HITO.compradores[etapa] || "Cerrado"}</div>
               {opera && r.estado !== "descartado" && (
-                <div className="fila" style={{ marginTop: 8 }}>
-                  {wa && <a href={wa} target="_blank" rel="noreferrer" onClick={() => registrarWa(l, primer.texto)}><button className="chico primario">WhatsApp</button></a>}
+                <div className="compr-acc">
+                  {wa && <a href={wa} target="_blank" rel="noreferrer" className="boton chico primario" onClick={() => registrarWa(l, primer.texto)}>WhatsApp</a>}
                   <select className="chico" value={etapa} onChange={(e) => moverEtapa(l, e.target.value)} aria-label="Etapa">
                     {ETAPAS.filter((e) => e.id !== "descartado").map((e) => <option key={e.id} value={e.id}>{e.nombre}</option>)}
                   </select>
@@ -185,7 +189,7 @@ export default function Compradores() {
           );
         })}
         {!vis.length && <p className="sub">No hay compradores con este filtro.</p>}
-        {vis.length > 200 && <p className="sub">Mostrando 200 de {vis.length}. Elegí un inmueble para ver el resto.</p>}
+        {vis.length > limite && <button className="ver-mas compr-mas" onClick={() => setLimite(limite + 48)}>Ver {Math.min(48, vis.length - limite)} más · quedan {vis.length - limite}</button>}
       </div>
 
       {abierto && (

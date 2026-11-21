@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { EMBUDOS, PERFILES, UNIDADES, etiqueta, fecha, supabase, type Perfil, type Unidad } from "../config";
 import { puedeOperar, useYo } from "../main";
 
@@ -149,6 +149,9 @@ export default function Contactos() {
   useEffect(() => { setF((x) => ({ ...x, q: params.get("q") || "" })); }, [params]);
   const nav = useNavigate();
   const vis = useMemo(() => aplicarFiltro(filas, f), [filas, f]);
+  const [pag, setPag] = useState(0);
+  useEffect(() => setPag(0), [f]);
+  const POR = 50, paginas = Math.ceil(vis.length / POR);
   return (
     <>
       <div className="fila" style={{ justifyContent: "space-between" }}>
@@ -160,24 +163,31 @@ export default function Contactos() {
       </div>
       <BarraFiltros f={f} setF={setF} />
       <div className="tabla-scroll">
-        <table>
+        <table className="tabla-contactos">
           <thead><tr><th>Nombre</th><th>Perfil</th><th>Unidades y etapa</th><th>Teléfono</th><th>Barrio</th><th>Alta</th><th>Próximo paso</th></tr></thead>
           <tbody>
-            {vis.slice(0, 500).map((c) => (
+            {vis.slice(pag * POR, pag * POR + POR).map((c) => (
               <tr key={c.id} className="clic" onClick={() => nav(`/contactos/${c.id}`)}>
-                <td><strong>{c.nombre}</strong><br /><small className="sub">{c.email}</small></td>
+                <td><Link to={`/contactos/${c.id}`} className="celda-nombre" onClick={(e) => e.stopPropagation()}>{c.nombre}</Link><small className="sub">{c.email}</small></td>
                 <td>{c.perfiles.map((p) => <span key={p} className={`chip ${p}`}>{PERFILES[p]}</span>)}</td>
                 <td>{c.relaciones.map((r, i) => <span key={i} className={`chip ${r.etapa}`}>{UNIDADES[r.unidad]}: {etiqueta(r.etapa)}</span>)}</td>
                 <td>{c.telefono}</td>
                 <td>{c.barrio}</td>
                 <td>{fecha(c.created_at)}</td>
-                <td>{c.relaciones.find((r) => r.proximo_paso)?.proximo_paso || ""}</td>
+                <td>{c.relaciones.find((r) => r.proximo_paso)?.proximo_paso || (c.relaciones.some((r) => r.estado !== "descartado" && r.estado !== "cerrado") ? <span className="sin-paso">Sin próximo paso</span> : <span className="sub">—</span>)}</td>
               </tr>
             ))}
           </tbody>
         </table>
-        {vis.length > 500 && <p className="sub">Mostrando 500. Afiná con los filtros.</p>}
+        {!cargando && !vis.length && <p className="vacio-lista">Ningún contacto coincide con estos filtros.</p>}
       </div>
+      {paginas > 1 && (
+        <div className="paginador">
+          <button className="chico" disabled={!pag} onClick={() => { setPag(pag - 1); window.scrollTo(0, 0); }}>Anterior</button>
+          <span className="sub">{pag * POR + 1}–{Math.min(vis.length, pag * POR + POR)} de {vis.length.toLocaleString("es-AR")}</span>
+          <button className="chico" disabled={pag >= paginas - 1} onClick={() => { setPag(pag + 1); window.scrollTo(0, 0); }}>Siguiente</button>
+        </div>
+      )}
     </>
   );
 }
