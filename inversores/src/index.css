@@ -1,0 +1,168 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap');
+
+@layer base {
+  :root {
+    /* CIRE Brand Colors - Primary Palette (from brand manual) */
+    --cire-orange: 16 100% 55%;
+    --cire-orange-light: 18 95% 62%;
+    --cire-orange-soft: 20 80% 70%;
+    --cire-orange-muted: 22 60% 80%;
+    --cire-orange-deep: 12 100% 48%;
+    
+    --cire-blue: 0 0% 16%;
+    --cire-blue-deep: 0 0% 11%;
+    --cire-blue-darker: 0 0% 8%;
+    --cire-blue-light: 218 22% 48%;
+    --cire-blue-soft: 216 18% 58%;
+    --cire-blue-muted: 214 15% 72%;
+    
+    --cire-yellow: 32 85% 58%;
+    --cire-yellow-soft: 34 80% 68%;
+    --cire-yellow-muted: 36 70% 78%;
+    
+    /* Warm Neutrals (brand: #EFEFEF) */
+    --warm-white: 0 0% 94%;
+    --warm-gray-50: 28 15% 96%;
+    --warm-gray-100: 26 12% 92%;
+    --warm-gray-200: 24 10% 85%;
+    --warm-gray-300: 22 8% 70%;
+    --warm-gray-400: 220 10% 55%;
+    --warm-gray-500: 220 12% 40%;
+
+    /* Core tokens */
+    --background: 30 20% 99%;
+    --foreground: 222 35% 18%;
+
+    --card: 30 25% 98%;
+    --card-foreground: 222 35% 18%;
+
+    --popover: 30 20% 99%;
+    --popover-foreground: 222 35% 18%;
+
+    --primary: 16 100% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 16%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 28 15% 94%;
+    --muted-foreground: 220 12% 45%;
+
+    --accent: 32 85% 58%;
+    --accent-foreground: 222 35% 18%;
+
+    --whatsapp: 142 70% 49%;
+    --whatsapp-hover: 142 70% 40%;
+    --whatsapp-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 26 12% 88%;
+    --input: 26 12% 88%;
+    --ring: 16 100% 55%;
+
+    --radius: 0.75rem;
+
+    /* Rich Gradients */
+    --gradient-hero: linear-gradient(145deg, hsl(224 40% 12%) 0%, hsl(222 35% 22%) 40%, hsl(220 28% 32%) 100%);
+    --gradient-hero-radial: radial-gradient(ellipse at top right, hsl(12 85% 55% / 0.15) 0%, transparent 50%);
+    --gradient-cta: linear-gradient(135deg, hsl(12 85% 55%) 0%, hsl(8 88% 48%) 100%);
+    --gradient-cta-hover: linear-gradient(135deg, hsl(8 88% 48%) 0%, hsl(4 90% 42%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(32 85% 58%) 0%, hsl(12 85% 55%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(30 25% 98%) 0%, hsl(28 15% 95%) 100%);
+    --gradient-card-hover: linear-gradient(180deg, hsl(30 30% 99%) 0%, hsl(28 20% 96%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(30 20% 99%) 0%, hsl(28 15% 96%) 100%);
+    --gradient-warm: linear-gradient(135deg, hsl(32 85% 58% / 0.1) 0%, hsl(12 85% 55% / 0.05) 100%);
+    --gradient-blue-soft: linear-gradient(180deg, hsl(220 28% 32% / 0.03) 0%, transparent 100%);
+
+    /* Shadows */
+    --shadow-sm: 0 2px 8px -2px hsl(220 28% 32% / 0.06);
+    --shadow-md: 0 8px 24px -8px hsl(220 28% 32% / 0.1);
+    --shadow-lg: 0 16px 48px -12px hsl(220 28% 32% / 0.14);
+    --shadow-xl: 0 24px 64px -16px hsl(220 28% 32% / 0.18);
+    --shadow-glow: 0 0 40px -10px hsl(12 85% 55% / 0.25);
+    --shadow-glow-strong: 0 0 60px -10px hsl(12 85% 55% / 0.4);
+    --shadow-warm: 0 8px 32px -8px hsl(32 85% 58% / 0.15);
+  }
+
+  .dark {
+    --background: 218 30% 12%;
+    --foreground: 0 0% 98%;
+    --card: 218 28% 16%;
+    --card-foreground: 0 0% 98%;
+    --popover: 218 28% 16%;
+    --popover-foreground: 0 0% 98%;
+    --muted: 218 24% 22%;
+    --muted-foreground: 220 14% 70%;
+    --border: 218 24% 25%;
+    --input: 218 24% 25%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Outfit', sans-serif;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .bg-hero-gradient {
+    background: var(--gradient-hero);
+  }
+
+  .bg-cta-gradient {
+    background: var(--gradient-cta);
+  }
+
+  .bg-accent-gradient {
+    background: var(--gradient-accent);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .glass {
+    @apply backdrop-blur-xl bg-white/80 border border-white/20;
+  }
+
+  .glass-dark {
+    @apply backdrop-blur-xl bg-cire-blue/90 border border-white/10;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--cire-blue-light));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--cire-blue));
+}
