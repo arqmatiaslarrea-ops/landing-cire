@@ -18,6 +18,7 @@ import Envios from "./paginas/Envios";
 import Gremios from "./paginas/Gremios";
 import Tanda from "./paginas/Tanda";
 import Agenda from "./paginas/Agenda";
+import Cerebro from "./paginas/Cerebro";
 
 export type Yo = { email: string; nombre: string; clave: string; unidades: Unidad[]; admin: boolean };
 const YoCtx = createContext<Yo | null>(null);
@@ -132,6 +133,7 @@ function App() {
               <NavLink to="/seguimiento">Seguimiento automático</NavLink>
               <span className="nav-grupo">Resultados</span>
               <NavLink to="/tablero">Tablero</NavLink>
+              <NavLink to="/cerebro">Cerebro</NavLink>
             </nav>
             <div className="usuario">
               <strong>{yo.nombre}</strong>
@@ -156,6 +158,7 @@ function App() {
               <Route path="/gremios" element={<Gremios />} />
               <Route path="/tanda" element={<Tanda />} />
               <Route path="/agenda" element={<Agenda />} />
+              <Route path="/cerebro" element={<Cerebro />} />
               <Route path="*" element={<div className="tarjeta"><h1>Esta página no existe</h1><p className="sub">Volvé a <NavLink to="/">Mi día</NavLink>.</p></div>} />
             </Routes>
           </main>
