@@ -1,16 +1,18 @@
 import Descartar from "../componentes/Descartar";
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { EMBUDOS, PROXIMO_HITO, UNIDADES, supabase } from "../config";
-import { puedeOperar, useYo } from "../main";
+import { puedeOperar, useMarca, useYo } from "../main";
 import Temperatura, { hace, nivelTemp } from "../componentes/Temperatura";
 import Registro, { type ContextoRegistro } from "../componentes/Registro";
 
 export default function Embudos() {
   const yo = useYo();
   const [limite, setLimite] = useState<Record<string, number>>({});
-  const inicial = EMBUDOS.find((e) => puedeOperar(yo, e.unidad))?.id || EMBUDOS[0].id;
+  const [params] = useSearchParams();
+  const inicial = (params.get("embudo") && EMBUDOS.some((e) => e.id === params.get("embudo")) ? params.get("embudo")! : null) || EMBUDOS.find((e) => puedeOperar(yo, e.unidad))?.id || EMBUDOS[0].id;
   const [embudoId, setEmbudoId] = useState(inicial);
+  useMarca(EMBUDOS.find((e) => e.id === embudoId)?.unidad.startsWith("ranka") ? "ranka" : null);
   const [verCerradas, setVerCerradas] = useState(false);
   const [soloMios, setSoloMios] = useState(false);
   const [temp, setTemp] = useState("");

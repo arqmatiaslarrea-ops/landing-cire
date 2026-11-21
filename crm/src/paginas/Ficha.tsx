@@ -3,7 +3,7 @@ import Inmueble from "../componentes/Inmueble";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { EMBUDOS, PERFILES, PROXIMO_HITO, UNIDADES, etiqueta, fecha, supabase, waLink, type Perfil, type Unidad } from "../config";
-import { puedeOperar, useYo } from "../main";
+import { puedeOperar, useMarca, useYo } from "../main";
 import Registro from "../componentes/Registro";
 import Descubrimiento from "../componentes/Descubrimiento";
 import Temperatura, { hace } from "../componentes/Temperatura";
@@ -28,6 +28,7 @@ export default function Ficha() {
   const [acts, setActs] = useState<any[]>([]);
   const [nota, setNota] = useState("");
   const [verImportados, setVerImportados] = useState(false);
+  useMarca(rels.length && rels.every((r: any) => String(r.unidad).startsWith("ranka")) ? "ranka" : null);
   // Las importaciones de planillas viejas se repiten mucho: mostramos la más reciente y el resto a pedido
   const importados = acts.filter((a) => a.tipo === "importado").length;
   const primerImport = acts.find((a) => a.tipo === "importado")?.id;

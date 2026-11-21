@@ -22,11 +22,22 @@ import Cerebro from "./paginas/Cerebro";
 import Compradores from "./paginas/Compradores";
 import Campanas from "./paginas/Campanas";
 import Directorio from "./paginas/Directorio";
+import PanelRanka, { Estrella } from "./paginas/PanelRanka";
 import Notificaciones from "./componentes/Notificaciones";
 
 export type Yo = { email: string; nombre: string; clave: string; unidades: Unidad[]; admin: boolean };
 const YoCtx = createContext<Yo | null>(null);
 export const useYo = () => useContext(YoCtx)!;
+// Sistema de marca: las pantallas de Ranka usan la marca de Ranka; el resto, la de CIRE.
+export const soloRanka = (yo: Yo) => !yo.admin && yo.unidades.length > 0 && yo.unidades.every((u) => u === "ranka" || u === "ranka_by_cire");
+export function useMarca(marca: "ranka" | "cire" | null) {
+  useEffect(() => {
+    if (!marca) return;
+    const previa = document.documentElement.dataset.marca;
+    document.documentElement.dataset.marca = marca;
+    return () => { if (previa) document.documentElement.dataset.marca = previa; else delete document.documentElement.dataset.marca; };
+  }, [marca]);
+}
 export const puedeOperar = (yo: Yo, u: Unidad) => yo.admin || yo.unidades.includes(u);
 
 function Login() {
@@ -57,12 +68,17 @@ function Login() {
 // Navegación: lateral fija en compu; en celular, barra inferior con lo diario y un menú completo.
 const MENU: [string, [string, string][]][] = [
   ["Mi trabajo", [["/", "Mi día"], ["/agenda", "Agenda"], ["/tanda", "Tanda de WhatsApp"], ["/reuniones", "Reuniones"]]],
+  ["Ranka", [["/ranka", "Panel Ranka"]]],
   ["Ventas", [["/embudos", "Embudos"], ["/compradores", "Compradores"], ["/contactos", "Contactos"], ["/ofertas", "Ofertas · Plan 260"]]],
   ["Activos y red", [["/propiedades", "Propiedades"], ["/inmobiliarias", "Inmobiliarias"], ["/gremios", "Gremios"], ["/directorio", "Directorio"]]],
   ["Marketing", [["/listas", "Listas y eventos"], ["/campanas", "Campañas"], ["/seguimiento", "Seguimiento automático"]]],
   ["Resultados", [["/tablero", "Tablero"], ["/cerebro", "Cerebro"]]],
 ];
 const BARRA: [string, string, string][] = [["/", "Mi día", "M3 12l9-8 9 8M5 10v10h14V10"], ["/agenda", "Agenda", "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4"], ["/embudos", "Embudos", "M4 5h16l-6 8v6l-4-2v-4z"], ["/contactos", "Contactos", "M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0"]];
+
+function Marca({ ranka }: { ranka: boolean }) {
+  return ranka ? <div className="marca marca-ranka">RANKA <Estrella tam={15} /></div> : <div className="marca">CIRE <span>Holding</span></div>;
+}
 
 function useMovil() {
   const [m, setM] = useState(() => window.matchMedia("(max-width: 820px)").matches);
@@ -74,19 +90,24 @@ function Lateral({ yo, alCambiarClave }: { yo: Yo; alCambiarClave: () => void })
   const [abierto, setAbierto] = useState(false);
   const movil = useMovil();
   const loc = useLocation();
+  const rk = soloRanka(yo);
+  // Sofi ve lo de Ranka: su inicio es el Panel Ranka y no le mostramos lo que es sólo de CIRE
+  const SOLO_CIRE = new Set(["/tanda", "/compradores", "/ofertas", "/propiedades", "/gremios", "/cerebro", "/ranka"]);
+  const menu = rk ? MENU.map(([g, items]) => [g, items.filter(([to]) => !SOLO_CIRE.has(to)).map(([to, txt]) => (to === "/" ? [to, "Panel Ranka"] : [to, txt]))] as [string, [string, string][]]).filter(([, i]) => i.length) : MENU;
+  const enRanka = rk || loc.pathname.startsWith("/ranka");
   useEffect(() => { setAbierto(false); window.scrollTo(0, 0); }, [loc.pathname]);
   useEffect(() => { document.body.style.overflow = abierto ? "hidden" : ""; }, [abierto]);
   return (
     <>
       <aside className={abierto ? "abierto" : ""}>
         <div className="lateral-cab">
-          <div className="marca">CIRE <span>Holding</span></div>
+          <Marca ranka={enRanka} />
           <button className="icono lateral-cerrar" onClick={() => setAbierto(false)} aria-label="Cerrar menú">✕</button>
         </div>
         <Buscador />
         {!movil && <Notificaciones />}
         <nav>
-          {MENU.map(([grupo, items]) => (
+          {menu.map(([grupo, items]) => (
             <React.Fragment key={grupo}>
               <span className="nav-grupo">{grupo}</span>
               {items.map(([to, txt]) => <NavLink key={to} to={to} end={to === "/"}>{txt}</NavLink>)}
@@ -100,13 +121,13 @@ function Lateral({ yo, alCambiarClave }: { yo: Yo; alCambiarClave: () => void })
         </div>
       </aside>
       <header className="movil-cab">
-        <div className="marca">CIRE <span>Holding</span></div>
+        <Marca ranka={enRanka} />
         {movil && <Notificaciones />}
       </header>
       <nav className="movil-barra" aria-label="Navegación principal">
         {BARRA.map(([to, txt, d]) => (
           <NavLink key={to} to={to} end={to === "/"}>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d={d} /></svg><span>{txt}</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d={d} /></svg><span>{rk && to === "/" ? "Panel" : txt}</span>
           </NavLink>
         ))}
         <button className={abierto ? "active" : ""} onClick={() => setAbierto(!abierto)} aria-expanded={abierto}>
@@ -222,7 +243,8 @@ function App() {
           <Lateral yo={yo} alCambiarClave={() => setClave(true)} />
           <main>
             <Routes>
-              <Route path="/" element={<MiDia />} />
+              <Route path="/" element={soloRanka(yo) ? <PanelRanka /> : <MiDia />} />
+              <Route path="/ranka" element={<PanelRanka />} />
               <Route path="/tablero" element={<Inicio />} />
               <Route path="/contactos" element={<Contactos />} />
               <Route path="/contactos/:id" element={<Ficha />} />
