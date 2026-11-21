@@ -1,3 +1,4 @@
+import CarteraSinAtender from "../componentes/CarteraSinAtender";
 import { Fragment } from "react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -93,6 +94,7 @@ export default function MiDia() {
           </div>
         )}
       </div>
+      <CarteraSinAtender alCambiar={cargar} />
 
       <div className="kpis">
         <div className={`kpi-mini ${vencidas.length ? "rojo" : ""}`}><b>{vencidas.length}</b><span>tareas vencidas</span></div>
