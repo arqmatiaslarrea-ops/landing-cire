@@ -4,6 +4,7 @@
 |---|---|---|
 | `inversores/` | cireinversores.org | cire-inversores |
 | `inmobiliaria/` | cireinmobiliaria.com (Lead Accelerator Hub) | cire-inmobiliaria |
+| `crm/` | CRM del holding (proyecto Vercel landing-cire) | landing-cire |
 | `supabase/` | Funciones del backend compartido (proyecto Supabase `cire-landing`) | — |
 | `archivo-2026-01/` | Versión vieja de enero 2026, sin uso | — |
 
