@@ -315,7 +315,7 @@ a.ev:hover { filter: brightness(.97); }
 .hito, .carta-hito, .compr-hito { font-size: 12.5px; background: #fff3ec; border-left: 3px solid var(--naranja); padding: 5px 8px; border-radius: 6px; margin-top: 6px; color: #3d3a36; }
 .carta-hito { font-size: 12px; }
 .notif { position: relative; margin: 0 0 12px; }
-.notif-boton { width: 100%; text-align: left; background: #2a3538; color: #e8edec; border: 1px solid #3a4649; display: flex; justify-content: space-between; align-items: center; }
+.notif-boton { width: 100%; text-align: left; background: var(--grafito); color: #efefef; border: 1px solid var(--grafito-2); display: flex; justify-content: space-between; align-items: center; }
 .notif-cuenta { background: var(--naranja); color: #fff; border-radius: 99px; padding: 0 8px; font-size: 12px; font-weight: 700; }
 .notif-panel { position: absolute; left: 0; top: calc(100% + 6px); width: 340px; max-height: 70vh; overflow-y: auto; background: #fff; color: var(--texto); border-radius: 12px; padding: 12px; z-index: 60; border: 1px solid var(--linea); box-shadow: 0 16px 40px rgba(0,0,0,.25); }
 .notif-item { all: unset; display: flex; gap: 10px; padding: 9px 6px; border-bottom: 1px solid var(--linea); cursor: pointer; width: calc(100% - 12px); }
