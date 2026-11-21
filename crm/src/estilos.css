@@ -380,7 +380,7 @@ button.enlace:hover { color: var(--rojo); }
 .red-acciones .boton.primario { flex: 1 1 100%; }
 .red-acciones .boton:not(.primario) { flex: 1 1 0; }
 .red-pasos { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
-.red-pasos button { padding: 8px 4px; font-size: 12px; line-height: 1.2; border-radius: 7px; background: #f4f2ef; border-color: transparent; color: var(--gris); }
+.red-pasos button { display: flex; align-items: center; justify-content: center; text-align: center; min-height: 46px; min-width: 0; padding: 6px 2px; font-size: 11px; line-height: 1.2; border-radius: 7px; background: #f4f2ef; border-color: transparent; color: var(--gris); }
 .red-pasos button.hecho { background: var(--naranja-suave); color: var(--naranja-osc); }
 .red-pasos button.actual { background: var(--naranja); color: #fff; font-weight: 600; }
 .red-siguiente { margin: 10px 0 6px; font-size: 14px; background: #f6f8f7; border-radius: 9px; padding: 10px 12px; }
@@ -408,5 +408,4 @@ button.enlace:hover { color: var(--rojo); }
   .red-embudo button:nth-child(even) { border-right: none !important; }
   .red-tabla th:nth-child(2), .red-tabla td.num, .red-tabla th:nth-child(3) { display: none; }
   .red-tabla td:nth-child(3) { display: none; }
-  .red-pasos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
