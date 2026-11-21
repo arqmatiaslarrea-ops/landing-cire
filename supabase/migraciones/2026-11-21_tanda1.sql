@@ -1,0 +1,1 @@
+-- Migración pendiente de aplicar: ver conversación (tanda 1)

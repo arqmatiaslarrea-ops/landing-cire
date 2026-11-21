@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { EMBUDOS, PERFILES, UNIDADES, etiqueta, fecha, supabase, waLink, type Perfil, type Unidad } from "../config";
 import { puedeOperar, useYo } from "../main";
+import Registro from "../componentes/Registro";
+import Descubrimiento from "../componentes/Descubrimiento";
+import Temperatura, { hace } from "../componentes/Temperatura";
 
 export default function Ficha() {
   const { id } = useParams();
@@ -13,14 +16,23 @@ export default function Ficha() {
   const [nota, setNota] = useState("");
   const [notaUnidad, setNotaUnidad] = useState<Unidad | "">("");
   const [nuevoPerfil, setNuevoPerfil] = useState("");
+  const [tareas, setTareas] = useState<any[]>([]);
+  const [desc, setDesc] = useState<any[]>([]);
+  const [temps, setTemps] = useState<Record<string, number>>({});
+  const [modal, setModal] = useState<"" | "registro" | "descubrimiento">("");
 
   const cargar = async () => {
-    const [a, b, r, x] = await Promise.all([
+    const [a, b, r, x, t, d, v] = await Promise.all([
       supabase.from("crm_contacts").select("*").eq("id", id).single(),
       supabase.from("crm_contact_profiles").select("*").eq("contact_id", id),
       supabase.from("crm_relations").select("*").eq("contact_id", id).order("created_at"),
       supabase.from("crm_activities").select("*").eq("contact_id", id).order("created_at", { ascending: false }),
+      supabase.from("crm_tareas").select("*").eq("contact_id", id).eq("hecha", false).order("vence"),
+      supabase.from("crm_descubrimientos").select("*").eq("contact_id", id).order("created_at", { ascending: false }),
+      supabase.from("crm_vista_relaciones").select("id,temperatura").eq("contact_id", id),
     ]);
+    setTareas(t.data || []); setDesc(d.data || []);
+    setTemps(Object.fromEntries((v.data || []).map((z: any) => [z.id, z.temperatura])));
     setC(a.data); setPerfiles(b.data || []); setRels(r.data || []); setActs(x.data || []);
     const mias = (r.data || []).filter((z: any) => puedeOperar(yo, z.unidad));
     setNotaUnidad(mias[0]?.unidad || yo.unidades[0] || "");
@@ -62,7 +74,9 @@ export default function Ficha() {
       <h1 style={{ marginTop: 10 }}>{c.nombre}</h1>
       <p className="sub">{perfiles.map((p) => <span key={p.perfil} className={`chip ${p.perfil}`}>{PERFILES[p.perfil as Perfil]}</span>)} Alta {fecha(c.created_at)}</p>
       <div className="fila" style={{ marginBottom: 16 }}>
-        {wa && <a href={wa} target="_blank" rel="noreferrer"><button className="primario">WhatsApp</button></a>}
+        {rels.some((r) => puedeOperar(yo, r.unidad)) && <button className="primario" onClick={() => setModal("registro")}>Registrar gestión</button>}
+        {puedeOperar(yo, "inmobiliaria") && (perfiles.some((p) => p.perfil === "vendedor_motivado") || rels.some((r) => r.embudo === "vendedores_motivados")) && <button onClick={() => setModal("descubrimiento")}>Guion de descubrimiento</button>}
+        {wa && <a href={wa} target="_blank" rel="noreferrer"><button>WhatsApp</button></a>}
         {c.telefono && <a href={`tel:${c.telefono}`}><button>Llamar</button></a>}
         {c.email && <a href={`mailto:${c.email}`}><button>Email</button></a>}
       </div>
@@ -101,7 +115,7 @@ export default function Ficha() {
               const puede = puedeOperar(yo, r.unidad);
               return (
                 <div key={r.id} style={{ borderBottom: "1px solid var(--linea)", padding: "10px 0" }}>
-                  <strong>{UNIDADES[r.unidad as Unidad]}</strong> · {emb?.nombre || r.embudo} <small className="sub">· origen: {r.origen || "—"} · responsable: {r.responsable || "—"}</small>
+                  <strong>{UNIDADES[r.unidad as Unidad]}</strong> · {emb?.nombre || r.embudo} <Temperatura t={temps[r.id]} /> {r.semaforo && <span className={`chip sem-${r.semaforo}`}>{r.semaforo}</span>} <small className="sub">· origen: {r.origen || "—"} · responsable: {r.responsable || "—"}</small>
                   <div className="fila" style={{ marginTop: 6 }}>
                     <select disabled={!puede} value={r.etapa} onChange={(e) => actualizarRel(r, { etapa: e.target.value, estado: e.target.value === "descartado" || e.target.value === "perdido" ? "descartado" : r.estado === "descartado" ? "prospecto" : r.estado })}>
                       {(emb?.etapas || [{ id: r.etapa, nombre: r.etapa }]).map((et) => <option key={et.id} value={et.id}>{et.nombre}</option>)}
@@ -130,6 +144,26 @@ export default function Ficha() {
           </div>
 
           <div className="tarjeta" style={{ marginTop: 16 }}>
+            <h2 style={{ marginTop: 0 }}>Tareas abiertas</h2>
+            {tareas.map((t) => (
+              <div key={t.id} className={`item ${t.prioridad === "alta" ? "alta" : ""}`}>
+                <div className="item-txt"><span className="item-nombre">{t.titulo}</span>
+                  <small className={new Date(t.vence) < new Date() ? "alerta" : "sub"}>{new Date(t.vence).toLocaleString("es-AR", { weekday: "short", day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" })} · {t.responsable}</small></div>
+                <div className="item-acc"><button className="chico" onClick={async () => { await supabase.from("crm_tareas").update({ hecha: true, hecha_at: new Date().toISOString() }).eq("id", t.id); cargar(); }}>✓ Hecha</button></div>
+              </div>
+            ))}
+            {!tareas.length && <p className="sub">Sin tareas. Registrá una gestión para dejar el próximo paso.</p>}
+          </div>
+
+          {desc[0] && (
+            <div className="tarjeta" style={{ marginTop: 16 }}>
+              <h2 style={{ marginTop: 0 }}>Último descubrimiento <span className={`chip sem-${desc[0].semaforo}`}>{desc[0].semaforo}</span></h2>
+              <small className="sub">{hace(desc[0].created_at)} · {desc[0].autor} · urgencia {desc[0].urgencia}/10{desc[0].ocupada_conflicto ? " · OCUPADA CON CONFLICTO" : ""}</small>
+              <dl className="datos">{Object.entries(desc[0].respuestas || {}).map(([k, v]) => <div key={k}><dt>{etiqueta(k)}</dt><dd>{String(v)}</dd></div>)}</dl>
+            </div>
+          )}
+
+          <div className="tarjeta" style={{ marginTop: 16 }}>
             <h2 style={{ marginTop: 0 }}>Historial</h2>
             <textarea placeholder="Nota de la llamada, acuerdo, dato relevante…" value={nota} onChange={(e) => setNota(e.target.value)} />
             <div className="fila" style={{ margin: "8px 0 14px" }}>
@@ -147,6 +181,8 @@ export default function Ficha() {
                     : a.tipo === "formulario_web" ? `Completó el formulario de ${a.detalle?.landing}`
                     : a.tipo === "importado" ? `Importado de ${a.detalle?.fuente}${a.detalle?.estado_original ? ` (estado: ${a.detalle.estado_original})` : ""}`
                     : a.tipo === "sin_accion_post_formulario" ? <span className="alerta">{a.detalle?.nota}</span>
+                    : ["llamada", "whatsapp", "visita", "reunion"].includes(a.tipo) ? <><b>{etiqueta(a.tipo)}:</b> {a.detalle?.resultado}{a.detalle?.texto ? ` — ${a.detalle.texto}` : ""}</>
+                    : a.tipo === "descubrimiento" ? <><b>Descubrimiento:</b> semáforo {a.detalle?.semaforo}, urgencia {a.detalle?.urgencia}/10</>
                     : etiqueta(a.tipo)}
                 </li>
               ))}
@@ -154,6 +190,8 @@ export default function Ficha() {
           </div>
         </div>
       </div>
+      {modal === "registro" && <Registro ctx={{ contactId: id!, nombre: c.nombre, telefono: c.telefono, relaciones: rels.map((r) => ({ id: r.id, unidad: r.unidad, embudo: r.embudo })) }} alCerrar={(x) => { setModal(""); if (x) cargar(); }} />}
+      {modal === "descubrimiento" && <Descubrimiento contactId={id!} relationId={rels.find((r) => r.embudo === "vendedores_motivados")?.id || null} nombre={c.nombre} alCerrar={(x) => { setModal(""); if (x) cargar(); }} />}
     </>
   );
 }

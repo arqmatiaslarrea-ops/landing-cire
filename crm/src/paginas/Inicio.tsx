@@ -34,7 +34,7 @@ export default function Inicio() {
 
   return (
     <>
-      <h1>Inicio</h1>
+      <h1>Tablero</h1>
       <p className="sub">Lectura comercial del holding. Los leads de las landings entran solos y al instante.</p>
 
       <div className="grilla">

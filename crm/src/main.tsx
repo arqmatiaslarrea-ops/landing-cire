@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, NavLink, Route, Routes } from "react-router-dom";
+import { BrowserRouter, NavLink, Route, Routes, useNavigate } from "react-router-dom";
 import { supabase, UNIDADES, type Unidad } from "./config";
 import "./estilos.css";
 import Inicio from "./paginas/Inicio";
+import MiDia from "./paginas/MiDia";
 import Contactos from "./paginas/Contactos";
 import Ficha from "./paginas/Ficha";
 import Embudos from "./paginas/Embudos";
@@ -40,9 +41,42 @@ function Login() {
   );
 }
 
+function Buscador() {
+  const nav = useNavigate();
+  const [q, setQ] = useState("");
+  return (
+    <form className="buscador" onSubmit={(e) => { e.preventDefault(); nav(`/contactos?q=${encodeURIComponent(q)}`); setQ(""); }}>
+      <input type="search" placeholder="Buscar contacto…" value={q} onChange={(e) => setQ(e.target.value)} />
+    </form>
+  );
+}
+
+function CambiarClave({ alCerrar }: { alCerrar: () => void }) {
+  const [a, setA] = useState(""); const [b, setB] = useState(""); const [msg, setMsg] = useState("");
+  const guardar = async () => {
+    if (a.length < 8) return setMsg("Mínimo 8 caracteres.");
+    if (a !== b) return setMsg("No coinciden.");
+    const { error } = await supabase.auth.updateUser({ password: a });
+    setMsg(error ? "No se pudo cambiar: " + error.message : "Listo, contraseña cambiada.");
+    if (!error) setTimeout(alCerrar, 1200);
+  };
+  return (
+    <div className="modal-fondo" onClick={alCerrar}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-cab"><h2>Cambiar contraseña</h2><button className="icono" onClick={alCerrar}>✕</button></div>
+        <label className="campo">Nueva contraseña<input type="password" value={a} onChange={(e) => setA(e.target.value)} /></label>
+        <label className="campo">Repetila<input type="password" value={b} onChange={(e) => setB(e.target.value)} /></label>
+        {msg && <p className="sub">{msg}</p>}
+        <div className="fila" style={{ justifyContent: "flex-end" }}><button className="primario" onClick={guardar}>Guardar</button></div>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [sesion, setSesion] = useState<boolean | null>(null);
   const [yo, setYo] = useState<Yo | null | "sin_acceso">(null);
+  const [clave, setClave] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSesion(!!data.session));
@@ -70,8 +104,10 @@ function App() {
         <div className="app">
           <aside>
             <div className="marca">CIRE <span>Holding</span></div>
+            <Buscador />
             <nav>
-              <NavLink to="/" end>Inicio</NavLink>
+              <NavLink to="/" end>Mi día</NavLink>
+              <NavLink to="/tablero">Tablero</NavLink>
               <NavLink to="/contactos">Contactos</NavLink>
               <NavLink to="/embudos">Embudos</NavLink>
               <NavLink to="/ofertas">Ofertas · Plan 260</NavLink>
@@ -80,12 +116,13 @@ function App() {
             <div className="usuario">
               <strong>{yo.nombre}</strong>
               <small>{yo.admin ? "Todas las unidades" : yo.unidades.map((u) => UNIDADES[u]).join(" · ")}</small>
-              <button className="link" onClick={() => supabase.auth.signOut()}>Salir</button>
+              <div className="fila"><button className="link" onClick={() => setClave(true)}>Cambiar contraseña</button><button className="link" onClick={() => supabase.auth.signOut()}>Salir</button></div>
             </div>
           </aside>
           <main>
             <Routes>
-              <Route path="/" element={<Inicio />} />
+              <Route path="/" element={<MiDia />} />
+              <Route path="/tablero" element={<Inicio />} />
               <Route path="/contactos" element={<Contactos />} />
               <Route path="/contactos/:id" element={<Ficha />} />
               <Route path="/embudos" element={<Embudos />} />
@@ -94,6 +131,7 @@ function App() {
             </Routes>
           </main>
         </div>
+        {clave && <CambiarClave alCerrar={() => setClave(false)} />}
       </BrowserRouter>
     </YoCtx.Provider>
   );

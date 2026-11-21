@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { EMBUDOS, PERFILES, UNIDADES, etiqueta, fecha, supabase, type Perfil, type Unidad } from "../config";
 import { puedeOperar, useYo } from "../main";
 
@@ -126,7 +126,9 @@ function NuevoContacto({ alCrear }: { alCrear: (id: string) => void }) {
 
 export default function Contactos() {
   const { filas, cargando } = useContactos();
-  const [f, setF] = useState<Filtro>(filtroVacio);
+  const [params] = useSearchParams();
+  const [f, setF] = useState<Filtro>({ ...filtroVacio, q: params.get("q") || "" });
+  useEffect(() => { setF((x) => ({ ...x, q: params.get("q") || "" })); }, [params]);
   const nav = useNavigate();
   const vis = useMemo(() => aplicarFiltro(filas, f), [filas, f]);
   return (
