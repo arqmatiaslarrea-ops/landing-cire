@@ -16,6 +16,7 @@ import Organizaciones from "./paginas/Organizaciones";
 import Reuniones from "./paginas/Reuniones";
 import Envios from "./paginas/Envios";
 import Gremios from "./paginas/Gremios";
+import Tanda from "./paginas/Tanda";
 
 export type Yo = { email: string; nombre: string; clave: string; unidades: Unidad[]; admin: boolean };
 const YoCtx = createContext<Yo | null>(null);
@@ -113,6 +114,7 @@ function App() {
             <Buscador />
             <nav>
               <NavLink to="/" end>Mi día</NavLink>
+              <NavLink to="/tanda">Tanda de WhatsApp</NavLink>
               <NavLink to="/tablero">Tablero</NavLink>
               <NavLink to="/reuniones">Reuniones</NavLink>
               <NavLink to="/contactos">Contactos</NavLink>
@@ -145,6 +147,7 @@ function App() {
               <Route path="/reuniones" element={<Reuniones />} />
               <Route path="/seguimiento" element={<Envios />} />
               <Route path="/gremios" element={<Gremios />} />
+              <Route path="/tanda" element={<Tanda />} />
               <Route path="*" element={<div className="tarjeta"><h1>Esta página no existe</h1><p className="sub">Volvé a <NavLink to="/">Mi día</NavLink>.</p></div>} />
             </Routes>
           </main>

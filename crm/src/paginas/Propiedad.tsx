@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { fecha, supabase, usd, etiqueta } from "../config";
 import { puedeOperar, useYo } from "../main";
+import Difusion from "../componentes/Difusion";
+import Obra from "../componentes/Obra";
+import GenerarOferta from "../componentes/GenerarOferta";
 import { ESTRATEGIAS, ETAPAS_PROP, PARAM_DEF, analisis, reparto, scoreInversor, type Parametros, type Propiedad as P } from "../negocio";
 
 const pct = (v: number | null) => (v == null ? "—" : `${(v * 100).toFixed(1)}%`);
@@ -204,7 +207,7 @@ export default function Propiedad() {
                 <button className="primario" onClick={registrarOferta}>Guardar</button><button onClick={() => setNuevaOferta(null)}>Cancelar</button>
               </div>
             ) : <button className="chico" style={{ marginTop: 8 }} onClick={() => setNuevaOferta({ fecha: new Date().toISOString().slice(0, 10), monto: a.mao ? String(a.mao) : "" })}>+ Registrar oferta</button>)}
-            <p className="sub chico">Para generar el documento desde la plantilla, pedíselo a Claude con dirección y monto: queda en la carpeta de ofertas y vinculado acá.</p>
+            {puede && <div style={{ marginTop: 10 }}><GenerarOferta propiedadId={p.id} montoSugerido={a.mao ?? ofertas[0]?.monto_usd} alCrear={cargar} /></div>}
           </div>
 
           <div className="tarjeta" style={{ marginTop: 16 }}>
@@ -230,6 +233,8 @@ export default function Propiedad() {
             {!sugeridos.length && <p className="sub">No hay inversores cargados para cruzar.</p>}
             <p className="sub chico">Puntaje: barrio +40, activo +20, capital suficiente +15, sin otro compromiso +15, experiencia +10. No constituye oferta pública.</p>
           </div>
+          <Difusion p={p} />
+          {(p.estrategia === "flip" || p.etapa_loacc === "C2" || p.operacion === "flip") && <Obra propiedadId={p.id} puede={puedeInv} />}
         </div>
       </div>
     </>
