@@ -536,3 +536,4 @@ nav a { padding: 6px 11px; }
 .buscador-res p { margin: 8px 10px; color: var(--gris); font-size: 13px; }
 .buscador-res .buscador-todos { border-top: 1px solid var(--linea); border-radius: 0 0 7px 7px; margin-top: 4px; font-size: 13px; color: var(--naranja-osc); }
 @media (max-width: 820px) { .buscador-res { width: 100%; } }
+@media (max-width: 820px) { .item-txt { flex: none; } .item-acc { margin-left: 0; } }
