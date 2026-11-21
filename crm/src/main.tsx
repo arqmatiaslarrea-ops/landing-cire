@@ -23,6 +23,7 @@ import Compradores from "./paginas/Compradores";
 import Campanas from "./paginas/Campanas";
 import Directorio from "./paginas/Directorio";
 import PanelRanka, { Estrella } from "./paginas/PanelRanka";
+import FinanzasRanka from "./paginas/FinanzasRanka";
 import Notificaciones from "./componentes/Notificaciones";
 
 export type Yo = { email: string; nombre: string; clave: string; unidades: Unidad[]; admin: boolean };
@@ -68,7 +69,7 @@ function Login() {
 // Navegación: lateral fija en compu; en celular, barra inferior con lo diario y un menú completo.
 const MENU: [string, [string, string][]][] = [
   ["Mi trabajo", [["/", "Mi día"], ["/agenda", "Agenda"], ["/tanda", "Tanda de WhatsApp"], ["/reuniones", "Reuniones"]]],
-  ["Ranka", [["/ranka", "Panel Ranka"]]],
+  ["Ranka", [["/ranka", "Panel Ranka"], ["/ranka/finanzas", "Finanzas Ranka"]]],
   ["Ventas", [["/embudos", "Embudos"], ["/compradores", "Compradores"], ["/contactos", "Contactos"], ["/ofertas", "Ofertas · Plan 260"]]],
   ["Activos y red", [["/propiedades", "Propiedades"], ["/inmobiliarias", "Inmobiliarias"], ["/gremios", "Gremios"], ["/directorio", "Directorio"]]],
   ["Marketing", [["/listas", "Listas y eventos"], ["/campanas", "Campañas"], ["/seguimiento", "Seguimiento automático"]]],
@@ -245,6 +246,7 @@ function App() {
             <Routes>
               <Route path="/" element={soloRanka(yo) ? <PanelRanka /> : <MiDia />} />
               <Route path="/ranka" element={<PanelRanka />} />
+              <Route path="/ranka/finanzas" element={<FinanzasRanka />} />
               <Route path="/tablero" element={<Inicio />} />
               <Route path="/contactos" element={<Contactos />} />
               <Route path="/contactos/:id" element={<Ficha />} />

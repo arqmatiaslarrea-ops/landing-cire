@@ -73,6 +73,7 @@ export default function PanelRanka() {
           <div className="rk-marca"><span>RANKA</span><Estrella tam={20} /></div>
           <h1>Hola, {nombre1(yo.nombre)}</h1>
           <p>Lo que hay que mover hoy en Ranka Agency y Ranka by CIRE.</p>
+          <Link to="/ranka/finanzas" className="boton rk-boton-fz">Finanzas de Ranka</Link>
         </div>
         <div className="rk-kpis">
           <div><b>{clientes.length}</b><span>clientes activos</span></div>
