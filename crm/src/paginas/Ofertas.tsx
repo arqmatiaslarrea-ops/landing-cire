@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { ESTADOS_OFERTA, LOACC, etiqueta, fecha, supabase, usd } from "../config";
 import { puedeOperar, useYo } from "../main";
 import { metaPlan260 } from "./Inicio";
@@ -89,7 +90,7 @@ export default function Ofertas() {
             {vis.map((o) => (
               <tr key={o.id}>
                 <td>{fecha(o.fecha + "T12:00")}</td>
-                <td><strong>{o.direccion}</strong><br /><small className="sub">{o.barrio}{o.inmobiliaria ? ` · ${o.inmobiliaria}` : ""}</small>{o.observaciones && <><br /><small className={o.observaciones.startsWith("ERROR") || o.observaciones.startsWith("ARCHIVO") ? "alerta" : "sub"}>{o.observaciones}</small></>}</td>
+                <td>{o.propiedad_id ? <Link to={`/propiedades/${o.propiedad_id}`}><strong>{o.direccion}</strong></Link> : <strong>{o.direccion}</strong>}<br /><small className="sub">{o.barrio}{o.inmobiliaria ? ` · ${o.inmobiliaria}` : ""}</small>{o.observaciones && <><br /><small className={o.observaciones.startsWith("ERROR") || o.observaciones.startsWith("ARCHIVO") ? "alerta" : "sub"}>{o.observaciones}</small></>}</td>
                 <td>{usd(o.monto_usd)}</td>
                 <td>{o.vence ? <span className={o.vence < hoy && abiertas(o) && o.estado === "enviada" ? "alerta" : ""}>{fecha(o.vence + "T12:00")}</span> : "—"}</td>
                 <td><select disabled={!puede} value={o.estado} onChange={(e) => actualizar(o, { estado: e.target.value })}>{ESTADOS_OFERTA.map((s) => <option key={s} value={s}>{etiqueta(s)}</option>)}</select></td>

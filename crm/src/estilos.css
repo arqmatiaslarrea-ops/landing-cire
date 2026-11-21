@@ -181,3 +181,17 @@ tr.clic:hover td { background: var(--naranja-suave); }
   .item-acc { justify-content: flex-start; }
   .filtros input[type=search] { min-width: 0; width: 100%; }
 }
+
+/* Tanda 2 */
+.grilla-campos { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0 12px; }
+.grilla-campos .campo { margin-top: 10px; }
+.campo.chico { font-size: 13px; color: var(--gris); }
+.campo.chico input, .campo.chico select, .campo.chico textarea { font-size: 14px; color: var(--texto); }
+.metricas { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 16px 0 8px; }
+.metricas div { background: #faf8f6; border: 1px solid var(--linea); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; }
+.metricas span { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--gris); }
+.metricas b { font-family: "Outfit"; font-size: 22px; }
+.metricas small { color: var(--gris-2); font-size: 12px; }
+table.resumen { box-shadow: none; margin-top: 12px; }
+table.resumen td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+table.resumen tr.total td { font-weight: 700; background: var(--naranja-suave); }

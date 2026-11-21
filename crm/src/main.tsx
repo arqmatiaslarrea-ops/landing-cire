@@ -10,6 +10,9 @@ import Ficha from "./paginas/Ficha";
 import Embudos from "./paginas/Embudos";
 import Ofertas from "./paginas/Ofertas";
 import Listas from "./paginas/Listas";
+import Propiedades from "./paginas/Propiedades";
+import Propiedad from "./paginas/Propiedad";
+import Organizaciones from "./paginas/Organizaciones";
 
 export type Yo = { email: string; nombre: string; clave: string; unidades: Unidad[]; admin: boolean };
 const YoCtx = createContext<Yo | null>(null);
@@ -110,6 +113,8 @@ function App() {
               <NavLink to="/tablero">Tablero</NavLink>
               <NavLink to="/contactos">Contactos</NavLink>
               <NavLink to="/embudos">Embudos</NavLink>
+              <NavLink to="/propiedades">Propiedades</NavLink>
+              <NavLink to="/inmobiliarias">Inmobiliarias</NavLink>
               <NavLink to="/ofertas">Ofertas · Plan 260</NavLink>
               <NavLink to="/listas">Listas y eventos</NavLink>
             </nav>
@@ -127,6 +132,9 @@ function App() {
               <Route path="/contactos/:id" element={<Ficha />} />
               <Route path="/embudos" element={<Embudos />} />
               <Route path="/ofertas" element={<Ofertas />} />
+              <Route path="/propiedades" element={<Propiedades />} />
+              <Route path="/propiedades/:id" element={<Propiedad />} />
+              <Route path="/inmobiliarias" element={<Organizaciones />} />
               <Route path="/listas" element={<Listas />} />
             </Routes>
           </main>

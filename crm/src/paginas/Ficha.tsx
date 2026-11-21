@@ -20,6 +20,8 @@ export default function Ficha() {
   const [desc, setDesc] = useState<any[]>([]);
   const [temps, setTemps] = useState<Record<string, number>>({});
   const [modal, setModal] = useState<"" | "registro" | "descubrimiento">("");
+  const [orgs, setOrgs] = useState<any[]>([]);
+  const [propsC, setPropsC] = useState<any[]>([]);
 
   const cargar = async () => {
     const [a, b, r, x, t, d, v] = await Promise.all([
@@ -32,6 +34,8 @@ export default function Ficha() {
       supabase.from("crm_vista_relaciones").select("id,temperatura").eq("contact_id", id),
     ]);
     setTareas(t.data || []); setDesc(d.data || []);
+    supabase.from("crm_organizaciones").select("id,nombre").order("nombre").then(({ data }) => setOrgs(data || []));
+    supabase.from("crm_propiedades").select("id,direccion,barrio,etapa_loacc,estrategia").eq("vendedor_contact_id", id).then(({ data }) => setPropsC(data || []));
     setTemps(Object.fromEntries((v.data || []).map((z: any) => [z.id, z.temperatura])));
     setC(a.data); setPerfiles(b.data || []); setRels(r.data || []); setActs(x.data || []);
     const mias = (r.data || []).filter((z: any) => puedeOperar(yo, z.unidad));
@@ -90,6 +94,25 @@ export default function Ficha() {
             <dt>Barrio</dt><dd>{c.barrio || "—"}</dd>
             {c.empresa && <><dt>Empresa</dt><dd>{c.empresa}</dd></>}
           </dl>
+          <label className="campo chico">Inmobiliaria a la que pertenece
+            <select value={c.organizacion_id || ""} onChange={async (e) => { await supabase.from("crm_contacts").update({ organizacion_id: e.target.value || null }).eq("id", id); cargar(); }}>
+              <option value="">— Ninguna</option>{orgs.map((o) => <option key={o.id} value={o.id}>{o.nombre}</option>)}
+            </select>
+          </label>
+          {(propsC.length > 0 || perfiles.some((p) => p.perfil === "vendedor_motivado")) && (
+            <>
+              <h2>Propiedades</h2>
+              {propsC.map((p) => <div key={p.id}><Link to={`/propiedades/${p.id}`}>{p.direccion}</Link> <small className="sub">{p.barrio}</small></div>)}
+              <button className="chico" style={{ marginTop: 6 }} onClick={async () => {
+                const prof = perfiles.find((p) => p.perfil === "vendedor_motivado")?.datos || {};
+                const direccion = prompt("Dirección de la propiedad", prof.direccion || "");
+                if (!direccion) return;
+                const { data, error } = await supabase.from("crm_propiedades").insert({ direccion, barrio: prof.barrio || c.barrio || null, situacion: prof.situacion || null, vendedor_contact_id: id, responsable: yo.clave, prospecto_por: yo.clave }).select("id").single();
+                if (error) return alert("No tenés permiso para crear propiedades.");
+                window.location.href = `/propiedades/${data.id}`;
+              }}>+ Crear propiedad de este vendedor</button>
+            </>
+          )}
           {perfiles.map((p) => (
             <div key={p.perfil}>
               <h2>{PERFILES[p.perfil as Perfil]}</h2>
