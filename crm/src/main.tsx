@@ -55,8 +55,8 @@ function Login() {
   return (
     <div className="login">
       <form onSubmit={entrar} className="tarjeta">
-        <div className="marca">CIRE <span>Holding</span></div>
-        <h1>CRM</h1>
+        <div className="marca marca-cire marca-login"><LogoCire alto={26} /><span>Holding</span></div>
+        <span className="eyebrow">CRM · Acceso del equipo</span>
         <label>Email<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus /></label>
         <label>Contraseña<input type="password" value={clave} onChange={(e) => setClave(e.target.value)} required /></label>
         {error && <p className="error">{error}</p>}
@@ -77,8 +77,12 @@ const MENU: [string, [string, string][]][] = [
 ];
 const BARRA: [string, string, string][] = [["/", "Mi día", "M3 12l9-8 9 8M5 10v10h14V10"], ["/agenda", "Agenda", "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4"], ["/embudos", "Embudos", "M4 5h16l-6 8v6l-4-2v-4z"], ["/contactos", "Contactos", "M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0"]];
 
+// Logo oficial de CIRE (manual de marca), en blanco sobre la barra
+export function LogoCire({ alto = 20 }: { alto?: number }) {
+  return <svg className="logo-cire" height={alto} viewBox="0 0 3004.043 913.819" role="img" aria-label="CIRE" fill="currentColor"><polygon points="1018.761 157.939 1018.717 157.939 1018.717 176.489 1101.176 176.489 1018.717 252.48 1018.717 397.78 1018.83 397.78 1018.935 759.411 1169.313 910.834 1256.8 910.436 1256.909 331.413 1256.909 4.173 1018.717 4.156 1018.761 157.939" /><polygon points="1366.204 910.834 1603.49 910.277 1603.071 214.26 1603.074 214.26 1602.901 138.447 1684.991 214.074 1744.83 213.939 1744.979 214.077 1881.156 213.769 1985.327 213.4 1985.327 4.77 1364.117 6.308 1366.204 910.834" /><polygon points="518.017 3.042 518.017 3.018 157.023 2.984 2.817 155.797 2.022 755.358 157.922 910.834 518.017 910.814 518.017 910.801 755.438 910.788 910.453 758.468 909.38 588.617 670.827 590.197 670.818 590.438 670.724 590.438 670.724 661.039 626.14 702.126 625.381 702.818 291.324 702.818 291.323 702.817 245.989 661.039 245.989 252.78 291.323 211.002 625.39 211.002 670.723 252.779 670.724 252.779 670.724 321.37 670.905 327.11 910.778 326.634 911.509 158.943 755.416 3.064 518.017 3.042" /><path d="M2845.929,3.064l-237.399-.022v-.024l-360.994-.034-154.207,152.812-.795,599.561,155.901,155.476,360.094-.02v-.013l237.422-.013,155.015-152.32-1.073-169.851-238.552,1.58-.009.242h-.095v70.601l-45.333,41.777h0s.006,0,.006,0h0s-334.076,0-334.076,0h-.001s.004,0,.004,0l-45.334-41.778v-182.471h633.302v-.028h31.469v-151.905h.017l.73-167.691L2845.929,3.064ZM2761.339,366.099h-424.837v-113.319l45.334-41.778h334.067l45.333,41.778h.001v68.591l.102,3.227v41.502Z" /></svg>;
+}
 function Marca({ ranka }: { ranka: boolean }) {
-  return ranka ? <div className="marca marca-ranka">RANKA <Estrella tam={15} /></div> : <div className="marca">CIRE <span>Holding</span></div>;
+  return ranka ? <div className="marca marca-ranka">RANKA <Estrella tam={15} /></div> : <div className="marca marca-cire"><LogoCire /><span>Holding</span></div>;
 }
 
 function useMovil() {

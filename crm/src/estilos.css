@@ -1,16 +1,18 @@
 :root {
-  --naranja: #ff551a; --naranja-osc: #d9430f; --naranja-suave: #fff1ea; --negro: #1d2629; --grafito: #2a3539; --grafito-2: #3a474c;
-  --texto: #1d2629; --gris: #5f6b6f; --gris-2: #8d999d; --linea: #dfe3e2; --fondo: #eef1f0; --blanco: #fff;
+  /* Sistema de marca CIRE: naranja #FF551A (acento, máx. ~15%), negro #1C1C1C, gris #282828, blanco #EFEFEF. Inter + Space Mono. Esquinas rectas. */
+  --naranja: #ff551a; --naranja-osc: #c73d08; --naranja-hover: #e3470f; --naranja-suave: #fff0e9; --negro: #1c1c1c; --grafito: #282828; --grafito-2: #353535;
+  --texto: #1c1c1c; --gris: #555555; --gris-2: #8e8e8e; --linea: #d4d4d4; --fondo: #efefef; --blanco: #ffffff;
   --verde: #23885a; --verde-suave: #e3f4ea; --rojo: #c8372d; --rojo-suave: #fbe7e5; --ambar: #b7790a; --ambar-suave: #fdf1d9;
-  --azul-suave: #e3edf3; --sombra: none; --radio: 10px;
-  font-family: "DM Sans", system-ui, sans-serif; color: var(--texto); background: var(--fondo); font-size: 15px;
+  --azul-suave: #e9edf0; --sombra: none; --radio: 0px;
+  --f-titulo: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; --f-texto: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; --f-mono: "Space Mono", ui-monospace, monospace;
+  font-family: var(--f-texto); color: var(--texto); background: var(--fondo); font-size: 15px;
 }
 * { box-sizing: border-box; }
 body { margin: 0; -webkit-font-smoothing: antialiased; }
-h1, h2, h3, .marca { font-family: "Outfit", sans-serif; letter-spacing: -.01em; }
+h1, h2, h3, .marca { font-family: var(--f-titulo); letter-spacing: -.01em; }
 h1 { font-size: 28px; margin: 0 0 2px; font-weight: 700; }
 h2 { font-size: 17px; margin: 0 0 12px; font-weight: 600; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-h2 small { font-family: "DM Sans"; font-weight: 400; font-size: 13px; color: var(--gris); }
+h2 small { font-family: var(--f-texto); font-weight: 400; font-size: 13px; color: var(--gris); }
 h3 { font-size: 13px;  color: var(--gris); margin: 16px 0 6px; font-weight: 600; }
 a { color: var(--naranja-osc); text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -63,14 +65,14 @@ main { padding: 28px 34px 60px; min-width: 0; max-width: 1500px; }
 .panel.urgente { border-color: #ffc4ae; background: linear-gradient(180deg, #fff6f2, #fff 40%); }
 .panel.destacado { border-color: #ffd7c7; }
 .grilla { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
-.kpi .valor { font-family: "Outfit"; font-size: 32px; font-weight: 700; }
+.kpi .valor { font-family: var(--f-titulo); font-size: 32px; font-weight: 700; }
 .kpi .titulo { color: var(--gris); font-size: 12px;  }
 .kpi small { color: var(--gris); }
 .barra { height: 8px; background: #efebe6; border-radius: 5px; overflow: hidden; margin: 8px 0 6px; }
 .barra i { display: block; height: 100%; background: var(--naranja); border-radius: 5px; }
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 18px; }
 .kpi-mini { background: #fff; border: 1px solid var(--linea); border-radius: var(--radio); padding: 12px 14px; display: flex; flex-direction: column; box-shadow: var(--sombra); }
-.kpi-mini b { font-family: "Outfit"; font-size: 26px; line-height: 1.1; }
+.kpi-mini b { font-family: var(--f-titulo); font-size: 26px; line-height: 1.1; }
 .kpi-mini span { color: var(--gris); font-size: 13px; }
 .kpi-mini.rojo { border-color: #f1b8b2; background: var(--rojo-suave); } .kpi-mini.rojo b { color: var(--rojo); }
 .kpi-mini.naranja { border-color: #ffc9b3; background: var(--naranja-suave); } .kpi-mini.naranja b { color: var(--naranja-osc); }
@@ -190,7 +192,7 @@ tr.clic:hover td { background: var(--naranja-suave); }
 .metricas { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 16px 0 8px; }
 .metricas div { background: #faf8f6; border: 1px solid var(--linea); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; }
 .metricas span { font-size: 12px;  color: var(--gris); }
-.metricas b { font-family: "Outfit"; font-size: 22px; }
+.metricas b { font-family: var(--f-titulo); font-size: 22px; }
 .metricas small { color: var(--gris-2); font-size: 12px; }
 table.resumen { box-shadow: none; margin-top: 12px; }
 table.resumen td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
@@ -544,10 +546,11 @@ nav a { padding: 6px 11px; }
   --naranja: #282828; --naranja-osc: #4e7590; --naranja-suave: #edf3f7;
   --negro: #282828; --grafito: #383838; --grafito-2: #4a4a4a;
   --texto: #282828; --gris: #5c6670; --gris-2: #8b949c; --linea: #dfe5ea; --fondo: #eef2f5; --blanco: #fcfcfc;
-  font-family: "Source Sans 3", "DM Sans", system-ui, sans-serif; font-size: 15.5px;
+  --f-titulo: "Sora", "Inter", sans-serif; --f-texto: "Source Sans 3", "Inter", system-ui, sans-serif; --radio: 12px;
+  font-family: var(--f-texto); font-size: 15.5px;
 }
 :root[data-marca="ranka"] body { background: var(--fondo); }
-:root[data-marca="ranka"] :is(h1, h2, h3, .marca, .kpi .valor, .kpi-mini b, .metricas b) { font-family: "Sora", "Outfit", sans-serif; letter-spacing: -.02em; }
+:root[data-marca="ranka"] :is(h1, h2, h3, .marca, .kpi .valor, .kpi-mini b, .metricas b) { font-family: var(--f-titulo); letter-spacing: -.02em; }
 :root[data-marca="ranka"] h2 small { font-family: "Source Sans 3", sans-serif; }
 :root[data-marca="ranka"] button.primario, :root[data-marca="ranka"] a.boton.primario { background: var(--rk-lima); color: var(--rk-grafito); border-color: var(--rk-lima); }
 :root[data-marca="ranka"] button.primario:hover, :root[data-marca="ranka"] a.boton.primario:hover { background: #cdea3f; }
@@ -663,3 +666,59 @@ nav a { padding: 6px 11px; }
   .fz-oh-fila { grid-template-columns: 24px minmax(0, 1fr) auto; }
   .fz-oh-fila button { grid-column: 2; justify-self: start; }
 }
+
+
+/* ===== Sistema de marca CIRE (todo lo que no es Ranka) ===== */
+:root:not([data-marca="ranka"]) body { background: var(--fondo); }
+:root:not([data-marca="ranka"]) * { border-radius: 0 !important; }
+:root:not([data-marca="ranka"]) :is(.temp, .notif-cuenta, .agenda-dia b, .cal-punto, .agenda-ahora::before, .estado-red::before, .leyenda, .red-etiquetas button, .fz-pill) { border-radius: 99px !important; }
+:root:not([data-marca="ranka"]) h1 { font-family: var(--f-titulo); font-weight: 800; text-transform: uppercase; letter-spacing: -.025em; line-height: 1; font-size: 30px; margin-bottom: 6px; }
+:root:not([data-marca="ranka"]) h2 { font-weight: 700; letter-spacing: -.01em; }
+:root:not([data-marca="ranka"]) :is(.nav-grupo, th, .kpi .titulo, h3, .eyebrow, .red-embudo button span, .agenda-dia span, .fz-tiles span, .rk-barra span) { font-family: var(--f-mono); text-transform: uppercase; letter-spacing: .14em; font-size: 11px; font-weight: 400; }
+:root:not([data-marca="ranka"]) :is(.kpi-mini b, .kpi .valor, .metricas b, .red-embudo button strong) { font-family: var(--f-titulo); font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+:root:not([data-marca="ranka"]) a { color: var(--naranja-osc); }
+:root:not([data-marca="ranka"]) button.primario, :root:not([data-marca="ranka"]) a.boton.primario { background: var(--naranja); border-color: var(--naranja); color: var(--negro); font-weight: 700; letter-spacing: .02em; }
+:root:not([data-marca="ranka"]) button.primario:hover, :root:not([data-marca="ranka"]) a.boton.primario:hover { background: var(--naranja-hover); border-color: var(--naranja-hover); }
+:root:not([data-marca="ranka"]) button, :root:not([data-marca="ranka"]) a.boton { border-color: #c8c8c8; }
+:root:not([data-marca="ranka"]) button:hover, :root:not([data-marca="ranka"]) a.boton:hover { border-color: var(--negro); }
+:root:not([data-marca="ranka"]) :is(input, select, textarea) { border-color: #c8c8c8; background: #fff; }
+:root:not([data-marca="ranka"]) :is(input, select, textarea):focus { outline: 2px solid var(--naranja); outline-offset: -1px; border-color: var(--naranja); }
+:root:not([data-marca="ranka"]) .tarjeta, :root:not([data-marca="ranka"]) .panel, :root:not([data-marca="ranka"]) table { border-color: var(--linea); }
+:root:not([data-marca="ranka"]) th { background: #f6f6f6; color: var(--gris); }
+:root:not([data-marca="ranka"]) .segmentos { background: #e2e2e2; }
+:root:not([data-marca="ranka"]) .segmentos button.activo { box-shadow: inset 0 -2px 0 var(--naranja); }
+:root:not([data-marca="ranka"]) .columna { background: #e2e2e2; }
+:root:not([data-marca="ranka"]) .chip { background: #ececec; }
+/* La barra: negro con la textura de hormigón muy tenue, como pide el manual (6–12 %) */
+:root:not([data-marca="ranka"]) aside, :root:not([data-marca="ranka"]) .movil-cab { background-color: var(--negro); position: relative; }
+:root:not([data-marca="ranka"]) aside::before { content: ""; position: absolute; inset: 0; background: url("/textura-hormigon.svg") center / 520px auto repeat; opacity: .07; pointer-events: none; }
+:root:not([data-marca="ranka"]) aside > * { position: relative; }
+:root:not([data-marca="ranka"]) nav a { color: #c8c8c8; }
+:root:not([data-marca="ranka"]) nav a.active { background: var(--grafito); color: var(--cire-blanco, #efefef); box-shadow: inset 3px 0 0 var(--naranja); }
+:root:not([data-marca="ranka"]) .nav-grupo { color: #8e8e8e; }
+:root:not([data-marca="ranka"]) .buscador input { background: var(--grafito); border-color: #3a3a3a; }
+:root:not([data-marca="ranka"]) .notif-boton { border-color: #3a3a3a !important; }
+.marca-cire { display: flex; align-items: center; gap: 10px; color: #efefef; }
+.marca-cire .logo-cire { display: block; flex: none; }
+.marca-cire span { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase; color: var(--naranja) !important; font-weight: 400; padding-top: 3px; }
+.marca-login { color: var(--negro); }
+.login { background: var(--negro) !important; position: relative; }
+.login::before { content: ""; position: absolute; inset: 0; background: url("/textura-hormigon.svg") center / 640px auto repeat; opacity: .08; }
+.login .tarjeta { position: relative; clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px); padding: 34px 32px; }
+.login .eyebrow { color: var(--gris); margin-top: -4px; }
+/* Recorte de esquinas del isotipo, en las piezas clave */
+:root:not([data-marca="ranka"]) :is(.kpi-mini.rojo, .compr-hero, .red-embudo button.activo) { clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
+:root:not([data-marca="ranka"]) .kpi-mini { background: #fff; border-color: var(--linea); }
+:root:not([data-marca="ranka"]) .kpi-mini.rojo { background: var(--naranja-suave); border-color: #ffc2a8; }
+:root:not([data-marca="ranka"]) .kpi-mini.rojo b { color: var(--naranja-osc); }
+:root:not([data-marca="ranka"]) .compr-hero { background: var(--negro) !important; }
+/* El naranja no pasa del ~15 %: en listas, la acción repetida va en negro y los nombres en tinta; el naranja queda para lo que hay que mirar */
+:root:not([data-marca="ranka"]) :is(.item-acc, .carta-acc, .compr-acc, .red-acc, .agenda-lista) :is(button.primario, a.boton.primario) { background: var(--negro); border-color: var(--negro); color: #efefef; }
+:root:not([data-marca="ranka"]) :is(.item-acc, .carta-acc, .compr-acc, .red-acc) :is(button.primario, a.boton.primario):hover { background: var(--grafito); }
+:root:not([data-marca="ranka"]) :is(.item-nombre, .celda-nombre, .carta-nombre, .red-nombre strong) { color: var(--texto); }
+:root:not([data-marca="ranka"]) :is(a.item-nombre, .celda-nombre, .carta-nombre):hover { color: var(--naranja-osc); text-decoration: underline; }
+:root:not([data-marca="ranka"]) .notif-boton { background: var(--grafito) !important; color: #efefef; }
+:root:not([data-marca="ranka"]) :is(a.boton, a.ev, a.red-prop, .movil-barra a) { color: var(--texto); }
+:root:not([data-marca="ranka"]) a.boton.primario { color: var(--negro); }
+:root:not([data-marca="ranka"]) .movil-barra a.active, :root:not([data-marca="ranka"]) .movil-barra button.active { background: none; box-shadow: inset 0 3px 0 var(--naranja); color: var(--negro); }
+:root:not([data-marca="ranka"]) .movil-barra a { color: var(--gris); }
