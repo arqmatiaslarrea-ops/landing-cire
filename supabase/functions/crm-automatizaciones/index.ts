@@ -7,7 +7,8 @@ import { createClient } from "npm:@supabase/supabase-js@2.45.0";
 const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 const CRM = "https://landing-cire.vercel.app";
 const FN = "https://dhbyfrjkeecuvlkqlbne.supabase.co/functions/v1";
-const REMITENTE = Deno.env.get("CRM_REMITENTE") || "CRM CIRE <onboarding@resend.dev>";
+const REMITENTE = "Matías Larrea · CIRE <mati@rankaagency.com>";
+const RESPONDER_A = "arqmatiaslarrea@gmail.com";
 const HORA = (d: string | Date) => new Date(d).toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
 
 let claveResend: string | null = null;
@@ -19,7 +20,7 @@ async function mail(to: string | string[], asunto: string, html: string) {
   claveResend ??= await secreto("resend_api_key");
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST", headers: { Authorization: `Bearer ${claveResend}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: REMITENTE, to: Array.isArray(to) ? to : [to], subject: asunto, html }),
+    body: JSON.stringify({ from: REMITENTE, reply_to: RESPONDER_A, to: Array.isArray(to) ? to : [to], subject: asunto, html }),
   });
   return { ok: r.ok, txt: (await r.text()).slice(0, 300) };
 }
@@ -129,7 +130,7 @@ async function avisoTanda() {
   const wa = (t: string) => { let d = String(t).replace(/\D/g, ""); if (d.length === 10) d = "549" + d; return `https://wa.me/${d}`; };
   const filas = tanda.map((r: any, i: number) => `<tr><td style="padding:6px 10px 6px 0"><b>${i + 1}. ${r.nombre}</b><br><span style="color:#5f6b6f">${r.situacion || ""} ${r.barrio ? "· " + r.barrio : ""}</span></td><td><a href="${wa(r.telefono)}">WhatsApp</a> · <a href="${CRM}/contactos/${r.contact_id}">Ficha</a></td></tr>`).join("");
   const mati = await emailDe("mati");
-  if (mati && tanda.length) await mail(mati, "Tu tanda de prospección de hoy (9 a 11)", envolver(`<p>Buen día. Estos son los 5 recontactos de hoy, ordenados por temperatura:</p><table>${filas}</table><p>Registrá cada gestión en <a href="${CRM}">Mi día</a>. Recordá: si no hubo número, no cuenta como oferta.</p>`));
+  if (mati && tanda.length) await mail(mati, "Tu tanda de prospección de hoy (9 a 11)", envolver(`<p>Buen día. Estos son los 5 recontactos de hoy, ordenados por temperatura:</p><table>${filas}</table><p>La tanda completa de WhatsApp (vendedores e inmobiliarias) está en <a href="${CRM}/tanda">Tanda de WhatsApp</a>. Registrá cada gestión en <a href="${CRM}">Mi día</a>. Recordá: si no hubo número, no cuenta como oferta.</p>`));
 }
 
 // ---------- Reporte semanal (solo a Mati) ----------
