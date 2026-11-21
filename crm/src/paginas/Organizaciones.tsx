@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase, usd, waLink } from "../config";
 import { useYo } from "../main";
 
@@ -28,6 +28,8 @@ export default function Organizaciones() {
   const [barrio, setBarrio] = useState("");
   const [filtro, setFiltro] = useState("");
   const [estado, setEstado] = useState("");
+  const navegar = useNavigate();
+  const [nuevaProp, setNuevaProp] = useState<{ direccion: string; precio: string } | null>(null);
   const [pagina, setPagina] = useState(0);
   const [cargando, setCargando] = useState(true);
 
@@ -76,6 +78,15 @@ export default function Organizaciones() {
     setOrgs((l) => l.map((x) => (x.id === o.id ? { ...x, ...cambios } : x)));
     if (sel?.id === o.id) setSel({ ...sel, ...cambios });
     await supabase.from("crm_organizaciones").update(cambios).eq("id", o.id);
+  };
+  // Cierra el circuito red → adquisición: la propiedad que manda una inmobiliaria entra como lead en Propiedades (etapa L)
+  const cargarPropiedad = async () => {
+    if (!nuevaProp?.direccion.trim()) return;
+    const precio = Number(nuevaProp.precio.replace(/\D/g, "")) || null;
+    const { data, error } = await supabase.from("crm_propiedades").insert({ direccion: nuevaProp.direccion.trim(), barrio: sel.barrio, organizacion_id: sel.id, precio_pedido_usd: precio, prospecto_por: "inmobiliaria", responsable: yo.clave }).select("id").single();
+    if (error) return alert(error.message);
+    await guardar({ estado_contacto: "mando_propiedad", trae_producto: true, ultimo_contacto: new Date().toISOString().slice(0, 10) });
+    setNuevaProp(null); navegar(`/propiedades/${data.id}`);
   };
   const msg = (o: any) => `Hola, ¿cómo están? Soy Matías Larrea de CIRE. Compramos PH y departamentos para reciclar en ${o.barrio || "CABA"}. Si tienen propiedades a reciclar o con alguna complicación (sucesión, deudas, mal estado), las analizamos rápido y pagamos honorarios completos. ¿Tienen algo así en cartera?`;
   const Campo = ({ label, k, tipo = "text" }: { label: string; k: string; tipo?: string }) => (
@@ -189,6 +200,14 @@ export default function Organizaciones() {
             <h3>Propiedades que trajo</h3>
             {props.filter((p) => p.organizacion_id === sel.id).map((p) => <div key={p.id}><Link to={`/propiedades/${p.id}`}>{p.direccion}</Link> <small className="sub">{p.barrio}</small></div>)}
             {!props.some((p) => p.organizacion_id === sel.id) && <p className="sub chico">Ninguna todavía.</p>}
+            {nuevaProp ? (
+              <div className="fila" style={{ marginTop: 8, flexWrap: "wrap" }}>
+                <input placeholder="Dirección" value={nuevaProp.direccion} onChange={(e) => setNuevaProp({ ...nuevaProp, direccion: e.target.value })} autoComplete="off" />
+                <input placeholder="Precio pedido USD" value={nuevaProp.precio} onChange={(e) => setNuevaProp({ ...nuevaProp, precio: e.target.value })} inputMode="numeric" autoComplete="off" style={{ width: 150 }} />
+                <button className="chico" onClick={cargarPropiedad}>Cargar y analizar</button>
+                <button className="chico secundario" onClick={() => setNuevaProp(null)}>Cancelar</button>
+              </div>
+            ) : <button className="chico" style={{ marginTop: 8 }} onClick={() => setNuevaProp({ direccion: "", precio: "" })}>+ Cargar propiedad que mandó</button>}
           </div>
         )}
       </div>
