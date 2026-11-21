@@ -107,7 +107,7 @@ export default function Descubrimiento({ contactId, relationId, nombre, alCerrar
                 ) : p.tipo === "opciones" ? (
                   <div className="opciones">{p.opciones!.map((o) => <button key={o} className={r[p.id] === o ? "activo" : ""} onClick={(e) => { e.preventDefault(); set(p.id, o); }}>{o}</button>)}</div>
                 ) : (
-                  <input value={r[p.id] || ""} onChange={(e) => set(p.id, e.target.value)} />
+                  <textarea rows={2} name={`desc-${p.id}`} autoComplete="off" data-lpignore="true" data-1p-ignore value={r[p.id] || ""} onChange={(e) => set(p.id, e.target.value)} />
                 )}
               </label>
             ))}
