@@ -17,6 +17,7 @@ import Reuniones from "./paginas/Reuniones";
 import Envios from "./paginas/Envios";
 import Gremios from "./paginas/Gremios";
 import Tanda from "./paginas/Tanda";
+import Agenda from "./paginas/Agenda";
 
 export type Yo = { email: string; nombre: string; clave: string; unidades: Unidad[]; admin: boolean };
 const YoCtx = createContext<Yo | null>(null);
@@ -113,18 +114,24 @@ function App() {
             <div className="marca">CIRE <span>Holding</span></div>
             <Buscador />
             <nav>
+              <span className="nav-grupo">Mi trabajo</span>
               <NavLink to="/" end>Mi día</NavLink>
+              <NavLink to="/agenda">Agenda</NavLink>
               <NavLink to="/tanda">Tanda de WhatsApp</NavLink>
-              <NavLink to="/tablero">Tablero</NavLink>
               <NavLink to="/reuniones">Reuniones</NavLink>
-              <NavLink to="/contactos">Contactos</NavLink>
+              <span className="nav-grupo">Ventas</span>
               <NavLink to="/embudos">Embudos</NavLink>
+              <NavLink to="/contactos">Contactos</NavLink>
+              <NavLink to="/ofertas">Ofertas · Plan 260</NavLink>
+              <span className="nav-grupo">Activos y red</span>
               <NavLink to="/propiedades">Propiedades</NavLink>
               <NavLink to="/inmobiliarias">Inmobiliarias</NavLink>
               <NavLink to="/gremios">Gremios</NavLink>
-              <NavLink to="/ofertas">Ofertas · Plan 260</NavLink>
+              <span className="nav-grupo">Marketing</span>
               <NavLink to="/listas">Listas y eventos</NavLink>
               <NavLink to="/seguimiento">Seguimiento automático</NavLink>
+              <span className="nav-grupo">Resultados</span>
+              <NavLink to="/tablero">Tablero</NavLink>
             </nav>
             <div className="usuario">
               <strong>{yo.nombre}</strong>
@@ -148,6 +155,7 @@ function App() {
               <Route path="/seguimiento" element={<Envios />} />
               <Route path="/gremios" element={<Gremios />} />
               <Route path="/tanda" element={<Tanda />} />
+              <Route path="/agenda" element={<Agenda />} />
               <Route path="*" element={<div className="tarjeta"><h1>Esta página no existe</h1><p className="sub">Volvé a <NavLink to="/">Mi día</NavLink>.</p></div>} />
             </Routes>
           </main>
