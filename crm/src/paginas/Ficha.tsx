@@ -1,3 +1,4 @@
+import Inmueble from "../componentes/Inmueble";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { EMBUDOS, PERFILES, UNIDADES, etiqueta, fecha, supabase, waLink, type Perfil, type Unidad } from "../config";
@@ -85,6 +86,9 @@ export default function Ficha() {
         {c.email && <a href={`mailto:${c.email}`}><button>Email</button></a>}
       </div>
 
+      {perfiles.some((p) => p.perfil === "vendedor_motivado") && (
+        <Inmueble contactId={id!} datos={perfiles.find((p) => p.perfil === "vendedor_motivado")?.datos || {}} puede={puedeOperar(yo, "inmobiliaria") || puedeOperar(yo, "desarrolladora")} alGuardar={cargar} />
+      )}
       <div className="ficha">
         <div className="tarjeta">
           <h2 style={{ marginTop: 0 }}>Datos</h2>

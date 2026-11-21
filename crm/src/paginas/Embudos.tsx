@@ -81,8 +81,11 @@ export default function Embudos() {
                       {r.capital && <span className="chip">{r.capital}</span>}
                       {r.semaforo_desc && <span className={`chip sem-${r.semaforo_desc}`}>{r.semaforo_desc}</span>}
                     </div>
+                    {(r.inm_direccion || r.inm_m2 || r.inm_precio) && (
+                      <div className="carta-inm">{[r.inm_direccion, r.inm_m2 && `${String(r.inm_m2).replace(/\s*m2|\s*m²/i, "")} m²`, r.inm_precio && !/no especif/i.test(r.inm_precio) && r.inm_precio].filter(Boolean).join(" · ")}</div>
+                    )}
                     <div className="carta-pie">
-                      <span>{r.barrio || "—"}</span>
+                      <span>{r.inm_barrio || r.barrio || "—"}</span>
                       <span className={d > 14 && !et.cierre ? "alerta" : ""}>{d} d en etapa</span>
                     </div>
                     {r.proximo_paso && <div className="carta-prox">→ {r.proximo_paso}</div>}

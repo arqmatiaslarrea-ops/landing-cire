@@ -9,8 +9,9 @@ export type FilaContacto = {
   ultima_actividad: string | null;
 };
 
-export type Filtro = { q: string; perfil: string; unidad: string; embudo: string; etapa: string; estado: string; barrio: string };
-export const filtroVacio: Filtro = { q: "", perfil: "", unidad: "", embudo: "", etapa: "", estado: "", barrio: "" };
+export type Filtro = { q: string; perfil: string; unidad: string; embudo: string; etapa: string; estado: string; barrio: string; desde: string; hasta: string; fechaCampo: "alta" | "actividad" };
+export const filtroVacio: Filtro = { q: "", perfil: "", unidad: "", embudo: "", etapa: "", estado: "", barrio: "", desde: "", hasta: "", fechaCampo: "alta" };
+const relacionDe = (c: FilaContacto, f: Partial<Filtro>) => c.relaciones.find((r) => (!f.unidad || r.unidad === f.unidad) && (!f.embudo || r.embudo === f.embudo) && (!f.etapa || r.etapa === f.etapa) && (!f.estado || r.estado === f.estado));
 
 export function aplicarFiltro(filas: FilaContacto[], f: Filtro) {
   const q = f.q.trim().toLowerCase();
@@ -18,6 +19,11 @@ export function aplicarFiltro(filas: FilaContacto[], f: Filtro) {
     if (q && ![c.nombre, c.email, c.telefono, c.barrio].some((v) => v?.toLowerCase().includes(q))) return false;
     if (f.perfil && !c.perfiles.includes(f.perfil as Perfil)) return false;
     if (f.barrio && !c.barrio?.toLowerCase().includes(f.barrio.toLowerCase())) return false;
+    if (f.desde || f.hasta) {
+      const d = (f.fechaCampo === "actividad" ? c.ultima_actividad : c.created_at)?.slice(0, 10);
+      if (!d || (f.desde && d < f.desde) || (f.hasta && d > f.hasta)) return false;
+    }
+    if (f.unidad === "sin_unidad") return !c.relaciones.length;
     const rels = c.relaciones.filter((r) => (!f.unidad || r.unidad === f.unidad) && (!f.embudo || r.embudo === f.embudo) && (!f.etapa || r.etapa === f.etapa) && (!f.estado || r.estado === f.estado));
     if ((f.unidad || f.embudo || f.etapa || f.estado) && !rels.length) return false;
     return true;
@@ -41,13 +47,13 @@ export function useContactos() {
   return { filas, cargando, recargar };
 }
 
-export function exportarCSV(filas: FilaContacto[], nombre: string) {
-  const cab = ["nombre", "telefono", "email", "barrio", "perfiles", "unidad", "embudo", "etapa", "estado"];
+export function exportarCSV(filas: FilaContacto[], nombre: string, f: Partial<Filtro> = {}) {
+  const cab = ["nombre", "telefono", "email", "barrio", "perfiles", "unidad", "embudo", "etapa", "estado", "responsable", "alta", "ultima_actividad"];
   // Evita que Excel interprete un valor como fórmula (=, +, -, @).
   const esc = (v: unknown) => { let t = String(v ?? ""); if (/^[=+\-@\t\r]/.test(t)) t = "'" + t; return `"${t.replace(/"/g, '""')}"`; };
   const lineas = filas.map((c) => {
-    const r = c.relaciones[0];
-    return [c.nombre, c.telefono, c.email, c.barrio, c.perfiles.join(" | "), r?.unidad, r?.embudo, r?.etapa, r?.estado].map(esc).join(",");
+    const r = relacionDe(c, f) || c.relaciones[0];
+    return [c.nombre, c.telefono, c.email, c.barrio, c.perfiles.join(" | "), r ? UNIDADES[r.unidad] : "", r?.embudo, r?.etapa, r ? etiqueta(r.estado) : "", r?.responsable, c.created_at?.slice(0, 10), c.ultima_actividad?.slice(0, 10)].map(esc).join(",");
   });
   const blob = new Blob(["﻿" + [cab.join(","), ...lineas].join("\n")], { type: "text/csv;charset=utf-8" });
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `${nombre}.csv`; a.click();
@@ -66,6 +72,7 @@ export function BarraFiltros({ f, setF }: { f: Filtro; setF: (f: Filtro) => void
       <select value={f.unidad} onChange={(e) => setF({ ...f, unidad: e.target.value, embudo: "", etapa: "" })}>
         <option value="">Todas las unidades</option>
         {Object.entries(UNIDADES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+        <option value="sin_unidad">Sin unidad (bases importadas)</option>
       </select>
       <select value={f.embudo} onChange={(e) => setF({ ...f, embudo: e.target.value, etapa: "" })}>
         <option value="">Todos los embudos</option>
@@ -82,6 +89,15 @@ export function BarraFiltros({ f, setF }: { f: Filtro; setF: (f: Filtro) => void
         {["prospecto", "cliente_activo", "ex_cliente", "aliado", "descartado"].map((s) => <option key={s} value={s}>{etiqueta(s)}</option>)}
       </select>
       <input placeholder="Barrio" value={f.barrio} onChange={(e) => setF({ ...f, barrio: e.target.value })} style={{ width: 130 }} />
+      <span className="fila" style={{ gap: 6 }}>
+        <select value={f.fechaCampo} onChange={(e) => setF({ ...f, fechaCampo: e.target.value as Filtro["fechaCampo"] })} aria-label="Fecha a filtrar">
+          <option value="alta">Alta entre</option>
+          <option value="actividad">Última gestión entre</option>
+        </select>
+        <input type="date" value={f.desde} onChange={(e) => setF({ ...f, desde: e.target.value })} aria-label="Desde" />
+        <input type="date" value={f.hasta} onChange={(e) => setF({ ...f, hasta: e.target.value })} aria-label="Hasta" />
+      </span>
+      {JSON.stringify(f) !== JSON.stringify(filtroVacio) && <button className="link" onClick={() => setF(filtroVacio)}>Limpiar filtros</button>}
     </div>
   );
 }
@@ -138,7 +154,7 @@ export default function Contactos() {
       <div className="fila" style={{ justifyContent: "space-between" }}>
         <div><h1>Contactos</h1><p className="sub">Una ficha por persona en todo el holding. {cargando ? "Cargando…" : `${vis.length} de ${filas.length}`}</p></div>
         <div className="fila">
-          {yo.admin && <button onClick={() => exportarCSV(vis, "contactos-filtrados")}>Exportar CSV</button>}
+          {yo.admin && <button onClick={() => exportarCSV(vis, `contactos-${[f.unidad, f.estado, f.desde, f.hasta].filter(Boolean).join("-") || "todos"}`, f)}>Exportar {vis.length} a CSV</button>}
           <NuevoContacto alCrear={(id) => nav(`/contactos/${id}`)} />
         </div>
       </div>

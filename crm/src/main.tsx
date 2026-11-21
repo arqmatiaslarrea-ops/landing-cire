@@ -15,6 +15,7 @@ import Propiedad from "./paginas/Propiedad";
 import Organizaciones from "./paginas/Organizaciones";
 import Reuniones from "./paginas/Reuniones";
 import Envios from "./paginas/Envios";
+import Gremios from "./paginas/Gremios";
 
 export type Yo = { email: string; nombre: string; clave: string; unidades: Unidad[]; admin: boolean };
 const YoCtx = createContext<Yo | null>(null);
@@ -118,6 +119,7 @@ function App() {
               <NavLink to="/embudos">Embudos</NavLink>
               <NavLink to="/propiedades">Propiedades</NavLink>
               <NavLink to="/inmobiliarias">Inmobiliarias</NavLink>
+              <NavLink to="/gremios">Gremios</NavLink>
               <NavLink to="/ofertas">Ofertas · Plan 260</NavLink>
               <NavLink to="/listas">Listas y eventos</NavLink>
               <NavLink to="/seguimiento">Seguimiento automático</NavLink>
@@ -142,6 +144,7 @@ function App() {
               <Route path="/listas" element={<Listas />} />
               <Route path="/reuniones" element={<Reuniones />} />
               <Route path="/seguimiento" element={<Envios />} />
+              <Route path="/gremios" element={<Gremios />} />
               <Route path="*" element={<div className="tarjeta"><h1>Esta página no existe</h1><p className="sub">Volvé a <NavLink to="/">Mi día</NavLink>.</p></div>} />
             </Routes>
           </main>
