@@ -51,7 +51,9 @@ export function reparto(p: Propiedad, par: Parametros) {
 // Cruce inversor ↔ propiedad (reglas del CRM anterior): barrio +40, activo +20, capital +15, sin compromisos +15, experiencia +10.
 export function capitalMax(texto: string | null | undefined) {
   if (!texto) return 0;
-  const nums = [...String(texto).toLowerCase().matchAll(/(\d+(?:[.,]\d+)?)\s*(k|mil|m)?/g)].map((m) => {
+  // Quita separadores de miles ("150.000" o "1,500,000") antes de leer los números.
+  const limpio = String(texto).toLowerCase().replace(/(\d)[.,](?=\d{3}(?!\d))/g, "$1");
+  const nums = [...limpio.matchAll(/(\d+(?:[.,]\d+)?)\s*(k|mil|m)?/g)].map((m) => {
     let v = parseFloat(m[1].replace(",", "."));
     if (m[2] === "k" || m[2] === "mil") v *= 1000; else if (m[2] === "m") v *= 1_000_000;
     return v;

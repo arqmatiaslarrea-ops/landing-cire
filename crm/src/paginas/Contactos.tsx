@@ -43,7 +43,8 @@ export function useContactos() {
 
 export function exportarCSV(filas: FilaContacto[], nombre: string) {
   const cab = ["nombre", "telefono", "email", "barrio", "perfiles", "unidad", "embudo", "etapa", "estado"];
-  const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  // Evita que Excel interprete un valor como fórmula (=, +, -, @).
+  const esc = (v: unknown) => { let t = String(v ?? ""); if (/^[=+\-@\t\r]/.test(t)) t = "'" + t; return `"${t.replace(/"/g, '""')}"`; };
   const lineas = filas.map((c) => {
     const r = c.relaciones[0];
     return [c.nombre, c.telefono, c.email, c.barrio, c.perfiles.join(" | "), r?.unidad, r?.embudo, r?.etapa, r?.estado].map(esc).join(",");
@@ -125,6 +126,7 @@ function NuevoContacto({ alCrear }: { alCrear: (id: string) => void }) {
 }
 
 export default function Contactos() {
+  const yo = useYo();
   const { filas, cargando } = useContactos();
   const [params] = useSearchParams();
   const [f, setF] = useState<Filtro>({ ...filtroVacio, q: params.get("q") || "" });
@@ -136,7 +138,7 @@ export default function Contactos() {
       <div className="fila" style={{ justifyContent: "space-between" }}>
         <div><h1>Contactos</h1><p className="sub">Una ficha por persona en todo el holding. {cargando ? "Cargando…" : `${vis.length} de ${filas.length}`}</p></div>
         <div className="fila">
-          <button onClick={() => exportarCSV(vis, "contactos-filtrados")}>Exportar CSV</button>
+          {yo.admin && <button onClick={() => exportarCSV(vis, "contactos-filtrados")}>Exportar CSV</button>}
           <NuevoContacto alCrear={(id) => nav(`/contactos/${id}`)} />
         </div>
       </div>

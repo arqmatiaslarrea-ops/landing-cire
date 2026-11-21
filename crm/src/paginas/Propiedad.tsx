@@ -113,16 +113,16 @@ export default function Propiedad() {
           <div className="tarjeta">
             <h2>Datos del inmueble</h2>
             <div className="grilla-campos">
-              <Campo label="Barrio" k="barrio" />
-              <Campo label="Localidad" k="localidad" />
-              <Campo label="Tipo" k="tipo" opciones={[["departamento", "Departamento"], ["ph", "PH"], ["casa", "Casa"], ["local", "Local"], ["terreno", "Terreno"], ["otro", "Otro"]]} />
-              <Campo label="Ambientes" k="ambientes" tipo="number" />
-              <Campo label="m² cubiertos" k="m2_cubiertos" tipo="number" />
-              <Campo label="m² totales" k="m2_totales" tipo="number" />
-              <Campo label="Estado físico" k="estado_fisico" opciones={[["a_estrenar", "A estrenar"], ["buen_estado", "Buen estado"], ["necesita_reforma", "Necesita reforma"], ["deteriorada", "Deteriorada"]]} />
-              <Campo label="Ocupación" k="ocupacion" opciones={[["vacia", "Vacía"], ["dueño", "La habita el dueño"], ["inquilino", "Inquilino"], ["ocupante_conflicto", "Ocupante con conflicto"]]} />
-              <Campo label="Situación" k="situacion" />
-              <Campo label="Precio pedido (USD)" k="precio_pedido_usd" tipo="number" />
+              {Campo({ label: "Barrio", k: "barrio" })}
+              {Campo({ label: "Localidad", k: "localidad" })}
+              {Campo({ label: "Tipo", k: "tipo", opciones: [["departamento", "Departamento"], ["ph", "PH"], ["casa", "Casa"], ["local", "Local"], ["terreno", "Terreno"], ["otro", "Otro"]] })}
+              {Campo({ label: "Ambientes", k: "ambientes", tipo: "number" })}
+              {Campo({ label: "m² cubiertos", k: "m2_cubiertos", tipo: "number" })}
+              {Campo({ label: "m² totales", k: "m2_totales", tipo: "number" })}
+              {Campo({ label: "Estado físico", k: "estado_fisico", opciones: [["a_estrenar", "A estrenar"], ["buen_estado", "Buen estado"], ["necesita_reforma", "Necesita reforma"], ["deteriorada", "Deteriorada"]] })}
+              {Campo({ label: "Ocupación", k: "ocupacion", opciones: [["vacia", "Vacía"], ["dueño", "La habita el dueño"], ["inquilino", "Inquilino"], ["ocupante_conflicto", "Ocupante con conflicto"]] })}
+              {Campo({ label: "Situación", k: "situacion" })}
+              {Campo({ label: "Precio pedido (USD)", k: "precio_pedido_usd", tipo: "number" })}
             </div>
             <label className="campo chico">Vendedor
               <select disabled={!puede} value={p.vendedor_contact_id || ""} onChange={(e) => guardar({ vendedor_contact_id: e.target.value || null })}>
@@ -137,20 +137,20 @@ export default function Propiedad() {
                 {orgs.map((o) => <option key={o.id} value={o.id}>{o.nombre}</option>)}
               </select>
             </label>
-            <Campo label="Prospectó (quién consiguió el dato)" k="prospecto_por" />
+            {Campo({ label: "Prospectó (quién consiguió el dato)", k: "prospecto_por" })}
             <label className="campo chico">Notas<textarea disabled={!puede} defaultValue={p.notas || ""} onBlur={(e) => e.target.value !== (p.notas || "") && guardar({ notas: e.target.value || null })} /></label>
           </div>
 
           <div className="tarjeta" style={{ marginTop: 16 }}>
             <h2>Reparto comercial <small>Calculadora de Deal</small></h2>
             <div className="grilla-campos">
-              <Campo label="Operación" k="operacion" opciones={[["wholesale", "Wholesale (fee de asignación)"], ["flip", "Venta inventario propio (flip)"], ["corretaje", "Venta por corretaje (tercero)"]]} />
-              <Campo label="Precio de la operación (USD)" k="precio_operacion_usd" tipo="number" />
-              {p.operacion === "wholesale" && <><Campo label="% wholesale" k="wholesale_pct" tipo="number" /><Campo label="Fee mínimo (USD)" k="wholesale_fee_min_usd" tipo="number" /></>}
-              {p.operacion === "corretaje" && <><Campo label="% punta vendedora" k="punta_vendedora_pct" tipo="number" /><Campo label="% punta compradora" k="punta_compradora_pct" tipo="number" /><Campo label="Puntas que cobra CIRE" k="puntas" opciones={[["ambas", "Ambas"], ["vendedora", "Solo vendedora"], ["compradora", "Solo compradora"]]} /></>}
-              {p.operacion === "flip" && <Campo label="% honorario nocional" k="honorario_nocional_pct" tipo="number" />}
-              <Campo label="Comercial" k="comercial" />
-              <Campo label="Instancia más avanzada lograda" k="instancia" opciones={[["prospeccion", `Prospección (${par.tasa_prospeccion * 100}%)`], ["captacion", `Captación / reserva (${par.tasa_captacion * 100}%)`], ["cierre", `Cierre / escritura (${par.tasa_cierre * 100}%)`]]} />
+              {Campo({ label: "Operación", k: "operacion", opciones: [["wholesale", "Wholesale (fee de asignación)"], ["flip", "Venta inventario propio (flip)"], ["corretaje", "Venta por corretaje (tercero)"]] })}
+              {Campo({ label: "Precio de la operación (USD)", k: "precio_operacion_usd", tipo: "number" })}
+              {p.operacion === "wholesale" && <>{Campo({ label: "% wholesale", k: "wholesale_pct", tipo: "number" })}{Campo({ label: "Fee mínimo (USD)", k: "wholesale_fee_min_usd", tipo: "number" })}</>}
+              {p.operacion === "corretaje" && <>{Campo({ label: "% punta vendedora", k: "punta_vendedora_pct", tipo: "number" })}{Campo({ label: "% punta compradora", k: "punta_compradora_pct", tipo: "number" })}{Campo({ label: "Puntas que cobra CIRE", k: "puntas", opciones: [["ambas", "Ambas"], ["vendedora", "Solo vendedora"], ["compradora", "Solo compradora"]] })}</>}
+              {p.operacion === "flip" && Campo({ label: "% honorario nocional", k: "honorario_nocional_pct", tipo: "number" })}
+              {Campo({ label: "Comercial", k: "comercial" })}
+              {Campo({ label: "Instancia más avanzada lograda", k: "instancia", opciones: [["prospeccion", `Prospección (${par.tasa_prospeccion * 100}%)`], ["captacion", `Captación / reserva (${par.tasa_captacion * 100}%)`], ["cierre", `Cierre / escritura (${par.tasa_cierre * 100}%)`]] })}
             </div>
             {rep.bruto > 0 ? (
               <table className="resumen">
@@ -171,10 +171,10 @@ export default function Propiedad() {
           <div className="tarjeta">
             <h2>Análisis del negocio <small>escenario proyectado, sujeto a validación</small></h2>
             <div className="grilla-campos">
-              <Campo label="Precio de venta estimado después de obra (ARV)" k="arv_usd" tipo="number" />
-              <Campo label="Costo de obra (USD)" k="costo_obra_usd" tipo="number" />
-              <Campo label="Gastos: escritura, comisiones, tenencia (USD)" k="gastos_usd" tipo="number" />
-              <Campo label="Factor de oferta máxima" k="factor_mao" tipo="number" />
+              {Campo({ label: "Precio de venta estimado después de obra (ARV)", k: "arv_usd", tipo: "number" })}
+              {Campo({ label: "Costo de obra (USD)", k: "costo_obra_usd", tipo: "number" })}
+              {Campo({ label: "Gastos: escritura, comisiones, tenencia (USD)", k: "gastos_usd", tipo: "number" })}
+              {Campo({ label: "Factor de oferta máxima", k: "factor_mao", tipo: "number" })}
             </div>
             <label className="campo chico">Precio de compra a evaluar (por defecto, la última oferta)
               <input type="number" placeholder={ofertas[0] ? String(ofertas[0].monto_usd) : "USD"} value={compraEval} onChange={(e) => setCompraEval(e.target.value)} />

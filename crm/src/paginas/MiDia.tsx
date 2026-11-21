@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { UNIDADES, fecha, supabase, usd, waLink, type Unidad } from "../config";
@@ -124,10 +125,10 @@ export default function MiDia() {
 
           <section className="panel">
             <h2>Tareas</h2>
-            {vencidas.length > 0 && <><h3 className="alerta">Vencidas ({vencidas.length})</h3>{vencidas.slice(0, 25).map((t) => <FilaTarea key={t.id} t={t} venc />)}{vencidas.length > 25 && <p className="sub chico">+{vencidas.length - 25} más</p>}</>}
+            {vencidas.length > 0 && <><h3 className="alerta">Vencidas ({vencidas.length})</h3>{vencidas.slice(0, 25).map((t) => <Fragment key={t.id}>{FilaTarea({ t: t, venc: true })}</Fragment>)}{vencidas.length > 25 && <p className="sub chico">+{vencidas.length - 25} más</p>}</>}
             <h3>Hoy ({hoy.length})</h3>
-            {hoy.length ? hoy.map((t) => <FilaTarea key={t.id} t={t} />) : <p className="sub">Nada agendado para hoy.</p>}
-            {proximas.length > 0 && <><h3>Próximos 7 días ({proximas.length})</h3>{proximas.slice(0, 15).map((t) => <FilaTarea key={t.id} t={t} />)}</>}
+            {hoy.length ? hoy.map((t) => <Fragment key={t.id}>{FilaTarea({ t: t })}</Fragment>) : <p className="sub">Nada agendado para hoy.</p>}
+            {proximas.length > 0 && <><h3>Próximos 7 días ({proximas.length})</h3>{proximas.slice(0, 15).map((t) => <Fragment key={t.id}>{FilaTarea({ t: t })}</Fragment>)}</>}
           </section>
         </div>
 

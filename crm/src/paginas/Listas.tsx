@@ -86,7 +86,7 @@ export default function Listas() {
           <div className="tarjeta">
             <div className="fila" style={{ justifyContent: "space-between" }}>
               <h2 style={{ margin: 0 }}>{sel.nombre}</h2>
-              <button onClick={() => exportarCSV(filas.filter((c) => miembros.some((m) => m.contact_id === c.id)), sel.nombre)}>Exportar CSV</button>
+              {yo.admin && <button onClick={() => exportarCSV(filas.filter((c) => miembros.some((m) => m.contact_id === c.id)), sel.nombre)}>Exportar CSV</button>}
             </div>
             <div className="fila" style={{ margin: "8px 0" }}>{ESTADOS.map((s) => <span key={s} className="chip">{etiqueta(s)}: <b>{miembros.filter((m) => m.estado === s).length}</b></span>)}</div>
             <table>

@@ -87,6 +87,9 @@ export default function Embudos() {
                     </div>
                     {r.proximo_paso && <div className="carta-prox">→ {r.proximo_paso}</div>}
                     {estanc && <div className="carta-alerta">Sin gestión {hace(r.ultima_gestion)}</div>}
+                    {puede && <select className="carta-mover" aria-label="Mover a otra etapa" value={r.etapa} onChange={(e) => mover(r.id, e.target.value)}>
+                      {etapas.map((x) => <option key={x.id} value={x.id}>{x.id === r.etapa ? `Etapa: ${x.nombre}` : `Mover a ${x.nombre}`}</option>)}
+                    </select>}
                     {puede && <button className="chico carta-btn" onClick={() => setRegistro({ contactId: r.contact_id, nombre: r.nombre, telefono: r.telefono, relaciones: [{ id: r.id, unidad: r.unidad, embudo: r.embudo }] })}>Registrar gestión</button>}
                   </div>
                 );

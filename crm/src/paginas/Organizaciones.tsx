@@ -73,7 +73,7 @@ export default function Organizaciones() {
                   <td>{o.cliente_ranka && <span className="chip inmobiliaria">Cliente Ranka</span>}{o.trae_producto && <span className="chip">Trae producto</span>}{o.trae_inversores && <span className="chip inversor">Trae inversores</span>}</td>
                 </tr>
               ))}
-              {!vis.length && <tr><td colSpan={5} className="sub">Todavía no hay inmobiliarias cargadas. La base de 3.260 inmobiliarias de CABA entra cuando tengamos el export de Lovable.</td></tr>}
+              {!vis.length && <tr><td colSpan={5} className="sub">Todavía no hay inmobiliarias cargadas. La base de 3.260 inmobiliarias de CABA entra cuando se suba el listado completo.</td></tr>}
             </tbody>
           </table>
         </div>
@@ -81,17 +81,17 @@ export default function Organizaciones() {
           <div className="tarjeta">
             <h2>{sel.nombre}</h2>
             <div className="fila" style={{ gap: 14, marginBottom: 6 }}>
-              <Check label="Cliente de Ranka" k="cliente_ranka" />
-              <Check label="Trae producto a CIRE" k="trae_producto" />
-              <Check label="Trae inversores" k="trae_inversores" />
-              <Check label="Hace pauta" k="hace_pauta" />
+              {Check({ label: "Cliente de Ranka", k: "cliente_ranka" })}
+              {Check({ label: "Trae producto a CIRE", k: "trae_producto" })}
+              {Check({ label: "Trae inversores", k: "trae_inversores" })}
+              {Check({ label: "Hace pauta", k: "hace_pauta" })}
             </div>
             <div className="grilla-campos">
-              <Campo label="Teléfono" k="telefono" /><Campo label="Email" k="email" />
-              <Campo label="Web" k="web" /><Campo label="Instagram" k="instagram" />
-              <Campo label="Barrio" k="barrio" /><Campo label="Zonas que trabaja" k="zonas" />
-              <Campo label="Cartera aproximada (propiedades)" k="cartera_aprox" tipo="number" />
-              <Campo label="Ticket promedio (USD)" k="ticket_promedio_usd" tipo="number" />
+              {Campo({ label: "Teléfono", k: "telefono" })}{Campo({ label: "Email", k: "email" })}
+              {Campo({ label: "Web", k: "web" })}{Campo({ label: "Instagram", k: "instagram" })}
+              {Campo({ label: "Barrio", k: "barrio" })}{Campo({ label: "Zonas que trabaja", k: "zonas" })}
+              {Campo({ label: "Cartera aproximada (propiedades)", k: "cartera_aprox", tipo: "number" })}
+              {Campo({ label: "Ticket promedio (USD)", k: "ticket_promedio_usd", tipo: "number" })}
             </div>
             {sel.cartera_aprox && sel.ticket_promedio_usd ? <p className="sub chico">Cartera estimada: {usd(sel.cartera_aprox * sel.ticket_promedio_usd)}</p> : null}
             <h3>Contactos</h3>

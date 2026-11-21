@@ -13,6 +13,8 @@ import Listas from "./paginas/Listas";
 import Propiedades from "./paginas/Propiedades";
 import Propiedad from "./paginas/Propiedad";
 import Organizaciones from "./paginas/Organizaciones";
+import Reuniones from "./paginas/Reuniones";
+import Envios from "./paginas/Envios";
 
 export type Yo = { email: string; nombre: string; clave: string; unidades: Unidad[]; admin: boolean };
 const YoCtx = createContext<Yo | null>(null);
@@ -111,12 +113,14 @@ function App() {
             <nav>
               <NavLink to="/" end>Mi día</NavLink>
               <NavLink to="/tablero">Tablero</NavLink>
+              <NavLink to="/reuniones">Reuniones</NavLink>
               <NavLink to="/contactos">Contactos</NavLink>
               <NavLink to="/embudos">Embudos</NavLink>
               <NavLink to="/propiedades">Propiedades</NavLink>
               <NavLink to="/inmobiliarias">Inmobiliarias</NavLink>
               <NavLink to="/ofertas">Ofertas · Plan 260</NavLink>
               <NavLink to="/listas">Listas y eventos</NavLink>
+              <NavLink to="/seguimiento">Seguimiento automático</NavLink>
             </nav>
             <div className="usuario">
               <strong>{yo.nombre}</strong>
@@ -136,6 +140,9 @@ function App() {
               <Route path="/propiedades/:id" element={<Propiedad />} />
               <Route path="/inmobiliarias" element={<Organizaciones />} />
               <Route path="/listas" element={<Listas />} />
+              <Route path="/reuniones" element={<Reuniones />} />
+              <Route path="/seguimiento" element={<Envios />} />
+              <Route path="*" element={<div className="tarjeta"><h1>Esta página no existe</h1><p className="sub">Volvé a <NavLink to="/">Mi día</NavLink>.</p></div>} />
             </Routes>
           </main>
         </div>
