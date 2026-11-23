@@ -13,7 +13,10 @@ const HeroSection = () => {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
           {/* Izquierda: propuesta de valor */}
           <div className="space-y-8 pt-4 md:pt-8">
-            <p className="text-sm font-semibold uppercase tracking-wide text-primary">CIRE · Compra directa en CABA y GBA</p>
+            <div className="flex items-center gap-3">
+              <img src="/cire-logo.png" alt="CIRE" className="h-12 w-12" />
+              <p className="text-sm font-semibold uppercase tracking-wide text-primary">Compra directa en CABA y GBA</p>
+            </div>
 
             <div className="space-y-4">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-extrabold text-foreground leading-[1.05] text-balance">
