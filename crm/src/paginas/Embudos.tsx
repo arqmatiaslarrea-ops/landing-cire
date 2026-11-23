@@ -46,7 +46,7 @@ export default function Embudos() {
   };
   const INM: Record<string, string> = { amenabar: "Amenábar", mitre: "Mitre", bogota: "Bogotá", acoyte: "Acoyte", honorio: "Honorio Pueyrredón", gaona: "Gaona" };
   const oracion = (t?: string) => (t ? t.charAt(0).toUpperCase() + t.slice(1) : "");
-  useEffect(() => { cargar(); }, [embudoId]);
+  useEffect(() => { cargar(); setTemp(""); }, [embudoId]);
 
   const mover = async (id: string, etapa: string) => {
     const r = rels.find((x) => x.id === id);
