@@ -25,9 +25,9 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import AgendaLlamada from "@/components/AgendaLlamada";
 
 const WHATSAPP_NUMBER = "5491154950446";
-const CALENDAR_EMAIL = "arqmatiaslarrea@gmail.com";
 const DUPLICATE_KEY = "cire_form_submitted";
 const ACTION_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutos
 // Anti-spam: localStorage duplicate check is the primary protection
@@ -428,20 +428,10 @@ const LeadForm = () => {
     }
   };
 
+  const [agendando, setAgendando] = useState(false);
   const openGoogleCalendar = () => {
     markActionTaken(); // User took action
-    
-    const title = encodeURIComponent(`Llamada CIRE - ${formData.name}`);
-    const location = formData.neighborhood
-      ? `${formData.propertyAddress}, ${formData.neighborhood}`
-      : formData.propertyAddress;
-    const details = encodeURIComponent(
-      `Consulta sobre propiedad en ${location}\nTeléfono: ${formData.phone}\nEmail: ${
-        formData.email || "No proporcionado"
-      }`
-    );
-    const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&add=${CALENDAR_EMAIL}`;
-    window.open(calendarUrl, "_blank");
+    setAgendando(true);
   };
 
   const canProceedStep1 =
@@ -483,6 +473,23 @@ const LeadForm = () => {
             Contactar por WhatsApp
           </Button>
         </div>
+      </div>
+    );
+  }
+
+  if (isSubmitted && agendando) {
+    const ubicacion = [formData.propertyAddress, formData.neighborhood].filter(Boolean).join(", ");
+    return (
+      <div className="gradient-card rounded-2xl p-6 md:p-8 shadow-card animate-scale-in">
+        <AgendaLlamada
+          nombre={formData.name}
+          telefono={formData.phone}
+          email={formData.email || undefined}
+          unidad="inmobiliaria"
+          origen="cireinmobiliaria.com"
+          nota={ubicacion ? `Propiedad: ${ubicacion}` : undefined}
+          onVolver={() => setAgendando(false)}
+        />
       </div>
     );
   }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import AgendaLlamada from "@/components/AgendaLlamada";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,7 +29,6 @@ interface InvestmentFormProps {
 }
 
 const WHATSAPP_NUMBER = "5491154950446";
-const BOOKING_URL = "https://calendar.app.google/2j6hvEEhS7o5LcF69";
 
 type FieldKey =
   | "name"
@@ -139,6 +139,7 @@ const scoreOf = (
 export const InvestmentForm = ({ isOpen, onClose }: InvestmentFormProps) => {
   const [stepIndex, setStepIndex] = useState(0);
   const [success, setSuccess] = useState(false);
+  const [agendando, setAgendando] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [openingWhatsApp, setOpeningWhatsApp] = useState(false);
   const [formData, setFormData] = useState<Record<FieldKey, string>>({
@@ -284,7 +285,7 @@ export const InvestmentForm = ({ isOpen, onClose }: InvestmentFormProps) => {
       });
     }
     suppressExitIntent();
-    window.open(BOOKING_URL, "_blank");
+    setAgendando(true);
   };
 
   const handleClose = () => {
@@ -529,6 +530,11 @@ export const InvestmentForm = ({ isOpen, onClose }: InvestmentFormProps) => {
             </form>
           </>
         ) : (
+          agendando ? (
+          <div className="p-6 overflow-y-auto">
+            <AgendaLlamada nombre={formData.name.trim()} telefono={formData.phone.trim()} email={formData.email.trim() || undefined} unidad="desarrolladora" origen="cireinversores.com" onVolver={() => setAgendando(false)} />
+          </div>
+          ) : (
           <div className="p-8 text-center overflow-y-auto">
             <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center animate-in zoom-in duration-500">
               <CheckCircle2 className="w-10 h-10 text-primary" />
@@ -577,6 +583,7 @@ export const InvestmentForm = ({ isOpen, onClose }: InvestmentFormProps) => {
               </p>
             </div>
           </div>
+          )
         )}
       </DialogContent>
     </Dialog>

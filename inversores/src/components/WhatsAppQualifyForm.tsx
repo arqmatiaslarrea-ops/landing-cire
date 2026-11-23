@@ -1,4 +1,5 @@
 import { useState } from "react";
+import AgendaLlamada from "@/components/AgendaLlamada";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +24,6 @@ import { suppressExitIntent } from "@/hooks/useExitIntent";
 import { openWhatsApp } from "@/lib/whatsapp";
 
 const WHATSAPP_NUMBER = "5491154950446";
-const BOOKING_URL = "https://calendar.app.google/2j6hvEEhS7o5LcF69";
 
 type WaFieldKey = "name" | "phone" | "email" | "city";
 
@@ -69,6 +69,7 @@ const scoreOf = (options: { value: string; score?: number }[], value: string) =>
 export const WhatsAppQualifyForm = ({ isOpen, onClose }: WhatsAppQualifyFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [agendando, setAgendando] = useState(false);
   const [lastMessage, setLastMessage] = useState("");
   const [formData, setFormData] = useState({
     name: "",
@@ -221,7 +222,7 @@ export const WhatsAppQualifyForm = ({ isOpen, onClose }: WhatsAppQualifyFormProp
       });
     }
     suppressExitIntent();
-    window.open(BOOKING_URL, "_blank", "noopener,noreferrer");
+    setAgendando(true);
   };
 
   const handleClose = () => {
@@ -237,6 +238,7 @@ export const WhatsAppQualifyForm = ({ isOpen, onClose }: WhatsAppQualifyFormProp
     });
     setErrors({});
     setSubmitted(false);
+    setAgendando(false);
     setLastMessage("");
     onClose();
   };
@@ -253,7 +255,11 @@ export const WhatsAppQualifyForm = ({ isOpen, onClose }: WhatsAppQualifyFormProp
           </p>
         </DialogHeader>
 
-        {submitted ? (
+        {submitted && agendando ? (
+          <div className="p-6 pt-4 overflow-y-auto flex-1">
+            <AgendaLlamada nombre={formData.name.trim()} telefono={formData.phone.trim()} email={formData.email.trim() || undefined} unidad="desarrolladora" origen="cireinversores.com (WhatsApp)" onVolver={() => setAgendando(false)} />
+          </div>
+        ) : submitted ? (
           <div className="p-6 pt-4 space-y-4 overflow-y-auto flex-1 text-center">
             <div className="w-16 h-16 mx-auto rounded-full bg-[#25D366]/10 flex items-center justify-center">
               <CheckCircle2 className="w-9 h-9 text-[#25D366]" />

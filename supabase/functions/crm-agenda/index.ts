@@ -12,6 +12,8 @@ Deno.serve(async (req) => {
   const { eventos } = (await req.json()) as { eventos: Evento[] };
   const res: any[] = [];
   for (const ev of eventos || []) {
+    // Las reservas hechas desde la agenda propia de las landings ya están en el CRM
+    if (String(ev.id).startsWith("reserva-")) { res.push({ id: ev.id, omitido: "reserva propia" }); continue; }
     const externo = (ev.invitados || []).find((i) => i.email && !EQUIPO.includes(i.email.toLowerCase()));
     if (!externo) { res.push({ id: ev.id, omitido: "sin invitado externo" }); continue; }
     const email = externo.email.toLowerCase();
