@@ -16,7 +16,7 @@ const QueCompramosSection = () => {
     <section className="bg-background py-20 md:py-28">
       <div className="container grid lg:grid-cols-[1fr_1.5fr] gap-10 lg:gap-20 items-start">
         <div>
-          <p className="etiqueta text-primary">Qué compramos</p>
+          <p className="etiqueta text-[#C73D08]">Qué compramos</p>
           <h2 className="mt-3 text-4xl md:text-5xl text-foreground text-balance">Lo que buscamos, en una ficha</h2>
           <p className="mt-5 text-lg text-muted-foreground leading-relaxed">
             Si tu propiedad encaja en esta ficha, es muy probable que podamos hacerte una oferta.
@@ -26,7 +26,7 @@ const QueCompramosSection = () => {
         <dl className="border-t border-border">
           {ficha.map((f) => (
             <div key={f.campo} className="grid sm:grid-cols-[8rem_1fr] gap-1 sm:gap-6 border-b border-border py-5">
-              <dt className="etiqueta text-primary pt-1">{f.campo}</dt>
+              <dt className="etiqueta text-[#C73D08] pt-1">{f.campo}</dt>
               <dd className="text-lg text-foreground leading-relaxed">{f.valor}</dd>
             </div>
           ))}
