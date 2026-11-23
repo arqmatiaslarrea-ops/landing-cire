@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { supabase, usd, waLink } from "../config";
+import { supabase, usd, waLink, hoyBA } from "../config";
 
 // Difusión de una propiedad a las inmobiliarias del barrio (y barrios que elijas), con mensaje armado.
 // El mensaje no incluye la dirección exacta ni datos del vendedor: eso se comparte recién con quien responde.
@@ -36,7 +36,7 @@ export default function Difusion({ p }: { p: any }) {
   const registrar = async (o: any, canal: string) => {
     setEnviadas((s) => new Set(s).add(o.id));
     await supabase.from("crm_difusiones").insert({ propiedad_id: p.id, organizacion_id: o.id, canal, motivo: "difusion" });
-    if (!o.estado_contacto || o.estado_contacto === "sin_contactar") await supabase.from("crm_organizaciones").update({ estado_contacto: "contactada", ultimo_contacto: new Date().toISOString().slice(0, 10) }).eq("id", o.id);
+    if (!o.estado_contacto || o.estado_contacto === "sin_contactar") await supabase.from("crm_organizaciones").update({ estado_contacto: "contactada", ultimo_contacto: hoyBA() }).eq("id", o.id);
   };
 
   return (

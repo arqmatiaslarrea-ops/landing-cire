@@ -8,11 +8,13 @@ const API = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/crm-reservas`;
 
 type Dia = { dia: string; etiqueta: string; horarios: { hora: string; inicio: string }[] };
 type Props = {
+  leadId: string | null;
+  origenLead: "inmo" | "inv";
   nombre: string;
   telefono: string;
   email?: string;
-  unidad: "inmobiliaria" | "desarrolladora";
-  origen: string;
+  unidad?: "inmobiliaria" | "desarrolladora";
+  origen?: string;
   nota?: string;
   onVolver?: () => void;
   onAgendado?: (etiqueta: string) => void;
@@ -20,7 +22,7 @@ type Props = {
 
 const capital = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-export default function AgendaLlamada({ nombre, telefono, email, unidad, origen, nota, onVolver, onAgendado }: Props) {
+export default function AgendaLlamada({ leadId, origenLead, telefono, email, nota, onVolver, onAgendado }: Props) {
   const [dias, setDias] = useState<Dia[] | null>(null);
   const [diaSel, setDiaSel] = useState(0);
   const [horaSel, setHoraSel] = useState<string | null>(null);
@@ -36,9 +38,10 @@ export default function AgendaLlamada({ nombre, telefono, email, unidad, origen,
 
   const confirmar = async () => {
     if (!horaSel) return;
+    if (!leadId) { setError("Todavía estamos guardando tu consulta. Probá de nuevo en unos segundos."); return; }
     setEnviando(true); setError("");
     try {
-      const r = await fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nombre, telefono, email, inicio: horaSel, unidad, origen, nota }) });
+      const r = await fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lead_id: leadId, origen_lead: origenLead, inicio: horaSel, nota }) });
       const d = await r.json();
       if (!r.ok) {
         setError(d.error || "No pudimos agendar. Probá con otro horario.");
@@ -126,8 +129,8 @@ export default function AgendaLlamada({ nombre, telefono, email, unidad, origen,
             ))}
           </div>
 
-          <Button onClick={confirmar} disabled={!horaSel || enviando} className="w-full font-bold py-6 text-lg">
-            {enviando ? "Agendando…" : horaSel ? `Confirmar ${capital(dia?.etiqueta || "")} a las ${dia?.horarios.find((h) => h.inicio === horaSel)?.hora}` : "Elegí un horario"}
+          <Button onClick={confirmar} disabled={!horaSel || enviando} className="w-full font-bold py-6 text-lg whitespace-normal h-auto">
+            {enviando ? "Agendando…" : horaSel ? `Confirmar ${(dia?.etiqueta || "").split(",")[0]} ${dia?.horarios.find((h) => h.inicio === horaSel)?.hora}` : "Elegí un horario"}
           </Button>
           <p className="text-xs text-muted-foreground text-center mt-3">Horario de Buenos Aires. Te llega la confirmación con la invitación al calendario.</p>
         </>

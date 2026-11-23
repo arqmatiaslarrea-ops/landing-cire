@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { fecha, supabase, usd } from "../config";
+import { diaBA, fecha, supabase, usd } from "../config";
 import { puedeOperar, useYo } from "../main";
 import { metaPlan260 } from "./Inicio";
 
@@ -22,14 +22,15 @@ const NOMBRE = Object.fromEntries(ESTADOS);
 const ABIERTOS = ["enviada", "contraoferta", "negociando", "aceptada"];
 const RESPONDIO = ["contraoferta", "negociando", "aceptada", "rechazada", "cerrada"];
 
-const dia = (d: Date) => d.toISOString().slice(0, 10);
+const dia = (d: Date) => diaBA(d);
 const diasDesde = (f: string) => Math.max(0, Math.round((Date.now() - new Date(f + "T12:00").getTime()) / 864e5));
+const FERIADOS = new Set(["2026-12-07", "2026-12-08", "2026-12-25", "2027-01-01", "2027-02-08", "2027-02-09", "2027-03-24", "2027-03-25", "2027-03-26", "2027-04-02"]);
 const habilesEntre = (desde: Date, hasta: Date) => {
   let n = 0; const d = new Date(desde); d.setHours(12, 0, 0, 0);
-  while (d <= hasta) { if (d.getDay() % 6 !== 0) n++; d.setDate(d.getDate() + 1); }
+  while (d <= hasta) { if (d.getDay() % 6 !== 0 && !FERIADOS.has(diaBA(d))) n++; d.setDate(d.getDate() + 1); }
   return n;
 };
-const sumarHabiles = (n: number) => { const d = new Date(); while (n > 0) { d.setDate(d.getDate() + 1); if (d.getDay() % 6 !== 0) n--; } return dia(d); };
+const sumarHabiles = (n: number) => { const d = new Date(); while (n > 0) { d.setDate(d.getDate() + 1); if (d.getDay() % 6 !== 0 && !FERIADOS.has(diaBA(d))) n--; } return dia(d); };
 const lunes = (d: Date) => { const x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
 const mediana = (xs: number[]) => { if (!xs.length) return null; const s = [...xs].sort((a, b) => a - b); const m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 const pct = (n: number) => `${n > 0 ? "+" : ""}${Math.round(n)} %`;
@@ -49,7 +50,7 @@ export default function Ofertas() {
 
   const actualizar = async (o: any, cambios: any, msg?: string) => {
     const { error } = await supabase.from("crm_ofertas").update(cambios).eq("id", o.id);
-    if (error) return avisar("No se pudo guardar: no tenés permiso para editar ofertas.");
+    if (error) return avisar(error.code === "42501" ? "No tenés permiso para editar ofertas." : `No se pudo guardar: ${error.message}`);
     if (msg) avisar(msg);
     cargar();
   };
@@ -58,7 +59,8 @@ export default function Ofertas() {
     const fila = { ...datos, monto_usd: Number(datos.monto_usd), precio_publicado_usd: datos.precio_publicado_usd ? Number(datos.precio_publicado_usd) : null, responsable: yo.clave, reemplaza_id: reemplaza?.id || null };
     const { data, error } = await supabase.from("crm_ofertas").insert(fila).select("id").single();
     if (error) return avisar(error.message);
-    if (reemplaza) await supabase.from("crm_ofertas").update({ estado: "sin_respuesta" }).eq("id", reemplaza.id);
+    // La oferta anterior se cierra según lo que pasó: si respondieron (contraoferta o negociación), cuenta como respondida y rechazada; si no, sin respuesta
+    if (reemplaza) await supabase.from("crm_ofertas").update({ estado: ["contraoferta", "negociando"].includes(reemplaza.estado) ? "rechazada" : "sin_respuesta" }).eq("id", reemplaza.id);
     setNueva(null); setSelId(data?.id || null); avisar("Oferta registrada."); cargar();
   };
   const recontactar = async (o: any) => {
@@ -82,7 +84,7 @@ export default function Ofertas() {
 
   // Bandeja: lo que pide una decisión hoy
   const contras = ofertas.filter((o) => o.estado === "contraoferta");
-  const vencidas = ofertas.filter((o) => o.estado === "enviada" && o.vence && o.vence < hoy);
+  const vencidas = ofertas.filter((o) => ["enviada", "negociando"].includes(o.estado) && o.vence && o.vence < hoy);
   const porVencer = ofertas.filter((o) => ["enviada", "negociando"].includes(o.estado) && o.vence && o.vence >= hoy && o.vence <= en48);
   const pendientes = contras.length + vencidas.length + porVencer.length;
 
@@ -97,7 +99,8 @@ export default function Ofertas() {
     });
   }, [ofertas]);
   const estaSemana = semanas[3].n;
-  const habilesRestantes = Math.max(1, habilesEntre(new Date(), FIN_PLAN));
+  const desdeRitmo = new Date(); if (desdeRitmo.getHours() >= 12) desdeRitmo.setDate(desdeRitmo.getDate() + 1);
+  const habilesRestantes = Math.max(1, habilesEntre(desdeRitmo, FIN_PLAN));
   const necesario = Math.ceil((260 - plan.length) / habilesRestantes);
   const maxSem = Math.max(1, ...semanas.map((s) => s.n));
 
@@ -105,7 +108,9 @@ export default function Ofertas() {
   const med = mediana(plan.map((o) => Number(o.monto_usd)));
   const conPub = plan.filter((o) => Number(o.precio_publicado_usd) > 0);
   const descuento = mediana(conPub.map((o) => (Number(o.monto_usd) / Number(o.precio_publicado_usd) - 1) * 100));
-  const vencidasPlan = plan.filter((o) => o.vence && o.vence < hoy);
+  // Tasa de respuesta sobre una sola cohorte: ofertas del plan ya resueltas (respondieron) o con el plazo vencido
+  const cohorte = plan.filter((o) => RESPONDIO.includes(o.estado) || o.estado === "sin_respuesta" || (o.vence && o.vence < hoy));
+  const respondieronCohorte = cohorte.filter((o) => RESPONDIO.includes(o.estado)).length;
   const respondieron = plan.filter((o) => RESPONDIO.includes(o.estado)).length;
   const embudo = [
     ["Ofertas", plan.length],
@@ -166,7 +171,7 @@ export default function Ofertas() {
             <b>{descuento != null ? pct(descuento) : "—"}</b>
             <span>{descuento != null ? `sobre el precio publicado (${conPub.length} de ${plan.length} con precio)` : "sobre el precio publicado: cargalo al registrar cada oferta"}</span>
           </div>
-          <div className="of-dato"><b>{vencidasPlan.length ? `${Math.round((respondieron / vencidasPlan.length) * 100)} %` : "—"}</b><span>respondieron ({respondieron} de {vencidasPlan.length} ya vencidas)</span></div>
+          <div className="of-dato"><b>{cohorte.length ? `${Math.round((respondieronCohorte / cohorte.length) * 100)} %` : "—"}</b><span>respondieron ({respondieronCohorte} de {cohorte.length} con plazo cumplido)</span></div>
         </div>
 
         <div className="tarjeta of-embudo">
@@ -217,7 +222,7 @@ export default function Ofertas() {
         {vencidas.length > 0 && <>
           <h3>Vencidas sin respuesta</h3>
           {vencidas.map((o) => (
-            <ItemBandeja key={o.id} o={o} detalle={<>{usd(o.monto_usd)} · venció hace {diasDesde(o.vence)} días{o.recontactos ? ` · recontactada ${o.recontactos} ${o.recontactos === 1 ? "vez" : "veces"}` : ""}{contraparte(o) ? ` · ${contraparte(o)}` : ""}</>}>
+            <ItemBandeja key={o.id} o={o} detalle={<>{o.estado === "negociando" ? "Negociando · " : ""}{usd(o.monto_usd)} · venció hace {diasDesde(o.vence)} días{o.recontactos ? ` · recontactada ${o.recontactos} ${o.recontactos === 1 ? "vez" : "veces"}` : ""}{contraparte(o) ? ` · ${contraparte(o)}` : ""}</>}>
               <button className="chico" onClick={() => recontactar(o)}>Recontactar</button>
               <button className="chico" onClick={() => reofertar(o)}>Volver a ofertar</button>
               <button className="chico" onClick={() => actualizar(o, { estado: "sin_respuesta" }, "Oferta cerrada sin respuesta.")}>Cerrar</button>

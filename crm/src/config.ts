@@ -106,6 +106,9 @@ export const ESTADOS_OFERTA = ["borrador", "enviada", "sin_respuesta", "negocian
 
 export const etiqueta = (s: string) => s.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase());
 export const usd = (n: number | null | undefined) => (n == null ? "—" : "USD " + Number(n).toLocaleString("es-AR"));
+// Fecha "AAAA-MM-DD" en hora de Buenos Aires (no UTC: después de las 21 h UTC ya es otro día)
+export const diaBA = (d: Date = new Date()) => d.toLocaleDateString("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" });
+export const hoyBA = () => diaBA(new Date());
 export const fecha = (d: string | null | undefined) => (d ? new Date(d).toLocaleDateString("es-AR") : "—");
 export const waLink = (tel: string | null, texto = "") => {
   if (!tel) return null;

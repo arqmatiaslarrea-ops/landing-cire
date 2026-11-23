@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { supabase, usd, waLink } from "../config";
+import { supabase, usd, waLink, hoyBA } from "../config";
 import { useYo } from "../main";
 
 // Red de inmobiliarias: pedir producto y difundir. El estado es un embudo, no una etiqueta suelta.
@@ -16,7 +16,7 @@ const NOMBRE_ESTADO: Record<string, string> = Object.fromEntries([...PASOS, NO_I
 const ETIQUETAS: [string, string][] = [["cliente_ranka", "Cliente de Ranka"], ["trae_producto", "Trae producto"], ["trae_inversores", "Trae inversores"], ["hace_pauta", "Hace pauta"]];
 const POR_PAGINA = 50;
 const cabaprop = (nombre: string) => `https://www.google.com/search?q=${encodeURIComponent(`site:cabaprop.com.ar "${nombre}"`)}`;
-const hoy = () => new Date().toISOString().slice(0, 10);
+const hoy = () => hoyBA();
 // El directorio viene en mayúsculas: lo mostramos en formato título sin tocar el dato guardado
 const titulo = (s: string) => (s && s === s.toUpperCase() ? s.toLowerCase().replace(/(^|[\s.(/-])(\p{L})/gu, (_, a, b) => a + b.toUpperCase()).replace(/\bS\.?a\.?\b/g, "SA").replace(/\bS\.?r\.?l\.?\b/gi, "SRL") : s);
 const haceCuanto = (d?: string | null) => {

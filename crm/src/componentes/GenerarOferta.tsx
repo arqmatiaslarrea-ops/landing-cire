@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { supabase } from "../config";
+import { supabase, hoyBA } from "../config";
 
 // Arma la oferta desde la plantilla única (reserva en comisión, firma Mati), la guarda en la carpeta de ofertas y la registra.
 export default function GenerarOferta({ propiedadId, montoSugerido, alCrear }: { propiedadId: string; montoSugerido?: number | null; alCrear: () => void }) {
@@ -8,7 +8,7 @@ export default function GenerarOferta({ propiedadId, montoSugerido, alCrear }: {
 
   const abrir = () => {
     const monto = montoSugerido ? Math.round(montoSugerido / 1000) * 1000 : "";
-    setF({ fecha: new Date().toISOString().slice(0, 10), monto_usd: monto, reserva_usd: monto ? Math.max(1000, Math.round(Number(monto) * 0.01 / 500) * 500) : "", dias_contingencia: 10, plazo_escritura: 30, validez: 3, escribano: "", clausula_honorarios: "" });
+    setF({ fecha: hoyBA(), monto_usd: monto, reserva_usd: monto ? Math.max(1000, Math.round(Number(monto) * 0.01 / 500) * 500) : "", dias_contingencia: 10, plazo_escritura: 30, validez: 3, escribano: "", clausula_honorarios: "" });
     setEstado({});
   };
   const generar = async () => {

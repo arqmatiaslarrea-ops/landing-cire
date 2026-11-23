@@ -3,7 +3,7 @@ import CarteraSinAtender from "../componentes/CarteraSinAtender";
 import { Fragment } from "react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { UNIDADES, fecha, supabase, usd, waLink, type Unidad } from "../config";
+import { UNIDADES, fecha, supabase, usd, waLink, type Unidad, hoyBA, diaBA } from "../config";
 import { puedeOperar, useYo } from "../main";
 import Registro, { type ContextoRegistro } from "../componentes/Registro";
 import Temperatura, { hace } from "../componentes/Temperatura";
@@ -60,8 +60,8 @@ export default function MiDia() {
     .filter((r) => r.telefono && ["nuevo", "contactado", "descubrimiento"].includes(r.etapa) && !conTareaAbierta.has(r.contact_id) && (!r.ultima_gestion || Date.now() - +new Date(r.ultima_gestion) > 7 * 864e5))
     .sort((a, b) => b.temperatura - a.temperatura || +new Date(b.created_at) - +new Date(a.created_at))
     .slice(0, 5);
-  const hoyIso = new Date().toISOString().slice(0, 10);
-  const manIso = new Date(Date.now() + 864e5).toISOString().slice(0, 10);
+  const hoyIso = hoyBA();
+  const manIso = diaBA(new Date(Date.now() + 864e5));
   const ofertasAtencion = ofertas.filter((o) => o.vence && o.vence <= manIso);
 
   const FilaTarea = ({ t, venc }: { t: any; venc?: boolean }) => (

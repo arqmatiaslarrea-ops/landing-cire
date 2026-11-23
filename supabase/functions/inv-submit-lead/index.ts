@@ -25,15 +25,15 @@ Deno.serve(async (req) => {
     if (!d?.telefono || !/^[\d\s\-+()]{7,20}$/.test(String(d.telefono))) return json({ success: false, error: "Teléfono inválido" }, 400);
     if (d.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(d.email))) return json({ success: false, error: "Email inválido" }, 400);
     const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-    const { error } = await sb.from("inv_leads").insert({
+    const { data: fila, error } = await sb.from("inv_leads").insert({
       tipo_lead: s(d.tipo_lead || "calificado"), nombre: s(d.nombre), email: s(d.email) || null,
       telefono: s(d.telefono), capital: s(d.capital) || null, perfil: s(d.perfil) || null,
       experiencia: s(d.experiencia) || null, fuente: s(d.fuente) || null, plazo: s(d.plazo) || null,
       objetivo: s(d.objetivo) || null, decision: s(d.decision) || null, ciudad: s(d.ciudad) || null,
       notas: s(d.notas) || null, score: typeof d.score === "number" ? d.score : null,
-    });
+    }).select("id").single();
     if (error) { console.error("insert error", error); return json({ success: false, error: "Ocurrió un error. Intentá nuevamente." }, 500); }
-    return json({ success: true });
+    return json({ success: true, id: fila?.id });
   } catch (e) {
     console.error(e); return json({ success: false, error: "Ocurrió un error. Intentá nuevamente." }, 500);
   }

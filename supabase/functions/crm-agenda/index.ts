@@ -2,7 +2,15 @@
 // y las vuelca al CRM: ficha del contacto, oportunidad, reunión con recordatorios y tarea de preparación.
 import { createClient } from "npm:@supabase/supabase-js@2.45.0";
 const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-const EQUIPO = ["arqmatiaslarrea@gmail.com", "larrea869@gmail.com", "ranka.agencia@gmail.com", "sofi.abril.alberto@gmail.com", "ms.kasianczuk@gmail.com"];
+// Dueño del calendario: la dirección iCal secreta de Google lleva el id del calendario (/ical/<id>/private-…)
+const duenoCal = (url: string) => { try { const m = String(url || "").match(/\/ical\/([^/]+)\//); return m ? decodeURIComponent(m[1]).toLowerCase() : ""; } catch { return ""; } };
+let EQUIPO: string[] = []; // mails del equipo: crm_usuarios + secreto CRM_MAILS_INTERNOS
+async function cargarEquipo() {
+  const { data } = await sb.from("crm_usuarios").select("email");
+  const { data: cals } = await sb.from("crm_calendarios").select("ics_url");
+  const extra = [...(Deno.env.get("CRM_MAILS_INTERNOS") || "").split(","), ...(cals || []).map((c: any) => duenoCal(c.ics_url))];
+  EQUIPO = [...new Set([...(data || []).map((u: any) => String(u.email || "")), ...extra].map((x) => x.trim().toLowerCase()).filter(Boolean))];
+}
 
 type Evento = { id: string; inicio: string; fin?: string; titulo?: string; descripcion?: string; link?: string; invitados: { email: string; nombre?: string }[]; cancelado?: boolean };
 
@@ -10,6 +18,7 @@ Deno.serve(async (req) => {
   const { data: token } = await sb.rpc("crm_secreto", { p_nombre: "agenda_token" });
   if (!token || req.headers.get("x-agenda-token") !== token) return new Response("no", { status: 401 });
   const { eventos } = (await req.json()) as { eventos: Evento[] };
+  await cargarEquipo();
   const res: any[] = [];
   for (const ev of eventos || []) {
     // Las reservas hechas desde la agenda propia de las landings ya están en el CRM
@@ -17,7 +26,8 @@ Deno.serve(async (req) => {
     const externo = (ev.invitados || []).find((i) => i.email && !EQUIPO.includes(i.email.toLowerCase()));
     if (!externo) { res.push({ id: ev.id, omitido: "sin invitado externo" }); continue; }
     const email = externo.email.toLowerCase();
-    let { data: c } = await sb.from("crm_contacts").select("id,nombre").ilike("email", email).maybeSingle();
+    let { data: c } = await sb.from("crm_contacts").select("id,nombre").eq("email", email).limit(1).maybeSingle();
+    if (!c) c = (await sb.from("crm_contacts").select("id,nombre").ilike("email", email.replace(/[\\%_]/g, "\\$&")).limit(1).maybeSingle()).data;
     if (!c) {
       const nombre = externo.nombre || email.split("@")[0];
       const ins = await sb.from("crm_contacts").insert({ nombre, email }).select("id,nombre").single();
@@ -43,7 +53,9 @@ Deno.serve(async (req) => {
     if (rel && embudo === "inmobiliarias" && ["nuevo", "contactado"].includes(rel.etapa)) await sb.from("crm_relations").update({ etapa: "llamada_agendada" }).eq("id", rel.id);
     const responsable = rel?.responsable || "mati";
     const fila = { contact_id: c.id, unidad, responsable, inicio: ev.inicio, fin: ev.fin || null, titulo: ev.titulo || null, link_reunion: ev.link || null, origen: "google_calendar", google_event_id: ev.id, updated_at: new Date().toISOString() };
-    const { data: previa } = await sb.from("crm_reuniones").select("id,inicio,estado").eq("google_event_id", ev.id).maybeSingle();
+    // Busca la reunión por el id estable del evento (y por el formato viejo uid|inicio)
+    let { data: previa } = await sb.from("crm_reuniones").select("id,inicio,estado,google_event_id").eq("google_event_id", ev.id).maybeSingle();
+    if (!previa && !ev.id.includes("|")) previa = (await sb.from("crm_reuniones").select("id,inicio,estado,google_event_id").like("google_event_id", `${ev.id.replace(/[\\%_]/g, "\\$&")}|%`).in("estado", ["agendada", "confirmada"]).order("inicio", { ascending: false }).limit(1).maybeSingle()).data;
     if (ev.cancelado) { if (previa) await sb.from("crm_reuniones").update({ estado: "cancelada" }).eq("id", previa.id); res.push({ id: ev.id, cancelada: true }); continue; }
     if (!previa) {
       await sb.from("crm_reuniones").insert(fila);
@@ -53,6 +65,9 @@ Deno.serve(async (req) => {
       await sb.from("crm_tareas").insert({ contact_id: c.id, relation_id: rel?.id || null, unidad, tipo: "reunion", titulo: `Preparar la reunión: ${ev.titulo || c.nombre}`, vence: prep, responsable, prioridad: "normal", origen: "automatizacion" });
     } else if (new Date(previa.inicio).getTime() !== new Date(ev.inicio).getTime()) {
       await sb.from("crm_reuniones").update({ ...fila, estado: "agendada", recordatorio_24h_at: null, recordatorio_1h_at: null }).eq("id", previa.id);
+      await sb.from("crm_activities").insert({ contact_id: c.id, unidad, tipo: "reunion_reprogramada", detalle: { antes: previa.inicio, ahora: ev.inicio } });
+    } else if (previa.google_event_id !== ev.id) {
+      await sb.from("crm_reuniones").update({ google_event_id: ev.id }).eq("id", previa.id);
     }
     res.push({ id: ev.id, contacto: c.nombre, unidad });
   }

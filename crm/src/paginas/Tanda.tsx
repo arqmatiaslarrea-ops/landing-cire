@@ -1,14 +1,14 @@
 import Descartar from "../componentes/Descartar";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase, waLink } from "../config";
+import { supabase, waLink, hoyBA } from "../config";
 import { puedeOperar, useYo } from "../main";
 import { nivelTemp } from "../componentes/Temperatura";
 
 // Tanda diaria de WhatsApp asistida: el CRM arma la lista y el mensaje; la persona envía con un clic desde su WhatsApp.
 // Sin envíos automáticos: así no se arriesga el número.
 const ZONAS = ["Saavedra", "Coghlan", "Villa Urquiza", "Villa Pueyrredón", "Nuñez", "Belgrano", "Villa Ortúzar", "Colegiales", "Villa Devoto", "Villa del Parque", "Agronomía", "Parque Chas"];
-const hoyISO = () => new Date().toISOString().slice(0, 10);
+const hoyISO = () => hoyBA();
 const nombre1 = (n: string) => (n || "").split(" ")[0].replace(/^\w/, (c) => c.toUpperCase());
 
 export default function Tanda() {

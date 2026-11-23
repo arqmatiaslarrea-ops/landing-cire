@@ -2,7 +2,15 @@
 // URL a cargar en Fathom: .../functions/v1/crm-fathom?t=<token>. El formato del payload se lee de forma tolerante.
 import { createClient } from "npm:@supabase/supabase-js@2.45.0";
 const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-const EQUIPO = ["arqmatiaslarrea@gmail.com", "larrea869@gmail.com", "ranka.agencia@gmail.com", "sofi.abril.alberto@gmail.com", "ms.kasianczuk@gmail.com"];
+// Dueño del calendario: la dirección iCal secreta de Google lleva el id del calendario (/ical/<id>/private-…)
+const duenoCal = (url: string) => { try { const m = String(url || "").match(/\/ical\/([^/]+)\//); return m ? decodeURIComponent(m[1]).toLowerCase() : ""; } catch { return ""; } };
+let EQUIPO: string[] = []; // mails del equipo: crm_usuarios + secreto CRM_MAILS_INTERNOS
+async function cargarEquipo() {
+  const { data } = await sb.from("crm_usuarios").select("email");
+  const { data: cals } = await sb.from("crm_calendarios").select("ics_url");
+  const extra = [...(Deno.env.get("CRM_MAILS_INTERNOS") || "").split(","), ...(cals || []).map((c: any) => duenoCal(c.ics_url))];
+  EQUIPO = [...new Set([...(data || []).map((u: any) => String(u.email || "")), ...extra].map((x) => x.trim().toLowerCase()).filter(Boolean))];
+}
 
 function buscar(o: any, f: (k: string, v: any) => boolean, out: any[] = []): any[] {
   if (o && typeof o === "object") for (const [k, v] of Object.entries(o)) { if (f(k, v)) out.push(v); buscar(v, f, out); }
@@ -13,6 +21,7 @@ Deno.serve(async (req) => {
   const { data: token } = await sb.rpc("crm_secreto", { p_nombre: "fathom_token" });
   if (!token || new URL(req.url).searchParams.get("t") !== token) return new Response("no", { status: 401 });
   const p = await req.json().catch(() => ({}));
+  await cargarEquipo();
   const emails = [...new Set(buscar(p, (_k, v) => typeof v === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)).map((v: string) => v.toLowerCase()))].filter((e) => !EQUIPO.includes(e));
   const url = buscar(p, (k, v) => typeof v === "string" && /share_url|url/.test(k) && v.includes("fathom"))[0] || null;
   const resumen = buscar(p, (k, v) => typeof v === "string" && /summary|markdown/.test(k) && v.length > 40)[0] || null;

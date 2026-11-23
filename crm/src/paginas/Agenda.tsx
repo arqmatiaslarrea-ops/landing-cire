@@ -120,7 +120,7 @@ export default function Agenda() {
       const ligadas = new Set((r.data || []).map((x: any) => x.google_event_id).filter(Boolean));
       const media = (s: string) => new Date(s.length === 10 ? s + "T00:00" : s);
       setEvs([
-        ...(g.data || []).filter((x: any) => !ligadas.has(`${x.uid}|${new Date(x.inicio).toISOString()}`)).map((x: any) => {
+        ...(g.data || []).filter((x: any) => !ligadas.has(x.uid) && !ligadas.has(`${x.uid}|${new Date(x.inicio).toISOString()}`)).map((x: any) => {
           const ext = (x.invitados || []).find((i: any) => i.email !== yo.email.toLowerCase());
           return { key: "g" + x.uid + x.inicio, tipo: "google" as const, inicio: new Date(x.inicio), fin: new Date(x.fin || x.inicio), todoElDia: x.todo_el_dia, titulo: x.titulo || "(sin título)", detalle: x.ubicacion || undefined, externo: x.link || undefined, responsable: x.usuario, ...(ext ? { detalle: ext.nombre || ext.email } : {}) };
         }),

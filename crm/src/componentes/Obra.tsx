@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { supabase, usd, waLink } from "../config";
+import { supabase, usd, waLink, hoyBA, diaBA } from "../config";
 
 // Plan de obra por propiedad: tareas por gremio, fechas, avance, gremio asignado y alertas.
 export default function Obra({ propiedadId, puede }: { propiedadId: string; puede: boolean }) {
   const [tareas, setTareas] = useState<any[]>([]);
   const [gremios, setGremios] = useState<any[]>([]);
-  const [inicio, setInicio] = useState(new Date().toISOString().slice(0, 10));
+  const [inicio, setInicio] = useState(hoyBA());
   const [msg, setMsg] = useState("");
 
   const cargar = () => supabase.from("crm_obra_tareas").select("*").eq("propiedad_id", propiedadId).order("orden").then(({ data }) => setTareas(data || []));
@@ -23,10 +23,10 @@ export default function Obra({ propiedadId, puede }: { propiedadId: string; pued
     await supabase.from("crm_obra_tareas").update({ ...cambios, updated_at: new Date().toISOString() }).eq("id", t.id);
   };
 
-  const hoy = new Date().toISOString().slice(0, 10);
+  const hoy = hoyBA();
   const avance = tareas.length ? Math.round(tareas.reduce((s, t) => s + t.avance, 0) / tareas.length) : 0;
   const atrasadas = tareas.filter((t) => t.fin && t.fin < hoy && t.avance < 100);
-  const proximas = tareas.filter((t) => t.inicio && t.inicio >= hoy && t.inicio <= new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10) && !t.gremio_id);
+  const proximas = tareas.filter((t) => t.inicio && t.inicio >= hoy && t.inicio <= diaBA(new Date(Date.now() + 7 * 864e5)) && !t.gremio_id);
   const presupuesto = tareas.reduce((s, t) => s + Number(t.presupuesto_usd || 0), 0);
   const fin = tareas.reduce((m, t) => (t.fin && t.fin > m ? t.fin : m), "");
 

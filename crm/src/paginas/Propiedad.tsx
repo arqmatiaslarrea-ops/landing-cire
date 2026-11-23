@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { fecha, supabase, usd, etiqueta } from "../config";
+import { fecha, supabase, usd, etiqueta, hoyBA } from "../config";
 import { puedeOperar, useYo } from "../main";
 import Difusion from "../componentes/Difusion";
 import Obra from "../componentes/Obra";
@@ -206,7 +206,7 @@ export default function Propiedad() {
                 <input type="number" placeholder="Monto USD" value={nuevaOferta.monto} onChange={(e) => setNuevaOferta({ ...nuevaOferta, monto: e.target.value })} />
                 <button className="primario" onClick={registrarOferta}>Guardar</button><button onClick={() => setNuevaOferta(null)}>Cancelar</button>
               </div>
-            ) : <button className="chico" style={{ marginTop: 8 }} onClick={() => setNuevaOferta({ fecha: new Date().toISOString().slice(0, 10), monto: a.mao ? String(a.mao) : "" })}>+ Registrar oferta</button>)}
+            ) : <button className="chico" style={{ marginTop: 8 }} onClick={() => setNuevaOferta({ fecha: hoyBA(), monto: a.mao ? String(a.mao) : "" })}>+ Registrar oferta</button>)}
             {puede && <div style={{ marginTop: 10 }}><GenerarOferta propiedadId={p.id} montoSugerido={a.mao ?? ofertas[0]?.monto_usd} alCrear={cargar} /></div>}
           </div>
 

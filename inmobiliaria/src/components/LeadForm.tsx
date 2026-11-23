@@ -166,6 +166,7 @@ const LeadForm = () => {
 
       if (error) throw new Error(error.message || "No pudimos guardar tus datos");
       if ((data as any)?.error) throw new Error((data as any).error);
+      if ((data as any)?.id) setLeadId((data as any).id);
 
       console.log("Lead guardado en Google Sheets exitosamente");
       return true;
@@ -429,6 +430,7 @@ const LeadForm = () => {
   };
 
   const [agendando, setAgendando] = useState(false);
+  const [leadId, setLeadId] = useState<string | null>(null);
   const openGoogleCalendar = () => {
     markActionTaken(); // User took action
     setAgendando(true);
@@ -482,6 +484,8 @@ const LeadForm = () => {
     return (
       <div className="gradient-card rounded-2xl p-6 md:p-8 shadow-card animate-scale-in">
         <AgendaLlamada
+          leadId={leadId}
+          origenLead="inmo"
           nombre={formData.name}
           telefono={formData.phone}
           email={formData.email || undefined}

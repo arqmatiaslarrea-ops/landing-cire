@@ -70,6 +70,7 @@ export const WhatsAppQualifyForm = ({ isOpen, onClose }: WhatsAppQualifyFormProp
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [agendando, setAgendando] = useState(false);
+  const [leadId, setLeadId] = useState<string | null>(null);
   const [lastMessage, setLastMessage] = useState("");
   const [formData, setFormData] = useState({
     name: "",
@@ -163,7 +164,7 @@ export const WhatsAppQualifyForm = ({ isOpen, onClose }: WhatsAppQualifyFormProp
       const waTab = window.open("", "_blank");
 
       try {
-        const { error } = await supabase.functions.invoke("inv-submit-lead", {
+        const { data: respuesta, error } = await supabase.functions.invoke("inv-submit-lead", {
           body: {
             tipo_lead: "whatsapp_rapido",
             nombre: formData.name,
@@ -182,6 +183,7 @@ export const WhatsAppQualifyForm = ({ isOpen, onClose }: WhatsAppQualifyFormProp
           },
         });
         if (error) console.error("Error saving lead:", error);
+        else if ((respuesta as any)?.id) setLeadId((respuesta as any).id);
       } catch (err) {
         console.error("Error saving lead:", err);
       }
@@ -239,6 +241,7 @@ export const WhatsAppQualifyForm = ({ isOpen, onClose }: WhatsAppQualifyFormProp
     setErrors({});
     setSubmitted(false);
     setAgendando(false);
+    setLeadId(null);
     setLastMessage("");
     onClose();
   };
@@ -257,7 +260,7 @@ export const WhatsAppQualifyForm = ({ isOpen, onClose }: WhatsAppQualifyFormProp
 
         {submitted && agendando ? (
           <div className="p-6 pt-4 overflow-y-auto flex-1">
-            <AgendaLlamada nombre={formData.name.trim()} telefono={formData.phone.trim()} email={formData.email.trim() || undefined} unidad="desarrolladora" origen="cireinversores.com (WhatsApp)" onVolver={() => setAgendando(false)} />
+            <AgendaLlamada leadId={leadId} origenLead="inv" nombre={formData.name.trim()} telefono={formData.phone.trim()} email={formData.email.trim() || undefined} unidad="desarrolladora" origen="cireinversores.com (WhatsApp)" onVolver={() => setAgendando(false)} />
           </div>
         ) : submitted ? (
           <div className="p-6 pt-4 space-y-4 overflow-y-auto flex-1 text-center">

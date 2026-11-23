@@ -140,6 +140,7 @@ export const InvestmentForm = ({ isOpen, onClose }: InvestmentFormProps) => {
   const [stepIndex, setStepIndex] = useState(0);
   const [success, setSuccess] = useState(false);
   const [agendando, setAgendando] = useState(false);
+  const [leadId, setLeadId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [openingWhatsApp, setOpeningWhatsApp] = useState(false);
   const [formData, setFormData] = useState<Record<FieldKey, string>>({
@@ -200,7 +201,7 @@ export const InvestmentForm = ({ isOpen, onClose }: InvestmentFormProps) => {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.functions.invoke("inv-submit-lead", {
+      const { data: respuesta, error } = await supabase.functions.invoke("inv-submit-lead", {
         body: {
           tipo_lead: "calificado",
           nombre: formData.name.trim(),
@@ -220,6 +221,7 @@ export const InvestmentForm = ({ isOpen, onClose }: InvestmentFormProps) => {
       });
 
       if (error) throw error;
+      if ((respuesta as any)?.id) setLeadId((respuesta as any).id);
 
       if (typeof window !== "undefined" && (window as any).dataLayer) {
         (window as any).dataLayer.push({
@@ -532,7 +534,7 @@ export const InvestmentForm = ({ isOpen, onClose }: InvestmentFormProps) => {
         ) : (
           agendando ? (
           <div className="p-6 overflow-y-auto">
-            <AgendaLlamada nombre={formData.name.trim()} telefono={formData.phone.trim()} email={formData.email.trim() || undefined} unidad="desarrolladora" origen="cireinversores.com" onVolver={() => setAgendando(false)} />
+            <AgendaLlamada leadId={leadId} origenLead="inv" nombre={formData.name.trim()} telefono={formData.phone.trim()} email={formData.email.trim() || undefined} unidad="desarrolladora" origen="cireinversores.com" onVolver={() => setAgendando(false)} />
           </div>
           ) : (
           <div className="p-8 text-center overflow-y-auto">

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "../config";
+import { supabase, hoyBA } from "../config";
 import { puedeOperar, useMarca, useYo } from "../main";
 import { Estrella } from "./PanelRanka";
 
@@ -20,7 +20,7 @@ const GRUPOS = [
 ];
 const FUERA_RESULTADO = new Set(["Pauta de terceros — entra", "Pauta de terceros — sale", "Aporte de capital", "Retiro de socio", "Movimiento interno"]);
 const ars = (n: number) => (n < 0 ? "−" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("es-AR");
-const hoyISO = () => new Date().toISOString().slice(0, 10);
+const hoyISO = () => hoyBA();
 const mesDe = (f: string) => f.slice(0, 7);
 const nombreMes = (m: string) => new Date(m + "-15").toLocaleDateString("es-AR", { month: "long", year: "numeric" });
 
