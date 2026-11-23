@@ -677,7 +677,7 @@ nav a { padding: 6px 11px; }
 :root:not([data-marca="ranka"]) :is(.temp, .notif-cuenta, .agenda-dia b, .cal-punto, .agenda-ahora::before, .estado-red::before, .leyenda, .red-etiquetas button, .fz-pill) { border-radius: 99px !important; }
 :root:not([data-marca="ranka"]) h1 { font-family: var(--f-titulo); font-weight: 800; text-transform: uppercase; letter-spacing: -.025em; line-height: 1; font-size: 30px; margin-bottom: 6px; }
 :root:not([data-marca="ranka"]) h2 { font-weight: 700; letter-spacing: -.01em; }
-:root:not([data-marca="ranka"]) :is(.nav-grupo, th, .kpi .titulo, h3, .eyebrow, .red-embudo button span, .agenda-dia span, .fz-tiles span, .rk-barra span) { font-family: var(--f-mono); text-transform: uppercase; letter-spacing: .14em; font-size: 11px; font-weight: 400; }
+:root:not([data-marca="ranka"]) :is(.nav-grupo, th, .kpi .titulo, .tarjeta > .titulo, .of-etq, h3, .eyebrow, .red-embudo button span, .agenda-dia span, .fz-tiles span, .rk-barra span) { font-family: var(--f-mono); text-transform: uppercase; letter-spacing: .14em; font-size: 11px; font-weight: 400; }
 :root:not([data-marca="ranka"]) :is(.kpi-mini b, .kpi .valor, .metricas b, .red-embudo button strong) { font-family: var(--f-titulo); font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
 :root:not([data-marca="ranka"]) a { color: var(--naranja-osc); }
 :root:not([data-marca="ranka"]) button.primario, :root:not([data-marca="ranka"]) a.boton.primario { background: var(--naranja); border-color: var(--naranja); color: var(--negro); font-weight: 700; letter-spacing: .02em; }
@@ -729,3 +729,67 @@ nav a { padding: 6px 11px; }
 .columna-hito { margin: -2px 2px 10px; font-size: 12px; line-height: 1.35; color: var(--gris); background: rgba(255,255,255,.6); border-left: 2px solid var(--naranja); padding: 6px 8px; }
 .chip.listo { background: var(--verde-suave); color: var(--verde); font-weight: 700; }
 .embudo-aviso { margin: 0 0 12px; font-size: 14px; color: var(--gris); }
+
+/* Ofertas · Plan 260 */
+.of-aviso { background: var(--verde-suave); color: var(--verde); padding: 8px 12px; margin: 0 0 12px; }
+.of-kpis { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.of-kpis .tarjeta { display: flex; flex-direction: column; gap: 10px; }
+.tarjeta > .titulo { color: var(--gris); }
+.of-ritmo-fila { display: grid; grid-template-columns: 1fr 1.4fr; gap: 12px; }
+.of-ritmo-fila b, .of-dato b { display: block; font-size: 30px; font-weight: 800; line-height: 1.05; }
+.of-ritmo-fila span, .of-dato span { font-size: 13px; color: var(--gris); }
+.of-barras { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; height: 64px; align-items: end; }
+.of-barras div { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-end; height: 100%; gap: 3px; }
+.of-barras i { display: block; min-height: 2px; background: #c9c9c9; }
+.of-barras i.actual { background: var(--texto); }
+.of-barras small { font-size: 11px; color: var(--gris-2); text-align: center; }
+.of-dato b { font-size: 22px; }
+.of-embudo-fila { display: grid; grid-template-columns: 96px 1fr 28px; align-items: center; gap: 8px; font-size: 13px; }
+.of-embudo-fila i { display: block; height: 10px; background: var(--texto); min-width: 2px; }
+.of-embudo-fila b { text-align: right; }
+.of-nueva { margin-bottom: 16px; }
+.of-nueva h2 { margin-top: 0; }
+.of-form { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 10px; }
+.of-form .ancho { grid-column: span 2; }
+.of-form label, .of-panel label { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; color: var(--gris); }
+.of-form input, .of-panel input, .of-panel select, .of-panel textarea { width: 100%; box-sizing: border-box; color: var(--texto); }
+.of-bandeja { margin-bottom: 16px; }
+.of-bandeja h2 { margin-top: 0; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.of-bandeja h3 { margin: 14px 0 4px; }
+.of-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 0; border-top: 1px solid var(--linea); }
+.of-item-txt { all: unset; cursor: pointer; display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.of-item-txt:hover strong { text-decoration: underline; }
+.of-item-txt:focus-visible { outline: 2px solid var(--naranja); outline-offset: 2px; }
+.of-item-acc { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.of-brecha { color: var(--rojo); }
+.of-lista { padding: 0; overflow: hidden; }
+.of-tabla { width: 100%; }
+.of-tabla td, .of-tabla th { padding: 10px 14px; vertical-align: top; }
+.of-tabla .num { text-align: right; white-space: nowrap; }
+.of-tabla td small { display: block; }
+.of-prop strong { color: var(--texto); font-weight: 600; }
+.of-estado { display: inline-block; font-size: 12px; padding: 3px 8px; background: var(--azul-suave); color: var(--texto); white-space: nowrap; }
+.of-estado.contraoferta, .of-estado.vencida { background: var(--naranja-suave); color: var(--naranja-osc); font-weight: 600; }
+.of-estado.negociando { background: var(--ambar-suave); color: var(--ambar); }
+.of-estado.aceptada, .of-estado.cerrada { background: var(--verde-suave); color: var(--verde); }
+.of-estado.rechazada, .of-estado.sin_respuesta { background: transparent; color: var(--gris-2); padding-left: 0; }
+.of-panel { display: flex; flex-direction: column; gap: 12px; }
+.of-panel-dos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.of-panel .of-check { flex-direction: row; align-items: center; gap: 8px; color: var(--texto); font-size: 14px; }
+.of-panel .of-check input { width: auto; }
+.of-etq { display: block; font-size: 12.5px; color: var(--gris); margin-bottom: 4px; }
+.of-res { display: block; width: 100%; text-align: left; margin-top: 4px; font-size: 13px; }
+@media (max-width: 1100px) { .of-kpis { grid-template-columns: 1fr 1fr; } .of-ritmo { grid-column: span 2; } }
+@media (max-width: 640px) {
+  .of-kpis { grid-template-columns: 1fr; } .of-ritmo { grid-column: auto; }
+  .of-form { grid-template-columns: 1fr 1fr; }
+  .of-item { flex-direction: column; align-items: stretch; }
+  .of-item-acc { justify-content: flex-start; }
+  /* En celular cada oferta es una tarjeta */
+  .of-tabla thead { display: none; }
+  .of-tabla tr { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 10px 12px; border-top: 1px solid var(--linea); }
+  .of-tabla td { padding: 0; border: none; }
+  .of-tabla td.of-prop { grid-column: 1 / -1; }
+  .of-tabla td:nth-child(3) { display: none; }
+  .of-tabla td.num { text-align: left; }
+}
