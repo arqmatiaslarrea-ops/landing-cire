@@ -15,7 +15,7 @@ const HeroSection = () => {
           <div className="space-y-8 pt-4 md:pt-8">
             <div className="flex items-center gap-3">
               <img src="/cire-logo.png" alt="CIRE" className="h-12 w-12" />
-              <p className="text-sm font-semibold uppercase tracking-wide text-primary">Compra directa en CABA y GBA</p>
+              <p className="text-sm font-semibold uppercase tracking-wide text-primary">Compra directa en CABA</p>
             </div>
 
             <div className="space-y-4">
@@ -45,7 +45,7 @@ const HeroSection = () => {
             </ul>
 
             <p className="text-sm text-muted-foreground">
-              CIRE compra propiedades con problemas en Capital Federal y Buenos Aires.
+              CIRE compra propiedades con problemas en CABA.
             </p>
           </div>
 
