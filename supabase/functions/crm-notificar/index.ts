@@ -38,5 +38,28 @@ Deno.serve(async (req) => {
   });
   const txt = await res.text();
   await sb.from("crm_activities").insert({ contact_id: r.contact_id, unidad: r.unidad, tipo: "aviso_enviado", detalle: { canal: "email", a: destinos, ok: res.ok, respuesta: txt.slice(0, 300) } });
+
+  // Aviso por WhatsApp a Mati (CallMeBot). Se activa cuando están cargados los secretos callmebot_apikey y callmebot_telefono.
+  const [{ data: wKey }, { data: wTel }] = await Promise.all([
+    sb.rpc("crm_secreto", { p_nombre: "callmebot_apikey" }), sb.rpc("crm_secreto", { p_nombre: "callmebot_telefono" }),
+  ]);
+  if (wKey && wTel) {
+    const extra = (perfiles || []).flatMap((p: any) => Object.entries(p.datos || {}).filter(([, v]) => v != null && String(v).trim() && String(v).length < 120).slice(0, 6).map(([k, v]) => `• ${k.replace(/_/g, " ")}: ${v}`));
+    const texto = [
+      `🔔 *Lead nuevo · ${UNIDADES[r.unidad] || r.unidad}*`,
+      `*${c.nombre || "Sin nombre"}*`,
+      `📞 ${c.telefono || "—"}`,
+      c.email ? `✉️ ${c.email}` : "",
+      c.barrio ? `📍 ${c.barrio}` : "",
+      `Entró por: ${r.origen || "—"} · Responsable: ${r.responsable || "sin asignar"}`,
+      ...extra,
+      wa ? `\nEscribirle: ${wa}` : "",
+      `Ficha: ${CRM_URL}/contactos/${r.contact_id}`,
+    ].filter(Boolean).join("\n");
+    const u = `https://api.callmebot.com/whatsapp.php?${new URLSearchParams({ phone: String(wTel), text: texto.slice(0, 1500), apikey: String(wKey) })}`;
+    const w = await fetch(u).catch((e) => ({ ok: false, text: async () => String(e) } as any));
+    const wTxt = String(await w.text()).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").slice(0, 200);
+    await sb.from("crm_activities").insert({ contact_id: r.contact_id, unidad: r.unidad, tipo: "aviso_enviado", detalle: { canal: "whatsapp", ok: w.ok, respuesta: wTxt } });
+  }
   return new Response(txt, { status: res.ok ? 200 : 502 });
 });
