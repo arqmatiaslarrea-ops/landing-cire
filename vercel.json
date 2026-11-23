@@ -1,0 +1,6 @@
+{
+  "installCommand": "cd inmobiliaria && npm ci",
+  "buildCommand": "cd inmobiliaria && npm run build",
+  "outputDirectory": "inmobiliaria/dist",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
