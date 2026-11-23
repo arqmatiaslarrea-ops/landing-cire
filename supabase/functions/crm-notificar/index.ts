@@ -61,5 +61,22 @@ Deno.serve(async (req) => {
     const wTxt = String(await w.text()).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").slice(0, 200);
     await sb.from("crm_activities").insert({ contact_id: r.contact_id, unidad: r.unidad, tipo: "aviso_enviado", detalle: { canal: "whatsapp", ok: w.ok, respuesta: wTxt } });
   }
+
+  // Aviso por WhatsApp con la API oficial de Meta (Cloud API). Se activa cuando Mati carga los secretos
+  // WHATSAPP_TOKEN, WHATSAPP_PHONE_ID y WHATSAPP_DESTINO en Supabase (Edge Functions → Secrets).
+  const wToken = (Deno.env.get("WHATSAPP_TOKEN") || "").trim(), wPhone = (Deno.env.get("WHATSAPP_PHONE_ID") || "").trim();
+  const wDestinos = (Deno.env.get("WHATSAPP_DESTINO") || "").split(",").map((x) => x.replace(/\D/g, "")).filter(Boolean);
+  if (wToken && wPhone && wDestinos.length) {
+    const limpio = (v: unknown) => String(v ?? "—").replace(/[\n\t]+/g, " ").replace(/ {4,}/g, " ").trim().slice(0, 200) || "—";
+    const params = [UNIDADES[r.unidad] || r.unidad, c.nombre || "Sin nombre", c.telefono || "—", r.origen || "—", r.responsable || "sin asignar", `${CRM_URL}/contactos/${r.contact_id}`]
+      .map((v) => ({ type: "text", text: limpio(v) }));
+    for (const to of wDestinos) {
+      const w = await fetch(`https://graph.facebook.com/v21.0/${wPhone}/messages`, {
+        method: "POST", headers: { Authorization: `Bearer ${wToken}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ messaging_product: "whatsapp", to, type: "template", template: { name: Deno.env.get("WHATSAPP_PLANTILLA") || "lead_nuevo_cire", language: { code: Deno.env.get("WHATSAPP_IDIOMA") || "es_AR" }, components: [{ type: "body", parameters: params }] } }),
+      }).catch((e) => ({ ok: false, text: async () => String(e) } as any));
+      await sb.from("crm_activities").insert({ contact_id: r.contact_id, unidad: r.unidad, tipo: "aviso_enviado", detalle: { canal: "whatsapp_meta", ok: w.ok, respuesta: String(await w.text()).slice(0, 300) } });
+    }
+  }
   return new Response(txt, { status: res.ok ? 200 : 502 });
 });
