@@ -25,7 +25,7 @@ const Index = () => {
       <FinalCTASection />
       <Footer />
       {/* Espacio para que el botón fijo del celular no tape el pie */}
-      <div className="h-20 lg:hidden bg-background" aria-hidden="true" />
+      <div className="h-20 lg:hidden bg-background-darker" aria-hidden="true" />
       <BarraMovil />
     </main>
   );

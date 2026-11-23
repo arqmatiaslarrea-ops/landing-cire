@@ -24,19 +24,19 @@ const pasos = [
 
 const ProcessSection = () => {
   return (
-    <section className="bg-[#FFF0E9] py-20 md:py-28">
+    <section className="textura bg-background-darker py-20 md:py-28">
       <div className="container">
         <div className="max-w-3xl mb-12 md:mb-16">
-          <p className="etiqueta text-[#C73D08]">Cómo trabajamos</p>
+          <p className="etiqueta text-primary">Cómo trabajamos</p>
           <h2 className="mt-3 text-4xl md:text-5xl text-foreground text-balance">Cuatro pasos, plazos por escrito</h2>
         </div>
 
-        <ol className="grid md:grid-cols-2 lg:grid-cols-4 border-t border-[#1C1C1C]/10">
+        <ol className="grid md:grid-cols-2 lg:grid-cols-4 border-t border-border">
           {pasos.map((p, i) => (
-            <li key={p.titulo} className="border-b lg:border-b-0 lg:border-r last:border-r-0 border-[#1C1C1C]/10 py-8 lg:px-6 lg:first:pl-0">
+            <li key={p.titulo} className="border-b lg:border-b-0 lg:border-r last:border-r-0 border-border py-8 lg:px-6 lg:first:pl-0">
               <div className="flex items-baseline justify-between gap-3">
-                <span className="text-5xl font-extrabold text-[#FF551A]/40 leading-none">{String(i + 1).padStart(2, "0")}</span>
-                <span className="etiqueta text-[#C73D08] text-right">{p.plazo}</span>
+                <span className="text-5xl font-extrabold text-foreground/25 leading-none">{String(i + 1).padStart(2, "0")}</span>
+                <span className="etiqueta text-primary text-right">{p.plazo}</span>
               </div>
               <h3 className="mt-6 text-xl font-extrabold text-foreground">{p.titulo}</h3>
               <p className="mt-3 text-muted-foreground leading-relaxed">{p.texto}</p>

@@ -26,7 +26,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="bg-background min-h-screen py-8 md:py-12">
+    <section className="textura bg-background min-h-screen py-8 md:py-12">
       <div className="container">
         <header className="flex items-center justify-between gap-4 pb-10 md:pb-16">
           <img src="/cire-logo.png" alt="CIRE" className="h-11 w-11 md:h-12 md:w-12" />
@@ -37,11 +37,11 @@ const HeroSection = () => {
 
         <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-16 items-start">
           <div className="space-y-9">
-            <p className="etiqueta text-[#C73D08]">Compra directa · Arq. Matías Larrea</p>
+            <p className="etiqueta text-primary">Compra directa · Arq. Matías Larrea</p>
 
             <h1 className="text-foreground">
               <span className="block text-[2.6rem] sm:text-6xl lg:text-7xl text-balance">Vendé tu propiedad rápido.</span>
-              <span className="block mt-4 text-[1.3rem] sm:text-3xl lg:text-[2.1rem] text-primary">Sin intermediarios. Sin arreglos.</span>
+              <span className="block mt-4 text-[1.3rem] sm:text-3xl lg:text-[2.1rem] text-primary"><span className="inline-block">Sin intermediarios.</span> <span className="inline-block">Sin arreglos.</span></span>
             </h1>
 
             <p className="text-lg md:text-xl text-foreground/85 max-w-xl leading-relaxed">
@@ -57,7 +57,7 @@ const HeroSection = () => {
                     type="button"
                     onClick={() => elegir(s.valor)}
                     aria-pressed={situacion === s.valor}
-                    className={`rounded-full border px-4 py-2.5 text-[0.95rem] transition-colors ${
+                    className={`border px-4 py-2.5 text-[0.95rem] transition-colors ${
                       situacion === s.valor
                         ? "border-primary bg-primary text-primary-foreground"
                         : "border-border text-foreground hover:border-foreground"
@@ -70,7 +70,7 @@ const HeroSection = () => {
             </div>
 
             {/* Ficha técnica: el elemento de marca de la landing */}
-            <div className="rounded-2xl border border-border bg-[#EFEFEF]/60 overflow-hidden max-w-xl">
+            <div className="border border-border max-w-xl">
               <dl className="grid grid-cols-2 sm:grid-cols-4">
                 {ficha.map((f, i) => (
                   <div
@@ -89,8 +89,8 @@ const HeroSection = () => {
           </div>
 
           <div id="formulario" className="lg:sticky lg:top-6 w-full max-w-[34rem] mx-auto lg:mx-0 scroll-mt-6">
-            <div className="rounded-3xl border border-border bg-white p-5 md:p-7 shadow-[0_10px_40px_-12px_rgba(28,28,28,0.18)]">
-              <p className="etiqueta text-[#C73D08]">Pedí tu oferta</p>
+            <div className="recorte bg-background-dark p-5 md:p-7">
+              <p className="etiqueta text-primary">Pedí tu oferta</p>
               <p className="mt-1 mb-5 text-sm text-muted-foreground">
                 Tres pasos, dos minutos. Te respondemos en 48 horas.
               </p>

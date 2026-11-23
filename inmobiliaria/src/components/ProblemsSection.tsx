@@ -38,9 +38,9 @@ const ProblemsSection = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-2 gap-px bg-[#1C1C1C]/15 border border-[#1C1C1C]/15">
           {fichas.map((f) => (
-            <article key={f.situacion} className="rounded-2xl bg-white p-6 md:p-8">
+            <article key={f.situacion} className="bg-[#EFEFEF] p-6 md:p-8">
               <p className="etiqueta text-[#C73D08]">Situación · {f.situacion}</p>
               <h3 className="mt-2 text-xl md:text-2xl font-extrabold text-[#1C1C1C] leading-tight">{f.titulo}</h3>
               <dl className="mt-6 space-y-4 border-t border-[#1C1C1C]/15 pt-5">

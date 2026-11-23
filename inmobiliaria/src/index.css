@@ -6,27 +6,27 @@
 
 @layer base {
   :root {
-    /* Sistema de marca CIRE en versión amigable: blanco y gris #EFEFEF de base, tinta #1C1C1C,
-       naranja #FF551A para acciones y #C73D08 para textos chicos. Inter. Esquinas redondeadas. */
-    --background: 0 0% 100%;
-    --background-dark: 0 0% 96%;
-    --background-darker: 0 0% 96%;
-    --foreground: 0 0% 11%;
+    /* Sistema de marca CIRE: naranja #FF551A (acento, máx. ~15 %), negro #1C1C1C, gris #282828, blanco #EFEFEF.
+       Inter (títulos en mayúsculas, peso 800) + Space Mono (etiquetas y datos). Esquinas rectas. */
+    --background: 0 0% 11%;          /* #1C1C1C */
+    --background-dark: 0 0% 16%;     /* #282828 */
+    --background-darker: 0 0% 8%;    /* #141414 */
+    --foreground: 0 0% 94%;          /* #EFEFEF */
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 11%;
+    --card: 0 0% 16%;
+    --card-foreground: 0 0% 94%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 11%;
+    --popover: 0 0% 16%;
+    --popover-foreground: 0 0% 94%;
 
-    --primary: 16 100% 55%;
+    --primary: 16 100% 55%;          /* #FF551A */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 94%;
-    --secondary-foreground: 0 0% 11%;
+    --secondary: 0 0% 21%;           /* #353535 */
+    --secondary-foreground: 0 0% 94%;
 
-    --muted: 0 0% 94%;
-    --muted-foreground: 0 0% 36%;
+    --muted: 0 0% 21%;
+    --muted-foreground: 0 0% 68%;    /* legible sobre negro */
 
     --accent: 16 100% 55%;
     --accent-foreground: 0 0% 100%;
@@ -34,27 +34,28 @@
     --destructive: 4 63% 48%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 87%;
-    --input: 0 0% 82%;
+    --border: 0 0% 25%;
+    --input: 0 0% 25%;
     --ring: 16 100% 55%;
 
-    --radius: 0.75rem;
+    --radius: 0px;
 
+    /* Se mantienen los nombres por compatibilidad, pero sin degradés ni brillos */
     --gradient-primary: hsl(16 100% 55%);
-    --gradient-background: hsl(0 0% 100%);
-    --gradient-card: hsl(0 0% 100%);
+    --gradient-background: hsl(0 0% 11%);
+    --gradient-card: hsl(0 0% 16%);
     --gradient-cta: hsl(16 100% 55%);
     --shadow-glow: none;
     --shadow-card: none;
     --shadow-button: none;
 
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 11%;
+    --sidebar-background: 0 0% 11%;
+    --sidebar-foreground: 0 0% 94%;
     --sidebar-primary: 16 100% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 96%;
-    --sidebar-accent-foreground: 0 0% 11%;
-    --sidebar-border: 0 0% 87%;
+    --sidebar-accent: 0 0% 16%;
+    --sidebar-accent-foreground: 0 0% 94%;
+    --sidebar-border: 0 0% 25%;
     --sidebar-ring: 16 100% 55%;
   }
 }
@@ -77,8 +78,9 @@
   h1, h2 {
     font-family: 'Inter', system-ui, sans-serif;
     font-weight: 800;
-    letter-spacing: -0.035em;
-    line-height: 1.06;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 1.02;
   }
 
   h3, h4, h5, h6 {
@@ -103,14 +105,15 @@
 
   /* Etiquetas y datos: Space Mono en mayúsculas */
   .etiqueta {
-    font-family: 'Inter', system-ui, sans-serif;
-    font-weight: 600;
-    font-size: 0.9rem;
+    font-family: 'Space Mono', ui-monospace, monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.75rem;
   }
 
   /* Recorte de esquinas del isotipo, para las piezas clave */
   .recorte {
-    border-radius: 9999px;
+    clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
   }
 
   /* Textura de hormigón al 7 % */
@@ -120,7 +123,7 @@
     position: absolute;
     inset: 0;
     background: url('/textura-hormigon.svg') center / 900px auto repeat;
-    opacity: 0;
+    opacity: 0.07;
     pointer-events: none;
     z-index: -1;
   }

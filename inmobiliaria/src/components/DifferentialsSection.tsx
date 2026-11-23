@@ -20,14 +20,14 @@ const DifferentialsSection = () => {
     <section className="bg-background py-20 md:py-28">
       <div className="container grid lg:grid-cols-[1fr_1.2fr] gap-12 lg:gap-20">
         <div>
-          <p className="etiqueta text-[#C73D08]">Por qué nosotros</p>
+          <p className="etiqueta text-primary">Por qué nosotros</p>
           <h2 className="mt-3 text-4xl md:text-5xl text-foreground text-balance">
             Una oferta con criterio técnico
           </h2>
           <ul className="mt-10 border-t border-border">
             {compromisos.map((c) => (
               <li key={c} className="flex items-baseline gap-4 border-b border-border py-4">
-                <span className="etiqueta text-[#C73D08]">Compromiso</span>
+                <span className="etiqueta text-primary">Compromiso</span>
                 <span className="font-semibold text-foreground">{c}</span>
               </li>
             ))}

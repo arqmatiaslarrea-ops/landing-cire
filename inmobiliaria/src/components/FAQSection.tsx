@@ -46,10 +46,10 @@ const faqs = [
 
 const FAQSection = () => {
   return (
-    <section className="bg-background py-20 md:py-28">
+    <section className="bg-background-dark py-20 md:py-28">
       <div className="container grid lg:grid-cols-[1fr_1.6fr] gap-10 lg:gap-20 items-start">
         <div className="lg:sticky lg:top-8">
-          <p className="etiqueta text-[#C73D08]">Preguntas frecuentes</p>
+          <p className="etiqueta text-primary">Preguntas frecuentes</p>
           <h2 className="mt-3 text-4xl md:text-5xl text-foreground text-balance">Sin vueltas</h2>
           <p className="mt-5 text-lg text-muted-foreground leading-relaxed">
             Si tu pregunta no está acá, escribila en el formulario y la respondemos en la llamada.
