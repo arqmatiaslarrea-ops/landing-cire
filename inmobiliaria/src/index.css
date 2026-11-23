@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,99 +6,57 @@
 
 @layer base {
   :root {
-    /* CIRE Design System */
-    --background: 220 21% 30%;
-    --background-dark: 220 24% 20%;
-    --background-darker: 220 26% 15%;
-    --foreground: 0 0% 98%;
+    /* Sistema de marca CIRE: naranja #FF551A (acento, máx. ~15 %), negro #1C1C1C, gris #282828, blanco #EFEFEF.
+       Inter (títulos en mayúsculas, peso 800) + Space Mono (etiquetas y datos). Esquinas rectas. */
+    --background: 0 0% 11%;          /* #1C1C1C */
+    --background-dark: 0 0% 16%;     /* #282828 */
+    --background-darker: 0 0% 8%;    /* #141414 */
+    --foreground: 0 0% 94%;          /* #EFEFEF */
 
-    --card: 220 21% 35%;
-    --card-foreground: 0 0% 98%;
+    --card: 0 0% 16%;
+    --card-foreground: 0 0% 94%;
 
-    --popover: 220 21% 30%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 16%;
+    --popover-foreground: 0 0% 94%;
 
-    --primary: 30 92% 60%;
-    --primary-foreground: 220 26% 15%;
+    --primary: 16 100% 55%;          /* #FF551A */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 21% 40%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 0 0% 21%;           /* #353535 */
+    --secondary-foreground: 0 0% 94%;
 
-    --muted: 220 21% 45%;
-    --muted-foreground: 220 15% 75%;
+    --muted: 0 0% 21%;
+    --muted-foreground: 0 0% 68%;    /* legible sobre negro */
 
-    --accent: 12 89% 59%;
+    --accent: 16 100% 55%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 4 63% 48%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 220 21% 45%;
-    --input: 220 21% 40%;
-    --ring: 30 92% 60%;
+    --border: 0 0% 25%;
+    --input: 0 0% 25%;
+    --ring: 16 100% 55%;
 
-    --radius: 0.75rem;
+    --radius: 0px;
 
-    /* Custom gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(30, 92%, 60%) 0%, hsl(12, 89%, 59%) 100%);
-    --gradient-background: linear-gradient(180deg, hsl(220, 21%, 30%) 0%, hsl(220, 26%, 15%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(220, 21%, 38%) 0%, hsl(220, 21%, 28%) 100%);
-    --gradient-cta: linear-gradient(135deg, hsl(30, 92%, 55%) 0%, hsl(12, 89%, 54%) 50%, hsl(30, 92%, 60%) 100%);
-    
-    /* Shadows */
-    --shadow-glow: 0 0 40px hsla(30, 92%, 60%, 0.3);
-    --shadow-card: 0 8px 32px hsla(220, 26%, 10%, 0.4);
-    --shadow-button: 0 4px 20px hsla(30, 92%, 60%, 0.4);
+    /* Se mantienen los nombres por compatibilidad, pero sin degradés ni brillos */
+    --gradient-primary: hsl(16 100% 55%);
+    --gradient-background: hsl(0 0% 11%);
+    --gradient-card: hsl(0 0% 16%);
+    --gradient-cta: hsl(16 100% 55%);
+    --shadow-glow: none;
+    --shadow-card: none;
+    --shadow-button: none;
 
-    --sidebar-background: 220 21% 25%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 30 92% 60%;
-    --sidebar-primary-foreground: 220 26% 15%;
-    --sidebar-accent: 220 21% 35%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 220 21% 40%;
-    --sidebar-ring: 30 92% 60%;
-  }
-
-  .dark {
-    --background: 220 26% 12%;
-    --background-dark: 220 28% 8%;
-    --background-darker: 220 30% 5%;
-    --foreground: 0 0% 98%;
-
-    --card: 220 24% 16%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 220 26% 12%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 30 92% 60%;
-    --primary-foreground: 220 26% 10%;
-
-    --secondary: 220 24% 20%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 220 24% 25%;
-    --muted-foreground: 220 15% 70%;
-
-    --accent: 12 89% 59%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 220 24% 25%;
-    --input: 220 24% 20%;
-    --ring: 30 92% 60%;
-    
-    --sidebar-background: 220 26% 10%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 30 92% 60%;
-    --sidebar-primary-foreground: 220 26% 10%;
-    --sidebar-accent: 220 24% 18%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 220 24% 22%;
-    --sidebar-ring: 30 92% 60%;
+    --sidebar-background: 0 0% 11%;
+    --sidebar-foreground: 0 0% 94%;
+    --sidebar-primary: 16 100% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 16%;
+    --sidebar-accent-foreground: 0 0% 94%;
+    --sidebar-border: 0 0% 25%;
+    --sidebar-ring: 16 100% 55%;
   }
 }
 
@@ -107,72 +65,82 @@
     @apply border-border;
   }
 
-  body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'DM Sans', sans-serif;
+  html {
+    scroll-behavior: smooth;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter', sans-serif;
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 17px;
+  }
+
+  h1, h2 {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 1.02;
+  }
+
+  h3, h4, h5, h6 {
+    font-family: 'Inter', system-ui, sans-serif;
     @apply font-bold tracking-tight;
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
   }
 }
 
 @layer utilities {
-  .gradient-primary {
-    background: var(--gradient-primary);
+  .gradient-primary { background: var(--gradient-primary); }
+  .gradient-background { background: var(--gradient-background); }
+  .gradient-card { background: var(--gradient-card); }
+  .gradient-cta { background: var(--gradient-cta); }
+  .gradient-text { color: hsl(var(--primary)); }
+  .shadow-glow, .shadow-card, .shadow-button { box-shadow: none; }
+  .text-balance { text-wrap: balance; }
+
+  /* Etiquetas y datos: Space Mono en mayúsculas */
+  .etiqueta {
+    font-family: 'Space Mono', ui-monospace, monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.75rem;
   }
 
-  .gradient-background {
-    background: var(--gradient-background);
+  /* Recorte de esquinas del isotipo, para las piezas clave */
+  .recorte {
+    clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
   }
 
-  .gradient-card {
-    background: var(--gradient-card);
+  /* Textura de hormigón al 7 % */
+  .textura { position: relative; isolation: isolate; }
+  .textura::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: url('/textura-hormigon.svg') center / 900px auto repeat;
+    opacity: 0.07;
+    pointer-events: none;
+    z-index: -1;
   }
 
-  .gradient-cta {
-    background: var(--gradient-cta);
-  }
-
-  .gradient-text {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .shadow-glow {
-    box-shadow: var(--shadow-glow);
-  }
-
-  .shadow-card {
-    box-shadow: var(--shadow-card);
-  }
-
-  .shadow-button {
-    box-shadow: var(--shadow-button);
-  }
-
-  .text-balance {
-    text-wrap: balance;
+  /* Sección clara para lectura larga */
+  .seccion-clara {
+    background: #EFEFEF;
+    color: #1C1C1C;
   }
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 
-::-webkit-scrollbar-track {
-  background: hsl(var(--background-dark));
-}
-
-::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted));
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--primary));
-}
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: hsl(var(--background-darker)); }
+::-webkit-scrollbar-thumb { background: hsl(var(--muted)); }
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary)); }

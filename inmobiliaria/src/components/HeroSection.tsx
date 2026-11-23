@@ -1,60 +1,100 @@
+import { useState } from "react";
 import LeadForm from "./LeadForm";
 
-const datos = [
-  { titulo: "Respuesta en 48 hs", detalle: "Te decimos si podemos comprar, sin vueltas." },
-  { titulo: "Compra directa, sin comisión", detalle: "Hablás con quien compra, no con un intermediario." },
-  { titulo: "Se compra como está", detalle: "No tenés que reparar ni ordenar nada antes." },
+// Situaciones: los valores coinciden con el primer paso del formulario (problemType)
+const situaciones = [
+  { valor: "herencia", texto: "Heredé una propiedad" },
+  { valor: "deterioro", texto: "Necesita mucha obra" },
+  { valor: "legal", texto: "Tiene deudas u ocupantes" },
+  { valor: "inversion", texto: "Una inversión que no funcionó" },
+  { valor: "otro", texto: "Otra situación" },
+];
+
+const ficha = [
+  { campo: "Oferta", valor: "En 48 hs" },
+  { campo: "Cierre", valor: "90 días o menos*" },
+  { campo: "Estado", valor: "Como está" },
+  { campo: "Zona", valor: "Solo CABA" },
 ];
 
 const HeroSection = () => {
+  const [situacion, setSituacion] = useState("");
+
+  const elegir = (valor: string) => {
+    setSituacion(valor);
+    document.getElementById("formulario")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
-    <section className="min-h-screen gradient-background py-12 md:py-20">
+    <section className="textura bg-background min-h-screen py-8 md:py-12">
       <div className="container">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-          {/* Izquierda: propuesta de valor */}
-          <div className="space-y-8 pt-4 md:pt-8">
-            <div className="flex items-center gap-3">
-              <img src="/cire-logo.png" alt="CIRE" className="h-12 w-12" />
-              <p className="text-sm font-semibold uppercase tracking-wide text-primary">Compra directa en CABA</p>
+        <header className="flex items-center justify-between gap-4 pb-10 md:pb-16">
+          <img src="/cire-logo.png" alt="CIRE" className="h-11 w-11 md:h-12 md:w-12" />
+          <a href="#formulario" className="etiqueta text-foreground hover:text-primary transition-colors">
+            Pedir mi oferta
+          </a>
+        </header>
+
+        <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-16 items-start">
+          <div className="space-y-9">
+            <p className="etiqueta text-primary">Compra directa · Arq. Matías Larrea</p>
+
+            <h1 className="text-[2.6rem] sm:text-6xl lg:text-7xl text-foreground text-balance">
+              Tu propiedad tiene un problema. Nosotros la compramos.
+            </h1>
+
+            <p className="text-lg md:text-xl text-foreground/85 max-w-xl leading-relaxed">
+              Herencias, deudas, ocupantes u obra pendiente. Compramos en CABA en el estado en que está, con una oferta concreta en 48 horas.
+            </p>
+
+            <div className="space-y-3">
+              <p className="etiqueta text-muted-foreground">¿Cuál es tu situación?</p>
+              <div className="flex flex-wrap gap-2">
+                {situaciones.map((s) => (
+                  <button
+                    key={s.valor}
+                    type="button"
+                    onClick={() => elegir(s.valor)}
+                    aria-pressed={situacion === s.valor}
+                    className={`border px-4 py-2.5 text-[0.95rem] transition-colors ${
+                      situacion === s.valor
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border text-foreground hover:border-foreground"
+                    }`}
+                  >
+                    {s.texto}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            <div className="space-y-4">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-extrabold text-foreground leading-[1.05] text-balance">
-                ¿Tu propiedad tiene un problema legal, técnico o de gestión?
-              </h1>
-              <p className="text-lg md:text-xl text-foreground/90">
-                Probablemente nosotros podamos comprarla. Somos compradores directos: no somos inmobiliaria.
-              </p>
+            {/* Ficha técnica: el elemento de marca de la landing */}
+            <div className="border border-border max-w-xl">
+              <dl className="grid grid-cols-2 sm:grid-cols-4">
+                {ficha.map((f, i) => (
+                  <div
+                    key={f.campo}
+                    className={`p-4 ${i % 2 === 1 ? "border-l" : ""} ${i > 1 ? "border-t sm:border-t-0" : ""} ${i > 0 ? "sm:border-l" : ""} border-border`}
+                  >
+                    <dt className="etiqueta text-muted-foreground">{f.campo}</dt>
+                    <dd className="mt-1 font-bold text-foreground">{f.valor}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
-
-            <a
-              href="#formulario"
-              className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3.5 font-semibold text-primary-foreground shadow-button hover:opacity-90 transition-opacity"
-            >
-              Quiero que analicen mi caso
-            </a>
-
-            {/* Datos: lista tipográfica, sin tarjetas */}
-            <ul className="divide-y divide-border/40 border-y border-border/40">
-              {datos.map((d) => (
-                <li key={d.titulo} className="py-4">
-                  <p className="font-semibold text-foreground">{d.titulo}</p>
-                  <p className="text-sm text-muted-foreground">{d.detalle}</p>
-                </li>
-              ))}
-            </ul>
-
-            <p className="text-sm text-muted-foreground">
-              CIRE compra propiedades con problemas en CABA.
+            <p className="text-xs text-muted-foreground max-w-xl">
+              * Cierre garantizado en 90 días o menos desde que aceptás la oferta, con la documentación en regla.
             </p>
           </div>
 
-          {/* Derecha: formulario */}
-          <div id="formulario" className="lg:sticky lg:top-8 w-full max-w-[34rem] mx-auto lg:mx-0 scroll-mt-8">
-            <p className="mb-4 text-center lg:text-left text-sm text-muted-foreground">
-              Completá los datos y te respondemos en 48 hs.
-            </p>
-            <LeadForm />
+          <div id="formulario" className="lg:sticky lg:top-6 w-full max-w-[34rem] mx-auto lg:mx-0 scroll-mt-6">
+            <div className="recorte bg-background-dark p-5 md:p-7">
+              <p className="etiqueta text-primary">Pedí tu oferta</p>
+              <p className="mt-1 mb-5 text-sm text-muted-foreground">
+                Tres pasos, dos minutos. Te respondemos en 48 horas.
+              </p>
+              <LeadForm situacion={situacion} />
+            </div>
           </div>
         </div>
       </div>

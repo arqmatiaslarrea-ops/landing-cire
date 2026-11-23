@@ -1,81 +1,68 @@
-import { Home, Scale, TrendingDown, Users } from "lucide-react";
-
-const problems = [
+// Fichas de relevamiento: cada situación contada como la releva un arquitecto en obra.
+const fichas = [
   {
-    icon: Users,
-    title: "Heredaste y no sabés qué hacer",
-    description: "Sucesiones trabadas, conflictos familiares, trámites interminables. Compramos en el estado actual y nos ocupamos del problema completo.",
-    symptoms: ["Sucesión sin cerrar", "Familia en desacuerdo", "Propiedad abandonada"],
+    situacion: "Herencia",
+    titulo: "Heredaste y no sabés por dónde empezar",
+    pasa: "Una sucesión que no avanza, herederos que no se ponen de acuerdo, trámites que se acumulan.",
+    hacemos: "Compramos en el estado actual y nos ocupamos del problema completo, con respaldo legal.",
   },
   {
-    icon: Home,
-    title: "La propiedad necesita mucha obra",
-    description: "Humedades, instalaciones viejas, deterioro general. No pedimos arreglos previos ni bajamos precio por cada defecto.",
-    symptoms: ["Sin presupuesto para reparar", "Inmobiliaria pide bajar precio", "Nadie quiere comprar"],
+    situacion: "Obra",
+    titulo: "La propiedad necesita mucha obra",
+    pasa: "Humedades, instalaciones viejas, deterioro general. Te piden arreglar antes de vender o bajar el precio.",
+    hacemos: "La compramos como está. Ofertamos con criterio de arquitecto: sabemos lo que cuesta la obra y no descontamos defecto por defecto.",
   },
   {
-    icon: Scale,
-    title: "Tiene problemas legales",
-    description: "Ocupantes, deudas, usufructo, embargos parciales. Analizamos casos complejos y estructuramos soluciones legales flexibles.",
-    symptoms: ["Operaciones caídas", "Abogados sin solución", "Años sin poder vender"],
+    situacion: "Deudas u ocupantes",
+    titulo: "Hay deudas, ocupantes o un usufructo",
+    pasa: "Expensas, impuestos o servicios atrasados. Alguien que vive ahí. Un usufructo que complica la venta.",
+    hacemos: "Analizamos el caso y armamos la operación para resolverlo. No compramos con embargo judicial activo.",
   },
   {
-    icon: TrendingDown,
-    title: "Una inversión que no funcionó",
-    description: "Compraste para alquilar o revender y el negocio no cerró. Te damos una salida rápida, realista y sin exposición.",
-    symptoms: ["Rentabilidad baja", "Cansado de renegar", "Quiero cerrar este capítulo"],
+    situacion: "Inversión",
+    titulo: "Una inversión que no funcionó",
+    pasa: "Compraste para alquilar o revender y el negocio no cerró. Cada mes te cuesta plata.",
+    hacemos: "Te damos una salida rápida y realista, sin exponer la propiedad en los portales.",
   },
 ];
 
 const ProblemsSection = () => {
   return (
-    <section className="py-20 md:py-28 bg-background-dark">
+    <section className="seccion-clara py-20 md:py-28">
       <div className="container">
-        {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-4">
-            Si tu propiedad tiene alguno de estos problemas,{" "}
-            <span className="gradient-text">hablemos</span>
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            Compramos propiedades que otros rechazan. Si sentís que nadie entiende 
-            tu situación, probablemente nosotros sí.
+        <div className="max-w-3xl mb-12 md:mb-16">
+          <p className="etiqueta text-[#C73D08]">Relevamiento</p>
+          <h2 className="mt-3 text-4xl md:text-5xl text-[#1C1C1C] text-balance">Cada problema tiene una salida</h2>
+          <p className="mt-5 text-lg text-[#444] leading-relaxed">
+            Trabajamos como en una obra: primero entendemos la situación, después proponemos. Estos son los casos que más vemos.
           </p>
         </div>
 
-        {/* Problem cards */}
-        <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
-          {problems.map((problem, index) => (
-            <div
-              key={index}
-              className="gradient-card rounded-2xl p-6 md:p-8 shadow-card border border-border/30 hover:border-primary/30 transition-all duration-300 group"
-            >
-              <div className="flex items-start gap-5">
-                <div className="w-14 h-14 rounded-xl gradient-primary flex items-center justify-center flex-shrink-0 group-hover:shadow-glow transition-shadow duration-300">
-                  <problem.icon className="w-7 h-7 text-primary-foreground" />
+        <div className="grid md:grid-cols-2 gap-px bg-[#1C1C1C]/15 border border-[#1C1C1C]/15">
+          {fichas.map((f) => (
+            <article key={f.situacion} className="bg-[#EFEFEF] p-6 md:p-8">
+              <p className="etiqueta text-[#C73D08]">Situación · {f.situacion}</p>
+              <h3 className="mt-2 text-xl md:text-2xl font-extrabold text-[#1C1C1C] leading-tight">{f.titulo}</h3>
+              <dl className="mt-6 space-y-4 border-t border-[#1C1C1C]/15 pt-5">
+                <div className="grid sm:grid-cols-[8.5rem_1fr] gap-1 sm:gap-4">
+                  <dt className="etiqueta text-[#666]">Lo que pasa</dt>
+                  <dd className="text-[#333] leading-relaxed">{f.pasa}</dd>
                 </div>
-                <div className="space-y-3">
-                  <h3 className="text-xl font-display font-bold text-foreground">
-                    {problem.title}
-                  </h3>
-                  <p className="text-muted-foreground">
-                    {problem.description}
-                  </p>
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {problem.symptoms.map((symptom, i) => (
-                      <span
-                        key={i}
-                        className="text-xs px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20"
-                      >
-                        {symptom}
-                      </span>
-                    ))}
-                  </div>
+                <div className="grid sm:grid-cols-[8.5rem_1fr] gap-1 sm:gap-4">
+                  <dt className="etiqueta text-[#666]">Lo que hacemos</dt>
+                  <dd className="text-[#1C1C1C] font-medium leading-relaxed">{f.hacemos}</dd>
                 </div>
-              </div>
-            </div>
+              </dl>
+            </article>
           ))}
         </div>
+
+        <a
+          href="#formulario"
+          className="recorte inline-block mt-10 bg-[#1C1C1C] text-[#EFEFEF] font-bold px-7 py-4 hover:bg-[#C73D08] transition-colors"
+        >
+          Contanos tu caso
+        </a>
       </div>
     </section>
   );

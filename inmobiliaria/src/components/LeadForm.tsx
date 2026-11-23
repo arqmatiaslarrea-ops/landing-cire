@@ -70,7 +70,7 @@ const roomsCountOptions = [
   "Mas de 4 Ambientes",
 ];
 
-const LeadForm = () => {
+const LeadForm = ({ situacion = "" }: { situacion?: string }) => {
   const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -113,6 +113,13 @@ const LeadForm = () => {
     propertySize: "",
     whatsappConsent: "",
   });
+
+  // Situación elegida en el hero: precarga el primer paso y vuelve a ese paso
+  useEffect(() => {
+    if (!situacion) return;
+    setFormData((prev) => ({ ...prev, problemType: situacion }));
+    setStep(1);
+  }, [situacion]);
 
   // Check for duplicate submission on mount
   useEffect(() => {
@@ -452,7 +459,7 @@ const LeadForm = () => {
   // Show message if already submitted
   if (alreadySubmitted && !isSubmitted) {
     return (
-      <div className="gradient-card rounded-2xl p-8 md:p-10 shadow-card animate-scale-in">
+      <div className="animate-scale-in">
         <div className="text-center">
           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-accent/20 border-2 border-accent flex items-center justify-center">
             <CheckCircle className="w-10 h-10 text-accent" />
@@ -482,7 +489,7 @@ const LeadForm = () => {
   if (isSubmitted && agendando) {
     const ubicacion = [formData.propertyAddress, formData.neighborhood].filter(Boolean).join(", ");
     return (
-      <div className="gradient-card rounded-2xl p-6 md:p-8 shadow-card animate-scale-in">
+      <div className="animate-scale-in">
         <AgendaLlamada
           leadId={leadId}
           origenLead="inmo"
@@ -501,7 +508,7 @@ const LeadForm = () => {
 
   if (isSubmitted) {
     return (
-      <div className="gradient-card rounded-2xl p-8 md:p-10 shadow-card animate-scale-in">
+      <div className="animate-scale-in">
         <div className="text-center">
           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-accent/20 border-2 border-accent flex items-center justify-center">
             <MessageCircle className="w-10 h-10 text-accent" />
@@ -578,7 +585,7 @@ const LeadForm = () => {
   }
 
   return (
-    <div className="gradient-card rounded-2xl p-6 md:p-8 shadow-card shadow-glow animate-pulse-glow">
+    <div className="">
       {/* Progress indicator */}
       <div className="flex items-center gap-2 mb-8">
         {[1, 2, 3].map((s) => (
@@ -703,7 +710,7 @@ const LeadForm = () => {
                     {
                       value: "legal",
                       label: "Problemas legales",
-                      desc: "Ocupantes, embargos, usufructo, deudas",
+                      desc: "Ocupantes, usufructo, deudas",
                     },
                     {
                       value: "inversion",

@@ -66,6 +66,9 @@ export default function AgendaLlamada({ leadId, origenLead, telefono, email, not
         <h3 className="text-2xl font-display font-bold text-foreground mb-2">Llamada agendada</h3>
         <p className="text-lg text-foreground mb-1">{capital(listo)}</p>
         <p className="text-muted-foreground text-sm">Te llamamos al {telefono}.{email ? " Te mandamos la confirmación por mail." : ""}</p>
+        <p className="mt-4 border-t border-border pt-4 text-sm text-foreground/85 text-left">
+          En la llamada te vamos a hacer unas preguntas de descubrimiento para entender tu caso: cómo está la propiedad, qué documentación tenés, si hay deudas u ocupantes y cuáles son tus tiempos. No hace falta que tengas todo resuelto.
+        </p>
       </div>
     );
   }
@@ -88,6 +91,9 @@ export default function AgendaLlamada({ leadId, origenLead, telefono, email, not
           <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" /> 30 min</span>
           <span className="flex items-center gap-1.5"><Phone className="w-4 h-4" /> Te llamamos al {telefono}</span>
         </div>
+        <p className="mt-4 text-sm text-muted-foreground max-w-sm">
+          Es una llamada de descubrimiento: te hacemos unas preguntas para entender tu caso y ver si podemos hacerte una oferta.
+        </p>
       </div>
 
       {dias === null && <p className="text-center text-muted-foreground py-6">Buscando horarios libres…</p>}
