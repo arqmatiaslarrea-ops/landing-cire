@@ -24,7 +24,7 @@ const pasos = [
 
 const ProcessSection = () => {
   return (
-    <section className="textura bg-background-darker py-20 md:py-28">
+    <section className="bg-background-darker py-20 md:py-28">
       <div className="container">
         <div className="max-w-3xl mb-12 md:mb-16">
           <p className="etiqueta text-primary">Cómo trabajamos</p>

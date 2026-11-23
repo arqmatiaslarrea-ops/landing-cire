@@ -1,6 +1,6 @@
 const FinalCTASection = () => {
   return (
-    <section className="textura bg-background py-20 md:py-28">
+    <section className="bg-background py-20 md:py-28">
       <div className="container">
         <div className="max-w-3xl">
           <p className="etiqueta text-primary">Oferta en 48 horas · Solo CABA</p>

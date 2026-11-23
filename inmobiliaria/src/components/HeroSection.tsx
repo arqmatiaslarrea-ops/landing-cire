@@ -26,7 +26,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="textura bg-background min-h-screen py-8 md:py-12">
+    <section className="bg-background min-h-screen py-8 md:py-12">
       <div className="container">
         <header className="flex items-center justify-between gap-4 pb-10 md:pb-16">
           <img src="/cire-logo.png" alt="CIRE" className="h-11 w-11 md:h-12 md:w-12" />
