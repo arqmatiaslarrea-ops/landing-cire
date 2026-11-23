@@ -54,10 +54,18 @@ async function feriados() {
 }
 async function ocupados(desde: Date, hasta: Date) {
   const [ev, re] = await Promise.all([
-    sb.from("crm_calendario_eventos").select("inicio,fin,todo_el_dia").eq("usuario", RESPONSABLE).eq("todo_el_dia", false).lt("inicio", hasta.toISOString()).gt("fin", desde.toISOString()),
+    sb.from("crm_calendario_eventos").select("inicio,fin,todo_el_dia,libre").eq("usuario", RESPONSABLE).eq("libre", false).lt("inicio", new Date(hasta.getTime() + 864e5).toISOString()).gt("fin", new Date(desde.getTime() - 864e5).toISOString()),
     sb.from("crm_reuniones").select("inicio,fin").eq("responsable", RESPONSABLE).in("estado", ["agendada", "confirmada"]).lt("inicio", hasta.toISOString()).gte("inicio", new Date(desde.getTime() - 3 * 3600e3).toISOString()),
   ]);
-  return [...(ev.data || []), ...(re.data || [])].map((x: any) => ({ a: new Date(x.inicio).getTime(), b: x.fin ? new Date(x.fin).getTime() : new Date(x.inicio).getTime() + DURACION_MIN * 6e4 }));
+  // Los eventos de día completo (vacaciones, viaje) bloquean el día entero en hora de Buenos Aires, salvo que en Google estén como "Disponible"
+  const diaCompleto = (x: any) => {
+    const d1 = String(x.inicio).slice(0, 10), d2 = x.fin ? String(x.fin).slice(0, 10) : d1;
+    return { a: instante(d1, "00:00").getTime(), b: d2 > d1 ? instante(d2, "00:00").getTime() : instante(d1, "23:59").getTime() };
+  };
+  return [
+    ...(ev.data || []).map((x: any) => (x.todo_el_dia ? diaCompleto(x) : { a: new Date(x.inicio).getTime(), b: x.fin ? new Date(x.fin).getTime() : new Date(x.inicio).getTime() + DURACION_MIN * 6e4 })),
+    ...(re.data || []).map((x: any) => ({ a: new Date(x.inicio).getTime(), b: x.fin ? new Date(x.fin).getTime() : new Date(x.inicio).getTime() + DURACION_MIN * 6e4 })),
+  ];
 }
 const libre = (ini: Date, ocup: { a: number; b: number }[]) => {
   const a = ini.getTime(), b = a + DURACION_MIN * 6e4;
@@ -168,6 +176,9 @@ Deno.serve(async (req) => {
     const ini = new Date(String(d.inicio || ""));
     if (isNaN(+ini)) return json({ error: "Elegí un horario." }, 400);
     const fin = new Date(ini.getTime() + DURACION_MIN * 6e4);
+    // Antes de confirmar se trae el calendario de Mati al momento (por si creó un evento en los últimos minutos)
+    const { data: secInt } = await sb.rpc("crm_secreto", { p_nombre: "crm_secreto_interno" });
+    if (secInt) await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/crm-calendario`, { method: "POST", headers: { "Content-Type": "application/json", "x-crm-secreto": secInt }, body: JSON.stringify({ usuario: RESPONSABLE }), signal: AbortSignal.timeout(8000) }).catch(() => null);
     const disp = await disponibilidad();
     if (!disp.some((x) => x.horarios.some((h) => new Date(h.inicio).getTime() === ini.getTime()))) return json({ error: "Ese horario se acaba de ocupar. Elegí otro.", dias: disp }, 409);
 

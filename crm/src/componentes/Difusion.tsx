@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { supabase, usd, waLink, hoyBA } from "../config";
+import { supabase, usd, waLink, hoyBA, traerTodo } from "../config";
 
 // Difusión de una propiedad a las inmobiliarias del barrio (y barrios que elijas), con mensaje armado.
 // El mensaje no incluye la dirección exacta ni datos del vendedor: eso se comparte recién con quien responde.
@@ -15,7 +15,7 @@ export default function Difusion({ p }: { p: any }) {
     if (!abierto) return;
     supabase.from("crm_difusiones").select("organizacion_id").eq("propiedad_id", p.id).then(({ data }) => setEnviadas(new Set((data || []).map((d: any) => d.organizacion_id))));
     if (!barrios.length) { setOrgs([]); return; }
-    supabase.from("crm_organizaciones").select("id,nombre,barrio,whatsapp,telefono,email,estado_contacto").in("barrio", barrios).neq("estado_contacto", "no_interesa").order("nombre").limit(1000)
+    traerTodo(() => supabase.from("crm_organizaciones").select("id,nombre,barrio,whatsapp,telefono,email,estado_contacto").in("barrio", barrios).neq("estado_contacto", "no_interesa").order("nombre"))
       .then(({ data }) => setOrgs(data || []));
   }, [abierto, barrios.join("|"), p.id]);
 

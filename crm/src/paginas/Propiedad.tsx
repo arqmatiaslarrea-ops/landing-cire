@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { fecha, supabase, usd, etiqueta, hoyBA } from "../config";
+import { fecha, supabase, usd, etiqueta, hoyBA, traerTodo } from "../config";
 import { puedeOperar, useYo } from "../main";
 import Difusion from "../componentes/Difusion";
 import Obra from "../componentes/Obra";
@@ -36,7 +36,7 @@ export default function Propiedad() {
   };
   useEffect(() => {
     cargar();
-    supabase.from("crm_contact_profiles").select("contact_id, crm_contacts(nombre,barrio)").eq("perfil", "vendedor_motivado").limit(3000).then(({ data }) => setVendedores(data || []));
+    traerTodo(() => supabase.from("crm_contact_profiles").select("contact_id, crm_contacts(nombre,barrio)").eq("perfil", "vendedor_motivado")).then(({ data }) => setVendedores(data || []));
     supabase.from("crm_organizaciones").select("id,nombre").order("nombre").then(({ data }) => setOrgs(data || []));
     (async () => {
       const [pr, rel, comp] = await Promise.all([

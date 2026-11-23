@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase, usd } from "../config";
+import { supabase, usd, traerTodo } from "../config";
 import { useYo } from "../main";
 
 // Lectura de campañas: leads por campaña, conjunto y anuncio, calidad de cada uno y comparación de indicadores.
@@ -24,7 +24,7 @@ export default function Campanas() {
   useEffect(() => {
     (async () => {
       const [l, g] = await Promise.all([
-        supabase.from("crm_leads_meta").select("*").order("creado", { ascending: false }).limit(5000),
+        traerTodo(() => supabase.from("crm_leads_meta").select("*").order("creado", { ascending: false })),
         supabase.from("crm_campanas_gasto").select("*"),
       ]);
       setLeads(l.data || []); setGasto(Object.fromEntries((g.data || []).map((x: any) => [x.conjunto, x])));

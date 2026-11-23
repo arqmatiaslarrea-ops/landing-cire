@@ -1,7 +1,7 @@
 import Descartar from "../componentes/Descartar";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { EMBUDOS, PROXIMO_HITO, UNIDADES, supabase } from "../config";
+import { EMBUDOS, PROXIMO_HITO, UNIDADES, supabase, traerTodo } from "../config";
 import { puedeOperar, useMarca, useYo } from "../main";
 import Temperatura, { hace, nivelTemp } from "../componentes/Temperatura";
 import Registro, { type ContextoRegistro } from "../componentes/Registro";
@@ -27,7 +27,7 @@ export default function Embudos() {
   // Compradores: lo que importa es el inmueble que consultaron y si están listos, no los datos de vendedor
   const [meta, setMeta] = useState<Record<string, any>>({});
   const cargar = async () => {
-    const { data } = await supabase.from("crm_vista_relaciones").select("*").eq("embudo", embudoId).limit(5000);
+    const { data } = await traerTodo(() => supabase.from("crm_vista_relaciones").select("*").order("id").eq("embudo", embudoId));
     setRels(data || []);
     if (embudoId === "compradores") {
       const filas: any[] = [];

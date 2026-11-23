@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { EMBUDOS, PROXIMO_HITO, supabase, waLink } from "../config";
+import { EMBUDOS, PROXIMO_HITO, supabase, waLink, traerTodo } from "../config";
 import { puedeOperar, useYo } from "../main";
 import Descartar from "../componentes/Descartar";
 
@@ -66,7 +66,7 @@ export default function Compradores() {
   const cargar = async () => {
     const [i, l] = await Promise.all([
       supabase.from("crm_inmuebles_venta").select("*").order("orden"),
-      supabase.from("crm_leads_meta").select("*").order("creado", { ascending: false }).limit(3000),
+      traerTodo(() => supabase.from("crm_leads_meta").select("*").order("creado", { ascending: false })),
     ]);
     setInm(i.data || []); setLeads(l.data || []);
     const ids = [...new Set((l.data || []).map((x: any) => x.relation_id).filter(Boolean))];

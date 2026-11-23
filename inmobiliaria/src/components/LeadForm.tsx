@@ -432,7 +432,7 @@ const LeadForm = () => {
   const [agendando, setAgendando] = useState(false);
   const [leadId, setLeadId] = useState<string | null>(null);
   const openGoogleCalendar = () => {
-    markActionTaken(); // User took action
+    // La acción cuenta recién cuando confirma la reserva: si abre la agenda y se va, sale la alerta de "no hizo nada"
     setAgendando(true);
   };
 
@@ -493,6 +493,7 @@ const LeadForm = () => {
           origen="cireinmobiliaria.com"
           nota={ubicacion ? `Propiedad: ${ubicacion}` : undefined}
           onVolver={() => setAgendando(false)}
+          onAgendado={() => markActionTaken()}
         />
       </div>
     );

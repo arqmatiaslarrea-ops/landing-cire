@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { UNIDADES, etiqueta, supabase, type Unidad } from "../config";
+import { UNIDADES, etiqueta, supabase, type Unidad, traerTodo } from "../config";
 import { puedeOperar, useYo } from "../main";
 
 const HORA = (d: string) => new Date(d).toLocaleString("es-AR", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
@@ -31,7 +31,7 @@ export default function Reuniones() {
 
   const abrirNueva = async () => {
     if (!contactos.length) {
-      const { data } = await supabase.from("crm_contacts").select("id,nombre").order("nombre").limit(2000);
+      const { data } = await traerTodo(() => supabase.from("crm_contacts").select("id,nombre").order("nombre"));
       setContactos(data || []);
     }
     const unidad = (yo.admin ? "ranka_by_cire" : yo.unidades[0]) as Unidad;

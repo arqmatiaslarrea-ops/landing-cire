@@ -11,7 +11,7 @@ const secreto = async (n: string) => (await sb.rpc("crm_secreto", { p_nombre: n 
 // Dueño del calendario: la dirección iCal secreta de Google lleva el id del calendario (/ical/<id>/private-…)
 const duenoCal = (url: string) => { try { const m = String(url || "").match(/\/ical\/([^/]+)\//); return m ? decodeURIComponent(m[1]).toLowerCase() : ""; } catch { return ""; } };
 
-type Ocurrencia = { uid: string; recurrente: boolean; inicio: string; fin: string | null; todo_el_dia: boolean; titulo: string | null; ubicacion: string | null; link: string | null; invitados: { email: string; nombre: string }[] };
+type Ocurrencia = { uid: string; recurrente: boolean; inicio: string; fin: string | null; todo_el_dia: boolean; libre: boolean; titulo: string | null; ubicacion: string | null; link: string | null; invitados: { email: string; nombre: string }[] };
 
 function expandir(texto: string): Ocurrencia[] {
   const raiz = new ICAL.Component(ICAL.parse(texto));
@@ -32,7 +32,7 @@ function expandir(texto: string): Ocurrencia[] {
     const link = String(comp.getFirstPropertyValue("x-google-conference") || "") || desc.match(/https:\/\/meet\.google\.com\/[a-z-]+/)?.[0] || null;
     const invitados = comp.getAllProperties("attendee").map((a: any) => ({ email: String(a.getFirstValue() || "").replace(/^mailto:/i, "").toLowerCase(), nombre: String(a.getParameter("cn") || "") }))
       .filter((a: any) => a.email && !a.email.endsWith("calendar.google.com"));
-    return { uid: item.uid, recurrente, inicio: ini.toJSDate().toISOString(), fin: fin ? fin.toJSDate().toISOString() : null, todo_el_dia: !!ini.isDate, titulo: item.summary || null, ubicacion: item.location || null, link, invitados };
+    return { uid: item.uid, recurrente, inicio: ini.toJSDate().toISOString(), fin: fin ? fin.toJSDate().toISOString() : null, todo_el_dia: !!ini.isDate, libre: String(comp.getFirstPropertyValue("transp") || "").toUpperCase() === "TRANSPARENT", titulo: item.summary || null, ubicacion: item.location || null, link, invitados };
   };
   for (const v of vevents) {
     if (v.hasProperty("recurrence-id")) continue;

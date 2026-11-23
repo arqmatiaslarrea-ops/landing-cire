@@ -15,7 +15,7 @@ export default function Envios() {
 
   const cargar = async () => {
     const [s, p, h] = await Promise.all([
-      supabase.from("crm_secuencias").select("id,nombre,activa,tandas_aprobadas,pasos"),
+      supabase.from("crm_secuencias").select("id,nombre,activa,tandas_aprobadas,pasos,pasos_revisados"),
       supabase.from("crm_envios").select("*, crm_contacts(id,nombre), crm_inscripciones(secuencia_id)").eq("estado", "pendiente_aprobacion").order("created_at"),
       supabase.from("crm_envios").select("id,estado,asunto,destino,enviado_at,crm_contacts(id,nombre)").in("estado", ["enviado", "error", "descartado"]).order("created_at", { ascending: false }).limit(30),
     ]);
@@ -26,11 +26,9 @@ export default function Envios() {
   const aprobarTanda = async (secId: string) => {
     const ids = pend.filter((e) => e.crm_inscripciones?.secuencia_id === secId).map((e) => e.id);
     if (!ids.length) return;
-    const { error } = await supabase.from("crm_envios").update({ estado: "aprobado" }).in("id", ids);
-    if (error) return setMsg("No tenés permiso para aprobar envíos. Pedíselo a Mati.");
-    const s = secs.find((x) => x.id === secId);
-    await supabase.from("crm_secuencias").update({ tandas_aprobadas: (s?.tandas_aprobadas || 0) + 1 }).eq("id", secId);
-    setMsg(`Tanda aprobada: ${ids.length} mails salen en los próximos 5 minutos.`);
+    const { data, error } = await supabase.rpc("crm_aprobar_tanda", { p_secuencia: secId, p_ids: ids });
+    if (error) return setMsg(error.message.includes("admin") ? "Solo un administrador aprueba tandas." : error.message);
+    setMsg(`${data.aprobados} ${data.aprobados === 1 ? "mail sale" : "mails salen"} en los próximos 5 minutos.${data.cuenta ? " La tanda cuenta para el envío automático." : " Con menos de 3 mails la tanda no cuenta para el envío automático."}`);
     cargar();
   };
   const descartar = async (id: string) => {
@@ -45,18 +43,19 @@ export default function Envios() {
   return (
     <>
       <div className="cabecera">
-        <div><h1>Seguimiento automático</h1><p className="sub">Cada lead nuevo entra en una secuencia de mails. Las primeras 3 tandas de cada una las aprobás acá; después salen solas. Si el contacto responde o registrás una gestión, la secuencia se pausa.</p></div>
+        <div><h1>Seguimiento automático</h1><p className="sub">Cada lead nuevo entra en una secuencia de mails. Las primeras 3 tandas (de 3 mails o más) de cada una las aprobás acá, y cada paso de la secuencia tiene que pasar por tu revisión al menos una vez; después salen solas. Si el contacto responde o registrás una gestión, la secuencia se pausa.</p></div>
       </div>
       {msg && <p className="aviso">{msg}</p>}
 
       <div className="grilla" style={{ marginBottom: 16 }}>
         {secs.map((s) => {
           const n = pend.filter((e) => e.crm_inscripciones?.secuencia_id === s.id).length;
-          const auto = s.tandas_aprobadas >= 3;
+          const revisados = (s.pasos_revisados || []).length, total = (s.pasos || []).length;
+          const auto = s.tandas_aprobadas >= 3 && revisados >= total;
           return (
             <div className="tarjeta" key={s.id}>
               <h3 style={{ margin: "0 0 4px" }}>{s.nombre}</h3>
-              <p className="sub" style={{ margin: 0 }}>{(s.pasos || []).length} mails · {auto ? "envío automático" : `${s.tandas_aprobadas} de 3 tandas aprobadas`}{!s.activa && " · pausada"}</p>
+              <p className="sub" style={{ margin: 0 }}>{(s.pasos || []).length} mails · {auto ? "envío automático" : `${Math.min(s.tandas_aprobadas, 3)} de 3 tandas · ${revisados} de ${total} pasos revisados`}{!s.activa && " · pausada"}</p>
               <div className="barra"><i style={{ width: `${Math.min(100, (s.tandas_aprobadas / 3) * 100)}%` }} /></div>
               <div className="fila">
                 {n > 0 ? <button className="primario" onClick={() => aprobarTanda(s.id)}>Aprobar {n} {n === 1 ? "mail" : "mails"}</button> : <span className="sub">Nada pendiente</span>}

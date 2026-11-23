@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "../config";
+import { supabase, traerTodo } from "../config";
 import { useYo } from "../main";
 
 // Agenda con grilla horaria: Google Calendar (sincronizado por la dirección secreta iCal), reuniones del CRM,
@@ -111,9 +111,9 @@ export default function Agenda() {
     const desde = lunes.toISOString(), hasta = new Date(lunes.getTime() + 7 * 864e5).toISOString();
     (async () => {
       const [g, r, t, o, w] = await Promise.all([
-        supabase.from("crm_calendario_eventos").select("uid,inicio,fin,todo_el_dia,titulo,ubicacion,link,invitados,usuario").gte("inicio", desde).lt("inicio", hasta).limit(2000),
+        traerTodo(() => supabase.from("crm_calendario_eventos").select("uid,inicio,fin,todo_el_dia,titulo,ubicacion,link,invitados,usuario").gte("inicio", desde).lt("inicio", hasta)),
         supabase.from("crm_reuniones").select("id,inicio,fin,titulo,estado,responsable,contact_id,link_reunion,google_event_id,crm_contacts(nombre)").gte("inicio", desde).lt("inicio", hasta).neq("estado", "cancelada"),
-        supabase.from("crm_tareas").select("id,vence,titulo,hecha,responsable,contact_id,crm_contacts(nombre)").gte("vence", desde).lt("vence", hasta).order("vence").limit(1000),
+        traerTodo(() => supabase.from("crm_tareas").select("id,vence,titulo,hecha,responsable,contact_id,crm_contacts(nombre)").gte("vence", desde).lt("vence", hasta).order("vence")),
         supabase.from("crm_ofertas").select("id,vence,direccion,monto_usd,estado,responsable,propiedad_id").gte("vence", desde.slice(0, 10)).lt("vence", hasta.slice(0, 10)),
         supabase.from("crm_obra_tareas").select("id,inicio,tarea,gremio,avance,propiedad_id,crm_propiedades(direccion,responsable)").gte("inicio", desde.slice(0, 10)).lt("inicio", hasta.slice(0, 10)),
       ]);

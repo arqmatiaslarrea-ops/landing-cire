@@ -78,7 +78,8 @@ async function secuencias() {
     await sb.from("crm_envios").insert({
       inscripcion_id: i.id, contact_id: i.contact_id, canal: "email", destino: c.email, paso: i.paso_actual,
       asunto: paso.asunto.replaceAll("{{nombre}}", nombre), cuerpo: paso.cuerpo.replaceAll("{{nombre}}", nombre),
-      estado: s.tandas_aprobadas >= 3 ? "aprobado" : "pendiente_aprobacion",
+      // Sale solo cuando la secuencia tiene 3 tandas reales aprobadas y este paso ya fue revisado al menos una vez
+      estado: s.tandas_aprobadas >= 3 && (s.pasos_revisados || []).includes(i.paso_actual) ? "aprobado" : "pendiente_aprobacion",
     });
   }
   const { data: env } = await sb.from("crm_envios").select("*").eq("estado", "aprobado").lte("programado", new Date().toISOString()).limit(40);
@@ -133,11 +134,22 @@ async function recordatorios() {
 }
 
 async function avisoTanda() {
-  const { data: rels } = await sb.from("crm_vista_relaciones").select("contact_id,nombre,telefono,barrio,situacion,unidad,etapa,estado,temperatura,ultima_gestion")
-    .in("etapa", ["nuevo", "contactado", "descubrimiento"]).neq("estado", "descartado").not("telefono", "is", null).limit(3000);
-  const { data: abiertas } = await sb.from("crm_tareas").select("contact_id").eq("hecha", false);
-  const conTarea = new Set((abiertas || []).map((t: any) => t.contact_id));
-  const tanda = (rels || []).filter((r: any) => !conTarea.has(r.contact_id) && (!r.ultima_gestion || Date.now() - new Date(r.ultima_gestion).getTime() > 7 * 864e5))
+  // Paginado de a 1000 (tope de filas de la API)
+  const rels: any[] = [];
+  for (let desde = 0; desde < 20000; desde += 1000) {
+    const { data } = await sb.from("crm_vista_relaciones").select("contact_id,nombre,telefono,barrio,situacion,unidad,etapa,estado,temperatura,ultima_gestion")
+      .in("etapa", ["nuevo", "contactado", "descubrimiento"]).neq("estado", "descartado").not("telefono", "is", null).order("id").range(desde, desde + 999);
+    rels.push(...(data || []));
+    if (!data || data.length < 1000) break;
+  }
+  const abiertas: any[] = [];
+  for (let desde = 0; desde < 20000; desde += 1000) {
+    const { data } = await sb.from("crm_tareas").select("contact_id").eq("hecha", false).order("id").range(desde, desde + 999);
+    abiertas.push(...(data || []));
+    if (!data || data.length < 1000) break;
+  }
+  const conTarea = new Set(abiertas.map((t: any) => t.contact_id));
+  const tanda = rels.filter((r: any) => !conTarea.has(r.contact_id) && (!r.ultima_gestion || Date.now() - new Date(r.ultima_gestion).getTime() > 7 * 864e5))
     .sort((a: any, b: any) => b.temperatura - a.temperatura).slice(0, 5);
   const wa = (t: string) => { let d = String(t).replace(/\D/g, ""); if (d.length === 10) d = "549" + d; return `https://wa.me/${d}`; };
   const filas = tanda.map((r: any, i: number) => `<tr><td style="padding:6px 10px 6px 0"><b>${i + 1}. ${esc(r.nombre)}</b><br><span style="color:#5f6b6f">${esc(r.situacion || "")} ${r.barrio ? esc(r.barrio) : ""}</span></td><td><a href="${wa(r.telefono)}">WhatsApp</a> | <a href="${CRM}/contactos/${r.contact_id}">Ficha</a></td></tr>`).join("");

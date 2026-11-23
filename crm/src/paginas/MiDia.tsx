@@ -3,7 +3,7 @@ import CarteraSinAtender from "../componentes/CarteraSinAtender";
 import { Fragment } from "react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { UNIDADES, fecha, supabase, usd, waLink, type Unidad, hoyBA, diaBA } from "../config";
+import { UNIDADES, fecha, supabase, usd, waLink, type Unidad, hoyBA, diaBA, traerTodo } from "../config";
 import { puedeOperar, useYo } from "../main";
 import Registro, { type ContextoRegistro } from "../componentes/Registro";
 import Temperatura, { hace } from "../componentes/Temperatura";
@@ -28,7 +28,7 @@ export default function MiDia() {
     if (!equipo) qt = qt.eq("responsable", yo.clave);
     const [t, r, o] = await Promise.all([
       qt,
-      supabase.from("crm_vista_relaciones").select("id,contact_id,nombre,telefono,barrio,unidad,embudo,etapa,estado,responsable,created_at,primer_contacto_at,ultima_gestion,temperatura,situacion,urgencia_form,semaforo_desc").neq("estado", "descartado").limit(5000),
+      traerTodo(() => supabase.from("crm_vista_relaciones").select("id,contact_id,nombre,telefono,barrio,unidad,embudo,etapa,estado,responsable,created_at,primer_contacto_at,ultima_gestion,temperatura,situacion,urgencia_form,semaforo_desc").order("id").neq("estado", "descartado")),
       supabase.from("crm_ofertas").select("*").in("estado", ["enviada", "negociando", "contraoferta"]).order("vence"),
     ]);
     setTareas(t.data || []);

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase, hoyBA } from "../config";
+import { supabase, hoyBA, traerTodo } from "../config";
 import { puedeOperar, useMarca, useYo } from "../main";
 import { Estrella } from "./PanelRanka";
 
@@ -44,7 +44,7 @@ export default function FinanzasRanka() {
     const [c, p, m, k, cl] = await Promise.all([
       supabase.from("crm_ranka_config").select("*").maybeSingle(),
       supabase.from("crm_ranka_partidas").select("*").order("orden"),
-      supabase.from("crm_ranka_movimientos").select("*").order("fecha", { ascending: false }).order("created_at", { ascending: false }).limit(2000),
+      traerTodo(() => supabase.from("crm_ranka_movimientos").select("*").order("fecha", { ascending: false }).order("created_at", { ascending: false })),
       supabase.from("crm_ranka_cobros").select("*").order("created_at"),
       supabase.from("crm_vista_relaciones").select("empresa,nombre").eq("embudo", "clientes_ranka").eq("etapa", "cliente"),
     ]);

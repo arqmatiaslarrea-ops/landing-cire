@@ -167,3 +167,16 @@ export const PROXIMO_HITO: Record<string, Record<string, string>> = {
     propuesta: "Seguimiento a las 48 h y cierre",
   },
 };
+
+// Trae todas las filas de una consulta de a 1000 (la API corta en 1000 por pedido).
+// Uso: traerTodo(() => supabase.from("tabla").select("...").eq(...))
+export async function traerTodo<T = any>(armar: () => any, tope = 20000): Promise<{ data: T[]; error: any }> {
+  const data: T[] = [];
+  for (let desde = 0; desde < tope; desde += 1000) {
+    const { data: pagina, error } = await armar().range(desde, desde + 999);
+    if (error) return { data, error };
+    data.push(...(pagina || []));
+    if (!pagina || pagina.length < 1000) break;
+  }
+  return { data, error: null };
+}

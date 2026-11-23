@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { EMBUDOS, UNIDADES, fecha, supabase, type Unidad } from "../config";
+import { EMBUDOS, UNIDADES, fecha, supabase, type Unidad, traerTodo } from "../config";
 
 type Rel = { unidad: Unidad; embudo: string; etapa: string; estado: string; created_at: string; proximo_paso: string | null; contact_id: string; origen: string | null; responsable: string | null; primer_contacto_at: string | null };
 type Oferta = { fecha: string; monto_usd: number; cuenta_plan_260: boolean; etapa_loacc: string };
@@ -26,10 +26,10 @@ export default function Inicio() {
   const [usuarios, setUsuarios] = useState<{ clave: string; nombre: string }[]>([]);
 
   useEffect(() => {
-    supabase.from("crm_relations").select("unidad,embudo,etapa,estado,created_at,proximo_paso,contact_id,origen,responsable,primer_contacto_at").limit(10000).then(({ data }) => setRels((data as Rel[]) || []));
+    traerTodo(() => supabase.from("crm_relations").select("unidad,embudo,etapa,estado,created_at,proximo_paso,contact_id,origen,responsable,primer_contacto_at").order("id")).then(({ data }) => setRels((data as Rel[]) || []));
     supabase.from("crm_ofertas").select("fecha,monto_usd,cuenta_plan_260,etapa_loacc").then(({ data }) => setOfertas((data as Oferta[]) || []));
     supabase.from("crm_activities").select("created_at,tipo,unidad,detalle,contact_id,crm_contacts(nombre)").in("tipo", ["formulario_web", "sin_accion_post_formulario"]).order("created_at", { ascending: false }).limit(8).then(({ data }) => setRecientes(data || []));
-    supabase.from("crm_activities").select("autor,contact_id").gte("created_at", new Date(Date.now() - 7 * 864e5).toISOString()).not("autor", "in", "(sistema,fathom)").limit(5000).then(({ data }) => setActs(data || []));
+    traerTodo(() => supabase.from("crm_activities").select("autor,contact_id").order("id").gte("created_at", new Date(Date.now() - 7 * 864e5).toISOString()).not("autor", "in", "(sistema,fathom)")).then(({ data }) => setActs(data || []));
     supabase.from("crm_usuarios").select("clave,nombre").then(({ data }) => setUsuarios(data || []));
   }, []);
 

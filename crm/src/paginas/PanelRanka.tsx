@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { EMBUDOS, supabase, waLink } from "../config";
+import { EMBUDOS, supabase, waLink, traerTodo } from "../config";
 import { puedeOperar, useMarca, useYo } from "../main";
 import Registro, { type ContextoRegistro } from "../componentes/Registro";
 import Descartar from "../componentes/Descartar";
@@ -32,7 +32,7 @@ export default function PanelRanka() {
   const cargar = async () => {
     const ahora = new Date();
     const [r, t, m, a, o] = await Promise.all([
-      supabase.from("crm_vista_relaciones").select("id,contact_id,nombre,telefono,email,empresa,unidad,embudo,etapa,estado,responsable,origen,created_at,primer_contacto_at,ultima_gestion,proximo_paso").in("unidad", UNIDADES_RANKA).limit(2000),
+      traerTodo(() => supabase.from("crm_vista_relaciones").select("id,contact_id,nombre,telefono,email,empresa,unidad,embudo,etapa,estado,responsable,origen,created_at,primer_contacto_at,ultima_gestion,proximo_paso").order("id").in("unidad", UNIDADES_RANKA)),
       supabase.from("crm_tareas").select("id,titulo,vence,contact_id,unidad,responsable,crm_contacts(nombre)").eq("hecha", false).in("unidad", UNIDADES_RANKA).lte("vence", new Date(ahora.getTime() + 864e5).toISOString()).order("vence").limit(50),
       supabase.from("crm_reuniones").select("id,inicio,titulo,estado,contact_id,link_reunion,crm_contacts(nombre)").in("unidad", UNIDADES_RANKA).gte("inicio", new Date(ahora.getTime() - 36e5).toISOString()).lte("inicio", new Date(ahora.getTime() + 7 * 864e5).toISOString()).neq("estado", "cancelada").order("inicio"),
       supabase.from("crm_activities").select("contact_id,created_at,detalle").eq("tipo", "reporte_mensual").gte("created_at", new Date(ahora.getFullYear(), ahora.getMonth(), 1).toISOString()),
