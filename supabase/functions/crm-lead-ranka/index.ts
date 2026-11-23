@@ -1,5 +1,5 @@
 // Recibe los leads del formulario de rankaagency.com (Club +MIL) y los da de alta en el CRM:
-// ficha de la persona, inmobiliaria como empresa, perfil "inmobiliaria" y oportunidad en Ranka by CIRE.
+// ficha de la persona, inmobiliaria como empresa, perfil "inmobiliaria" y oportunidad en Ranka by CIRE (responsable: Sofi).
 import { createClient } from "npm:@supabase/supabase-js@2.45.0";
 const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 const CORS = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "content-type", "Access-Control-Allow-Methods": "POST, OPTIONS" };
@@ -34,9 +34,9 @@ Deno.serve(async (req) => {
   await sb.from("crm_contact_profiles").upsert({ contact_id: cid, perfil: "inmobiliaria", datos, updated_at: new Date().toISOString() }, { onConflict: "contact_id,perfil" });
   const { data: rel } = await sb.from("crm_relations").select("id").eq("contact_id", cid).eq("embudo", "inmobiliarias").maybeSingle();
   if (!rel) {
-    await sb.from("crm_relations").insert({ contact_id: cid, unidad: "ranka_by_cire", embudo: "inmobiliarias", etapa: "nuevo", responsable: "mati", origen: `rankaagency.com${d.utm_source ? ` (${corta(d.utm_source, 40)})` : ""}`, estado: d.califica === "No" ? "descartado" : "prospecto" });
+    await sb.from("crm_relations").insert({ contact_id: cid, unidad: "ranka_by_cire", embudo: "inmobiliarias", etapa: "nuevo", responsable: "sofi", origen: `rankaagency.com${d.utm_source ? ` (${corta(d.utm_source, 40)})` : ""}`, estado: d.califica === "No" ? "descartado" : "prospecto" });
   } else {
-    await sb.from("crm_tareas").insert({ contact_id: cid, relation_id: rel.id, unidad: "ranka_by_cire", tipo: "llamar", titulo: "Volvió a completar el formulario de Ranka: llamar ya", vence: new Date().toISOString(), responsable: "mati", prioridad: "alta", origen: "automatizacion" });
+    await sb.from("crm_tareas").insert({ contact_id: cid, relation_id: rel.id, unidad: "ranka_by_cire", tipo: "llamar", titulo: "Volvió a completar el formulario de Ranka: llamar ya", vence: new Date().toISOString(), responsable: "sofi", prioridad: "alta", origen: "automatizacion" });
   }
   await sb.from("crm_activities").insert({ contact_id: cid, unidad: "ranka_by_cire", tipo: "formulario_web", detalle: { landing: "rankaagency.com", lead_id: corta(d.lead_id, 40), prioridad: corta(d.prioridad, 5), puntaje: corta(d.puntaje, 5), califica: corta(d.califica, 5) } });
   return new Response("ok", { headers: CORS });

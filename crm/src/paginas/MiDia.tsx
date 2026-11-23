@@ -21,6 +21,7 @@ export default function MiDia() {
   const [rels, setRels] = useState<Rel[]>([]);
   const [ofertas, setOfertas] = useState<any[]>([]);
   const [registro, setRegistro] = useState<ContextoRegistro | null>(null);
+  const [verTodos, setVerTodos] = useState(false);
 
   const cargar = async () => {
     let qt = supabase.from("crm_tareas").select("*, crm_contacts(nombre,telefono)").eq("hecha", false).lte("vence", new Date(Date.now() + 7 * 864e5).toISOString()).order("vence");
@@ -31,7 +32,7 @@ export default function MiDia() {
       supabase.from("crm_ofertas").select("*").in("estado", ["enviada", "negociando", "contraoferta"]).order("vence"),
     ]);
     setTareas(t.data || []);
-    setRels(((r.data as Rel[]) || []).filter((x) => puedeOperar(yo, x.unidad) && (equipo || !x.responsable || x.responsable === yo.clave || yo.admin)));
+    setRels(((r.data as Rel[]) || []).filter((x) => puedeOperar(yo, x.unidad) && (equipo || !x.responsable || x.responsable === yo.clave)));
     setOfertas(o.data || []);
   };
   useEffect(() => { cargar(); }, [equipo]);
@@ -86,7 +87,7 @@ export default function MiDia() {
       <div className="cabecera">
         <div>
           <h1>Buen día, {yo.nombre.split(" ")[0]}</h1>
-          <p className="sub">{nombreDia[0].toUpperCase() + nombreDia.slice(1)} · lo que hay que mover hoy</p>
+          <p className="sub">{nombreDia[0].toUpperCase() + nombreDia.slice(1)} · {equipo ? "todo el equipo" : "solo lo que está a tu nombre"}</p>
         </div>
         {yo.admin && (
           <div className="segmentos">
@@ -110,7 +111,7 @@ export default function MiDia() {
           {recientes.length > 0 && (
             <section className="panel urgente">
               <h2>Leads nuevos sin contactar <small>meta: primera respuesta en menos de 5 minutos</small></h2>
-              {recientes.map((r) => (
+              {(verTodos ? recientes : recientes.slice(0, 5)).map((r) => (
                 <div className="item" key={r.id}>
                   <div className="item-txt">
                     <Link to={`/contactos/${r.contact_id}`} className="item-nombre">{r.nombre}</Link>
@@ -124,6 +125,7 @@ export default function MiDia() {
                   </div>
                 </div>
               ))}
+              {recientes.length > 5 && <button className="chico" onClick={() => setVerTodos(!verTodos)}>{verTodos ? "Ver menos" : `Ver los otros ${recientes.length - 5}`}</button>}
             </section>
           )}
 

@@ -11,7 +11,7 @@ type Tarea = { id: string; vence: Date; titulo: string; contacto?: string; conta
 
 const DIAS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 const NOMBRE: Record<Tipo, string> = { google: "Google Calendar", reunion: "Reunión con lead", oferta: "Vence oferta", obra: "Obra" };
-const ALTO_HORA = 48;
+const ALTO_HORA = 64;
 const lunesDe = (d: Date) => { const x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
 const diaClave = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 const hora = (d: Date) => d.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
@@ -147,8 +147,12 @@ export default function Agenda() {
   const moverDia = (n: number) => { const d = new Date(diaSel.getTime() + n * 864e5); setDiaSel(d); if (diaClave(lunesDe(d)) !== diaClave(lunes)) setLunes(lunesDe(d)); };
 
   const tarjeta = (e: Ev, estilo?: React.CSSProperties) => {
-    const cuerpo = (<><small>{e.todoElDia ? NOMBRE[e.tipo] : `${hora(e.inicio)}–${hora(e.fin)}`}</small><span>{e.titulo}</span>{e.detalle && <small className="sub">{e.detalle}</small>}</>);
-    const cls = `ev ev-${e.tipo} ${e.hecho ? "hecho" : ""}`;
+    // En bloques cortos (menos de ~40 min) hora y título van en una sola línea para que se lean
+    const corto = typeof estilo?.height === "number" && estilo.height < 44;
+    const cuerpo = corto
+      ? (<span><b>{hora(e.inicio)}</b> {e.titulo}</span>)
+      : (<><small>{e.todoElDia ? NOMBRE[e.tipo] : `${hora(e.inicio)}–${hora(e.fin)}`}</small><span>{e.titulo}</span>{e.detalle && <small className="sub">{e.detalle}</small>}</>);
+    const cls = `ev ev-${e.tipo} ${e.hecho ? "hecho" : ""} ${corto ? "ev-corto" : ""}`;
     const titulo = `${e.titulo}${e.detalle ? " · " + e.detalle : ""}`;
     if (e.link) return <Link key={e.key} to={e.link} className={cls} style={estilo} title={titulo}>{cuerpo}</Link>;
     if (e.externo) return <a key={e.key} href={e.externo} target="_blank" rel="noreferrer" className={cls} style={estilo} title={titulo}>{cuerpo}</a>;
@@ -213,7 +217,7 @@ export default function Agenda() {
               <div key={d.toISOString()} className={`agenda-col ${(d.getDay() + 6) % 7 > 4 ? "finde" : ""}`} style={{ backgroundSize: `100% ${ALTO_HORA}px` }}>
                 {acomodar(del).map(({ ev, col, cols }) => {
                   const top = ((ev.inicio.getHours() - hDesde) + ev.inicio.getMinutes() / 60) * ALTO_HORA;
-                  const alto = Math.max(22, ((+ev.fin - +ev.inicio) / 36e5) * ALTO_HORA - 2);
+                  const alto = Math.max(24, ((+ev.fin - +ev.inicio) / 36e5) * ALTO_HORA - 2);
                   return tarjeta(ev, { position: "absolute", top, height: alto, left: `calc(${(col / cols) * 100}% + 2px)`, width: `calc(${100 / cols}% - 4px)` });
                 })}
                 {esHoy && minutoAhora > 0 && minutoAhora < (hHasta - hDesde) * ALTO_HORA && <div className="agenda-ahora" style={{ top: minutoAhora }} />}
