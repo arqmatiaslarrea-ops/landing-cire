@@ -116,17 +116,28 @@
     clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
   }
 
-  /* Textura de hormigón al 7 % */
-  .textura { position: relative; isolation: isolate; }
-  .textura::before {
+  /* Tramas con los módulos de marca (Doble C, Bloque, hormigón…).
+     Se configuran con --trama-img, --trama-size, --trama-op y --trama-mask. */
+  .trama { position: relative; isolation: isolate; }
+  .trama::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: url('/textura-hormigon.svg') center / 900px auto repeat;
-    opacity: 0;
-    display: none;
+    background-image: var(--trama-img);
+    background-size: var(--trama-size, 180px);
+    background-repeat: repeat;
+    opacity: var(--trama-op, 0.05);
+    -webkit-mask-image: var(--trama-mask, none);
+    mask-image: var(--trama-mask, none);
     pointer-events: none;
     z-index: -1;
+  }
+
+  /* Números del proceso: Space Mono naranja con regla, como el kit de sitio de la marca */
+  .numero-mono {
+    font-family: 'Space Mono', ui-monospace, monospace;
+    letter-spacing: -0.02em;
+    line-height: 1;
   }
 
   /* Sección clara para lectura larga */

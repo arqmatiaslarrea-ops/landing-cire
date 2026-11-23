@@ -8,12 +8,16 @@ const razones = [
     texto: "Antes de ofertar evaluamos el estado, la obra que necesita y la situación legal. Así la oferta es concreta, aunque la propiedad necesite trabajo.",
   },
   {
+    titulo: "Tenemos equipo de abogados",
+    texto: "Nuestro equipo legal se ocupa de sucesiones, embargos y deudas para que la venta pueda salir. Vos no tenés que resolverlo antes.",
+  },
+  {
     titulo: "Te acompañamos en todo el proceso",
     texto: "Nos ocupamos de la parte técnica, legal y de gestión. No hace falta que arregles ni ordenes nada antes de vender.",
   },
 ];
 
-const compromisos = ["Una respuesta clara: sí o no", "Oferta por escrito en 48 horas", "Cierre en 90 días o menos*"];
+const compromisos = ["Una respuesta clara: sí o no", "Oferta por escrito 48 horas después de la visita", "Cierre en 90 días o menos*"];
 
 const DifferentialsSection = () => {
   return (

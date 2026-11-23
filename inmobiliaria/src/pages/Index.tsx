@@ -1,7 +1,5 @@
 import HeroSection from "@/components/HeroSection";
 import ProblemsSection from "@/components/ProblemsSection";
-import QueCompramosSection from "@/components/QueCompramosSection";
-import ComparativaSection from "@/components/ComparativaSection";
 import DifferentialsSection from "@/components/DifferentialsSection";
 import ProcessSection from "@/components/ProcessSection";
 import NotForYouSection from "@/components/NotForYouSection";
@@ -16,8 +14,6 @@ const Index = () => {
       {/* SEO: H1 está en HeroSection */}
       <HeroSection />
       <ProblemsSection />
-      <QueCompramosSection />
-      <ComparativaSection />
       <DifferentialsSection />
       <ProcessSection />
       <NotForYouSection />

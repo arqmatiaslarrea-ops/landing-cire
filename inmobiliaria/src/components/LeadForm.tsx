@@ -576,7 +576,7 @@ const LeadForm = ({ situacion = "" }: { situacion?: string }) => {
 
             <div className="bg-accent/10 border border-accent/30 rounded-lg p-4 mt-4">
               <p className="text-sm text-foreground font-medium">
-                ⚡ Respondemos en menos de 48hs hábiles
+                Te contactamos para entender tu caso
               </p>
             </div>
           </div>

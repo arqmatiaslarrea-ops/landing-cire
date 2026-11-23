@@ -12,7 +12,11 @@ const faqs = [
   },
   {
     question: "¿Cuánto tarda?",
-    answer: "Oferta concreta por escrito y en dólares en 48 horas. Una vez que aceptás la oferta, y con la documentación en regla, el cierre es en 90 días o menos, garantizado.",
+    answer: "Después de la llamada coordinamos una visita. Si la propiedad cumple nuestro criterio de compra, tenés la oferta por escrito y en dólares dentro de las 48 horas posteriores a la visita. Una vez que la aceptás, y con la documentación en regla, el cierre es en 90 días o menos, garantizado.",
+  },
+  {
+    question: "¿Hacen oferta por cualquier propiedad?",
+    answer: "No. La propiedad tiene que cumplir con nuestro criterio de compra para recibir una oferta. Lo vemos en la llamada y en la visita, y si no aplica te lo decimos con claridad.",
   },
   {
     question: "¿Qué me van a preguntar en la llamada?",
@@ -36,11 +40,11 @@ const faqs = [
   },
   {
     question: "¿Compran si hay varios herederos que no se ponen de acuerdo?",
-    answer: "Podemos trabajar en casos con conflicto entre herederos. La forma de hacerlo depende de cada sucesión: lo vemos en la llamada con el respaldo de nuestros abogados.",
+    answer: "Podemos trabajar en casos con conflicto entre herederos. La forma de hacerlo depende de cada sucesión: lo vemos en la llamada y nuestro equipo de abogados te propone el camino.",
   },
   {
     question: "¿En qué barrios compran?",
-    answer: "Solo en CABA, sobre todo en Saavedra, Villa Urquiza, Villa Pueyrredón, Coghlan, Devoto, Villa del Parque, Caballito, Boedo y Villa Crespo. También en Belgrano, Núñez y Palermo cuando la operación lo permite. No todos los barrios aplican: en 48 horas te confirmamos si el tuyo sí.",
+    answer: "Solo en CABA, sobre todo en Saavedra, Villa Urquiza, Villa Pueyrredón, Coghlan, Devoto, Villa del Parque, Caballito, Boedo y Villa Crespo. También en Belgrano, Núñez y Palermo cuando la operación lo permite. No todos los barrios aplican: te lo confirmamos en la llamada.",
   },
 ];
 

@@ -34,7 +34,7 @@ const BarraMovil = () => {
         tabIndex={visible ? 0 : -1}
         className="recorte block bg-primary py-3.5 text-center font-bold text-primary-foreground"
       >
-        Pedir mi oferta en 48 hs
+        Pedir mi oferta
       </a>
     </div>
   );

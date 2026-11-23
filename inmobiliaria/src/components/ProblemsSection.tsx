@@ -2,27 +2,31 @@
 const fichas = [
   {
     situacion: "Herencia",
+    modulo: "/marca/doble-c-naranja.svg",
     titulo: "Heredaste y no sabés por dónde empezar",
     pasa: "Una sucesión que no avanza, herederos que no se ponen de acuerdo, trámites que se acumulan.",
-    hacemos: "Compramos en el estado actual y nos ocupamos del problema completo, con respaldo legal.",
+    hacemos: "Compramos en el estado actual. Nuestro equipo de abogados se ocupa de la sucesión y de los trámites.",
   },
   {
     situacion: "Obra",
+    modulo: "/marca/bloque-naranja.svg",
     titulo: "La propiedad necesita mucha obra",
     pasa: "Humedades, instalaciones viejas, deterioro general. Te piden arreglar antes de vender o bajar el precio.",
     hacemos: "La compramos como está. Ofertamos con criterio de arquitecto: sabemos lo que cuesta la obra y no descontamos defecto por defecto.",
   },
   {
     situacion: "Deudas o embargos",
+    modulo: "/marca/centro-manzana-naranja.svg",
     titulo: "Hay deudas o un embargo",
     pasa: "Expensas, impuestos o servicios atrasados, o un embargo que traba la venta.",
-    hacemos: "Analizamos el caso y armamos la operación para resolverlo. Compramos propiedades embargadas; no compramos propiedades ocupadas.",
+    hacemos: "Nuestro equipo de abogados analiza el caso y arma la operación para resolverlo. Compramos propiedades embargadas; no compramos propiedades ocupadas.",
   },
   {
     situacion: "Urgencia",
+    modulo: "/marca/innovacion-naranja.png",
     titulo: "Tenés que vender en poco tiempo",
     pasa: "Necesitás el dinero o cerrar el tema ya, y una venta tradicional puede llevar meses sin fecha cierta.",
-    hacemos: "Oferta por escrito y en dólares en 48 horas, con cierre en 90 días o menos desde que la aceptás.",
+    hacemos: "Visitamos la propiedad y, si cumple nuestro criterio de compra, te damos la oferta por escrito en 48 horas, con cierre en 90 días o menos desde que la aceptás.",
   },
 ];
 
@@ -41,7 +45,10 @@ const ProblemsSection = () => {
         <div className="grid md:grid-cols-2 gap-px bg-[#1C1C1C]/15 border border-[#1C1C1C]/15">
           {fichas.map((f) => (
             <article key={f.situacion} className="bg-[#EFEFEF] p-6 md:p-8">
-              <p className="etiqueta text-[#C73D08]">Situación · {f.situacion}</p>
+              <div className="flex items-start justify-between gap-4">
+                <p className="etiqueta text-[#C73D08]">Situación · {f.situacion}</p>
+                <img src={f.modulo} alt="" aria-hidden="true" className="h-10 w-10 object-contain shrink-0" />
+              </div>
               <h3 className="mt-2 text-xl md:text-2xl font-extrabold text-[#1C1C1C] leading-tight">{f.titulo}</h3>
               <dl className="mt-6 space-y-4 border-t border-[#1C1C1C]/15 pt-5">
                 <div className="grid sm:grid-cols-[8.5rem_1fr] gap-1 sm:gap-4">
