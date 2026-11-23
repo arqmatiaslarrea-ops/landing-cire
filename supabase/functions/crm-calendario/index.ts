@@ -65,7 +65,8 @@ Deno.serve(async (req) => {
   const token = await secreto("agenda_token");
   const { data: equipo } = await sb.from("crm_usuarios").select("email");
   const { data: todos } = await sb.from("crm_calendarios").select("ics_url");
-  const mails = new Set([...(equipo || []).map((u: any) => String(u.email).toLowerCase()), ...(Deno.env.get("CRM_MAILS_INTERNOS") || "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean), ...(todos || []).map((c: any) => duenoCal(c.ics_url)).filter(Boolean)]); // + secreto CRM_MAILS_INTERNOS + dueños de calendarios
+  const { data: internos } = await sb.from("crm_mails_internos").select("email");
+  const mails = new Set([...(equipo || []).map((u: any) => String(u.email).toLowerCase()), ...(internos || []).map((i: any) => String(i.email).toLowerCase()),...(Deno.env.get("CRM_MAILS_INTERNOS") || "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean), ...(todos || []).map((c: any) => duenoCal(c.ics_url)).filter(Boolean)]); // + secreto CRM_MAILS_INTERNOS + dueños de calendarios
   const res: any[] = [];
 
   for (const cal of cals || []) {

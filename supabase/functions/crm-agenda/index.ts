@@ -8,7 +8,8 @@ let EQUIPO: string[] = []; // mails del equipo: crm_usuarios + secreto CRM_MAILS
 async function cargarEquipo() {
   const { data } = await sb.from("crm_usuarios").select("email");
   const { data: cals } = await sb.from("crm_calendarios").select("ics_url");
-  const extra = [...(Deno.env.get("CRM_MAILS_INTERNOS") || "").split(","), ...(cals || []).map((c: any) => duenoCal(c.ics_url))];
+  const { data: internos } = await sb.from("crm_mails_internos").select("email");
+  const extra = [...(Deno.env.get("CRM_MAILS_INTERNOS") || "").split(","), ...(cals || []).map((c: any) => duenoCal(c.ics_url)), ...(internos || []).map((i: any) => String(i.email))];
   EQUIPO = [...new Set([...(data || []).map((u: any) => String(u.email || "")), ...extra].map((x) => x.trim().toLowerCase()).filter(Boolean))];
 }
 
