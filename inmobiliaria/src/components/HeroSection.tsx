@@ -5,8 +5,8 @@ import LeadForm from "./LeadForm";
 const situaciones = [
   { valor: "herencia", texto: "Heredé una propiedad" },
   { valor: "deterioro", texto: "Necesita mucha obra" },
-  { valor: "legal", texto: "Tiene deudas u ocupantes" },
-  { valor: "inversion", texto: "Una inversión que no funcionó" },
+  { valor: "legal", texto: "Tiene deudas o embargos" },
+  { valor: "urgencia", texto: "Necesito vender rápido" },
   { valor: "otro", texto: "Otra situación" },
 ];
 
@@ -44,7 +44,7 @@ const HeroSection = () => {
             </h1>
 
             <p className="text-lg md:text-xl text-foreground/85 max-w-xl leading-relaxed">
-              Herencias, deudas, ocupantes u obra pendiente. Compramos en CABA en el estado en que está, con una oferta concreta en 48 horas.
+              Herencia, deudas, embargos, mucha obra o urgencia de venta. Compramos departamentos, PH y casas en CABA en el estado en que están, con una oferta por escrito y en dólares en 48 horas.
             </p>
 
             <div className="space-y-3">

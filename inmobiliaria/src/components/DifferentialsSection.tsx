@@ -1,15 +1,15 @@
 const razones = [
   {
-    titulo: "Somos compradores, no intermediarios",
-    texto: "Hablás con quien compra. Sin visitas masivas ni tasaciones para terceros.",
+    titulo: "Compramos de forma directa",
+    texto: "Hablás con quien compra, sin intermediarios ni visitas de terceros.",
   },
   {
-    titulo: "Ofertamos con criterio de arquitecto",
-    texto: "Sabemos cuánto cuesta la obra, cuáles son los riesgos jurídicos y dónde están los costos ocultos. Por eso podemos hacer una oferta concreta donde otros te piden que arregles primero.",
+    titulo: "Miramos la propiedad como arquitectos",
+    texto: "Antes de ofertar evaluamos el estado, la obra que necesita y la situación legal. Así la oferta es concreta, aunque la propiedad necesite trabajo.",
   },
   {
-    titulo: "Compramos el problema completo",
-    texto: "Técnico, legal y de gestión. No te pedimos que pintes, arregles ni ordenes nada antes de vender.",
+    titulo: "Te acompañamos en todo el proceso",
+    texto: "Nos ocupamos de la parte técnica, legal y de gestión. No hace falta que arregles ni ordenes nada antes de vender.",
   },
 ];
 
@@ -22,7 +22,7 @@ const DifferentialsSection = () => {
         <div>
           <p className="etiqueta text-primary">Por qué nosotros</p>
           <h2 className="mt-3 text-4xl md:text-5xl text-foreground text-balance">
-            Ofertamos donde otros no se animan
+            Una oferta con criterio técnico
           </h2>
           <ul className="mt-10 border-t border-border">
             {compromisos.map((c) => (

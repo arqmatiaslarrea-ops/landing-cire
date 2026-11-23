@@ -35,7 +35,8 @@ const ACTION_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutos
 const problemTypeLabels: Record<string, string> = {
   herencia: "Propiedad heredada",
   deterioro: "Propiedad en mal estado",
-  legal: "Problemas legales",
+  legal: "Deudas o embargos",
+  urgencia: "Urgencia de venta",
   inversion: "Inversión que no funcionó",
   otro: "Otra situación compleja",
 };
@@ -700,22 +701,22 @@ const LeadForm = ({ situacion = "" }: { situacion?: string }) => {
                     {
                       value: "herencia",
                       label: "Propiedad heredada",
-                      desc: "Sucesión, conflictos familiares, trámites pendientes",
+                      desc: "Sucesión, herederos, trámites pendientes",
                     },
                     {
                       value: "deterioro",
-                      label: "Propiedad en mal estado",
-                      desc: "Necesita reparaciones, sin presupuesto para arreglos",
+                      label: "Necesita mucha obra",
+                      desc: "Humedades, instalaciones viejas, deterioro general",
                     },
                     {
                       value: "legal",
-                      label: "Problemas legales",
-                      desc: "Ocupantes, usufructo, deudas",
+                      label: "Deudas o embargos",
+                      desc: "Expensas o impuestos atrasados, embargos, usufructo",
                     },
                     {
-                      value: "inversion",
-                      label: "Inversión que no funcionó",
-                      desc: "Baja rentabilidad, quiero salir del negocio",
+                      value: "urgencia",
+                      label: "Necesito vender rápido",
+                      desc: "Tengo que vender en poco tiempo",
                     },
                     {
                       value: "otro",

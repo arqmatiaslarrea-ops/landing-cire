@@ -3,7 +3,7 @@ const noEsParaVos = [
   "Podés esperar meses o años para vender",
   "Querés probar suerte a ver si alguien paga de más",
   "La propiedad está fuera de CABA",
-  "Tiene un embargo judicial activo",
+  "Está ocupada",
 ];
 
 const NotForYouSection = () => {

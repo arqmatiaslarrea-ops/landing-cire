@@ -12,23 +12,23 @@ const faqs = [
   },
   {
     question: "¿Cuánto tarda?",
-    answer: "Oferta concreta por escrito en 48 horas. Una vez que aceptás la oferta, y con la documentación en regla, el cierre es en 90 días o menos, garantizado.",
+    answer: "Oferta concreta por escrito y en dólares en 48 horas. Una vez que aceptás la oferta, y con la documentación en regla, el cierre es en 90 días o menos, garantizado.",
   },
   {
     question: "¿Qué me van a preguntar en la llamada?",
-    answer: "Unas preguntas de descubrimiento para entender tu caso: cómo está la propiedad, qué documentación tenés, si hay deudas u ocupantes y cuáles son tus tiempos. No hace falta que tengas todo resuelto: para eso es la llamada.",
+    answer: "Unas preguntas de descubrimiento para entender tu caso: cómo está la propiedad, qué documentación tenés, si hay deudas o embargos y cuáles son tus tiempos. No hace falta que tengas todo resuelto: para eso es la llamada.",
   },
   {
     question: "¿Qué tipo de propiedades compran?",
-    answer: "Propiedades en CABA con problemas reales: herencias sin resolver, deterioro, conflictos familiares, ocupantes, deudas acumuladas, usufructos o inversiones que no funcionaron. No compramos propiedades en perfecto estado ni fuera de CABA.",
+    answer: "Departamentos, PH y casas en CABA con un problema real: herencia o sucesión, deudas, embargos, mucha obra pendiente o urgencia de venta. Si la propiedad está en buen estado y no tenés apuro, una inmobiliaria tradicional probablemente te consiga mejor precio.",
   },
   {
     question: "¿Cobran comisión?",
     answer: "No. Somos compradores directos, no intermediarios, así que no hay comisión inmobiliaria. Los gastos de escritura que le corresponden a cada parte se detallan en la oferta.",
   },
   {
-    question: "¿Qué pasa si la propiedad tiene deudas?",
-    answer: "Analizamos cada caso. Podemos comprar propiedades con deudas de expensas, servicios o impuestos, y armar la operación para resolverlas. No compramos propiedades con embargo judicial activo.",
+    question: "¿Compran propiedades con deudas o embargadas?",
+    answer: "Analizamos cada caso. Podemos comprar propiedades con deudas de expensas, servicios o impuestos, y también propiedades embargadas: armamos la operación para resolverlo. Lo que no compramos son propiedades ocupadas.",
   },
   {
     question: "¿Tengo que hacer arreglos antes de vender?",
@@ -40,7 +40,7 @@ const faqs = [
   },
   {
     question: "¿En qué barrios compran?",
-    answer: "En la mayoría de los barrios de CABA, pero no en todos. Completá el formulario y en 48 horas te confirmamos si tu zona aplica.",
+    answer: "Solo en CABA, sobre todo en Saavedra, Villa Urquiza, Villa Pueyrredón, Coghlan, Devoto, Villa del Parque, Caballito, Boedo y Villa Crespo. También en Belgrano, Núñez y Palermo cuando la operación lo permite. No todos los barrios aplican: en 48 horas te confirmamos si el tuyo sí.",
   },
 ];
 

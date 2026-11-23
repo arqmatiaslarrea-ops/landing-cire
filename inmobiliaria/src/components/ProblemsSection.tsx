@@ -13,16 +13,16 @@ const fichas = [
     hacemos: "La compramos como está. Ofertamos con criterio de arquitecto: sabemos lo que cuesta la obra y no descontamos defecto por defecto.",
   },
   {
-    situacion: "Deudas u ocupantes",
-    titulo: "Hay deudas, ocupantes o un usufructo",
-    pasa: "Expensas, impuestos o servicios atrasados. Alguien que vive ahí. Un usufructo que complica la venta.",
-    hacemos: "Analizamos el caso y armamos la operación para resolverlo. No compramos con embargo judicial activo.",
+    situacion: "Deudas o embargos",
+    titulo: "Hay deudas o un embargo",
+    pasa: "Expensas, impuestos o servicios atrasados, o un embargo que traba la venta.",
+    hacemos: "Analizamos el caso y armamos la operación para resolverlo. Compramos propiedades embargadas; no compramos propiedades ocupadas.",
   },
   {
-    situacion: "Inversión",
-    titulo: "Una inversión que no funcionó",
-    pasa: "Compraste para alquilar o revender y el negocio no cerró. Cada mes te cuesta plata.",
-    hacemos: "Te damos una salida rápida y realista, sin exponer la propiedad en los portales.",
+    situacion: "Urgencia",
+    titulo: "Tenés que vender en poco tiempo",
+    pasa: "Necesitás el dinero o cerrar el tema ya, y una venta tradicional puede llevar meses sin fecha cierta.",
+    hacemos: "Oferta por escrito y en dólares en 48 horas, con cierre en 90 días o menos desde que la aceptás.",
   },
 ];
 

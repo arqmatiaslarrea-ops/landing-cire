@@ -67,7 +67,7 @@ export default function AgendaLlamada({ leadId, origenLead, telefono, email, not
         <p className="text-lg text-foreground mb-1">{capital(listo)}</p>
         <p className="text-muted-foreground text-sm">Te llamamos al {telefono}.{email ? " Te mandamos la confirmación por mail." : ""}</p>
         <p className="mt-4 border-t border-border pt-4 text-sm text-foreground/85 text-left">
-          En la llamada te vamos a hacer unas preguntas de descubrimiento para entender tu caso: cómo está la propiedad, qué documentación tenés, si hay deudas u ocupantes y cuáles son tus tiempos. No hace falta que tengas todo resuelto.
+          En la llamada te vamos a hacer unas preguntas de descubrimiento para entender tu caso: cómo está la propiedad, qué documentación tenés, si hay deudas o embargos y cuáles son tus tiempos. No hace falta que tengas todo resuelto.
         </p>
       </div>
     );
